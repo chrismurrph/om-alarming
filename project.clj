@@ -5,7 +5,6 @@
                  [org.omcljs/om "1.0.0-alpha24"]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]
-                 ;[figwheel-sidecar "0.5.0-SNAPSHOT" :scope "test"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
