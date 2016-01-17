@@ -4,3 +4,4 @@ figwheel_server.log
 *.iml
 target/
 *min.css
+sui_*.css

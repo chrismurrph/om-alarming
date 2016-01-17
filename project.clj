@@ -7,9 +7,6 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1"]
                  [org.clojure/test.check "0.9.0"]
-                 ;[bootstrap-cljs "0.0.3" :exclusions [org.clojure/clojure]]
-                 [cljsjs/react-bootstrap "0.27.3-0"]
-                 ;[sablono "0.5.3"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
