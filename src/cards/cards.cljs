@@ -1,7 +1,7 @@
 (ns cards.cards
   (:require [devcards.core :as dc :refer-macros [defcard]]
             [om.next :as om]
-            [om.dom :as dom]
+            [om.dom :as dom :include-macros true]
             [om-alarming.components.nav :as n]
             [cards.util :refer [render-cb-info update-cb-info]]))
 
@@ -16,8 +16,9 @@
 
 (defcard
   "### Navbar buttons"
-  (fn [props _] (n/navbar @props))
-  {:id 1 :text "Card --- with two assignees"
-   :buttons [{:id 2 :username "ada" :name "Ada Lovelace"}
-             {:id 3 :username "zuse" :name "Konrad Zuse"}]}
+  (fn [props _] (n/menubar @props))
+  {:id 1 :text "Navbar with buttons going across"
+   :buttons [{:id 1 :name "First"}
+             {:id 2 :name "Second"}
+             {:id 3 :name "Third"}]}
   {:inspect-data true})

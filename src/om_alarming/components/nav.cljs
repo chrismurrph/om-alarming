@@ -1,18 +1,23 @@
 (ns om-alarming.components.nav
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.util :refer [class-names index-of]]))
+            [om-alarming.util :refer [class-names index-of]]
+            [om-bootstrap.nav :as n]))
 
-(def button
-  (dom/li "Hi Mum"))
+(defn button [info]
+  (n/nav-item {:key (:id info)} (:name info)))
 
-(defui NavBar
+(defui MenuBar
   Object
   (render [this]
     (let [items (:buttons (om/props this))
-          _ (println "Got " (count items))]
-      (dom/ul nil
-              (for [item items]
-                button)))))
+          ;_ (println "Got " (count items))
+          ]
+      (n/navbar {:brand (dom/a {:href "#"} "Navbar")}
+        (n/nav {:bs-style "pills"
+                :active-key 1
+                :on-select (fn [k _] (js/alert (str "Selected " k)))}
+               (for [item items]
+                 (button item)))))))
 
-(def navbar (om/factory NavBar))
+(def menubar (om/factory MenuBar))

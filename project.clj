@@ -7,7 +7,8 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1"]
                  [org.clojure/test.check "0.9.0"]
-                 [cljsjs/react-bootstrap "0.27.3-0" :exclusions [cljsjs/react-with-addons org.webjars.bower/jquery cljsjs/react-dom]]
+                 ;[cljsjs/react-bootstrap "0.27.3-0" :exclusions [cljsjs/react-with-addons org.webjars.bower/jquery cljsjs/react-dom]]
+                 [racehub/om-bootstrap "0.5.0"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
