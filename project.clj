@@ -8,7 +8,7 @@
                  [devcards "0.2.1"]
                  [org.clojure/test.check "0.9.0"]
                  ;[bootstrap-cljs "0.0.3" :exclusions [org.clojure/clojure]]
-                 [cljsjs/react-bootstrap "0.27.3-0" :exclusions [cljsjs/react-with-addons org.webjars.bower/jquery cljsjs/react-dom]]
+                 [cljsjs/react-bootstrap "0.27.3-0"]
                  ;[sablono "0.5.3"]
                  ]
 
