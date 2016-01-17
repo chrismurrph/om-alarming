@@ -6,7 +6,9 @@
             ))
 
 (defn button [info]
-  (js/ReactBootstrap.Nav (js->clj {:key (:id info)}) (:name info)))
+  ;(js/ReactBootstrap.Nav (js->clj {:key (:id info)}) (:name info))
+  (dom/li (js->clj {:key (:id info)}) (:name info))
+  )
 
 (defui MenuBar
   Object
@@ -15,15 +17,15 @@
           ;_ (println "Got " (count items))
           ]
 
-      ;(js/ReactBootstrap.Navbar (js->clj {:brand (dom/a {:href "#"} "Navbar")}))
-      ;
-      ;(js/ReactBootstrap.NavItem (js->clj {:bs-style   "pills"
-      ;                  :active-key 1
-      ;                  :on-select  (fn [k _] (js/alert (str "Selected " k)))})
-      ;        (for [item items]
-      ;          (button item)))
+      (js/ReactBootstrap.Navbar (js->clj {:brand (dom/a {:href "#"} "Navbar")}))
 
-      (button {:id "A" :name "B"})
+      (js/ReactBootstrap.NavItem (js->clj {:bs-style   "pills"
+                        :active-key 1
+                        :on-select  (fn [k _] (js/alert (str "Selected " k)))})
+              (for [item items]
+                (button item)))
+
+      ;(button {:id "A" :name "B"})
 
       )))
 
