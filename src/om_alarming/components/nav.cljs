@@ -7,9 +7,8 @@
 (defui Button
   Object
   (render [this]
-    (let [info (om/props this)
-          _ (println info)]
-      (dom/a #js {:key (:id info) :className "item"} (:name info)))))
+    (let [{:keys [id selected name]} (om/props this)]
+      (dom/a #js {:key id :className (class-names {:item true :active selected})} name))))
 
 (def button (om/factory Button {:keyfn :id}))
 
