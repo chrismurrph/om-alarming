@@ -5,6 +5,7 @@
                  [org.omcljs/om "1.0.0-alpha24"]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]
+                 [devcards "0.2.1"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
@@ -22,6 +23,14 @@
                                    :asset-path "js/out"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/out"
-                                   :source-map-timestamp true }}]}
+                                   :source-map-timestamp true }}
+                       {:id "devcards"
+                        :source-paths ["src"]
+                        :figwheel { :devcards true }
+                        :compiler { :main       "cards.ui"
+                                    :asset-path "js/devcards_out"
+                                    :output-to  "resources/public/js/devcards.js"
+                                    :output-dir "resources/public/js/devcards_out"
+                                    :source-map-timestamp true }}]}
 
   :figwheel { :css-dirs ["resources/public/css"] })
