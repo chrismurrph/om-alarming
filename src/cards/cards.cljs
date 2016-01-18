@@ -18,7 +18,11 @@
   "### Navbar buttons"
   (fn [props _] (n/menubar @props))
   {:id 1 :text "Navbar with buttons going across"
-   :buttons [{:id 1 :name "First" :selected true}
-             {:id 2 :name "Second"}
-             {:id 3 :name "Third"}]}
+   :buttons [{:id 1 :name "First" :description "First Title"}
+             {:id 2 :name "Second" :description "Second Title"}
+             {:id 3 :name "Third" :description "Third Title" :selected true}
+             {:id 4 :name "Fourth" :description "Fourth Title" :showing false}
+             {:id 5 :name "Fifth" :description "Fifth Title"}
+             {:id 6 :name "Sixth" :description "Sixth Title"}
+             {:id 7 :name "Seventh" :description "Seventh Title"}]}
   {:inspect-data true})
