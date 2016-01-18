@@ -3,6 +3,7 @@
 (def gas->details {:methane {:name "Methane"}
                    :oxygen {:name "Oxygen"}
                    :carbon-dioxide {:name "Carbon Dioxide"}
-                   :carbon-monoxide {:name "Carbon Monoxide"}})
+                   :carbon-monoxide {:name "Carbon Monoxide"}
+                   :tube {:name "Tube"}})
 
 
