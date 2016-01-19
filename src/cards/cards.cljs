@@ -12,15 +12,29 @@
 ;; x y-intersect colour-str txt-with-units line-id current-label
 
 (defcard
-  "### TextBox on an SVG"
-  (fn [props _] (graph/simple-svg @props))
+  "### TextBox in an SVG"
+  (fn [props _] (graph/simple-svg-tester @props))
   {:id 1 :text ""
-   :test-props {:x 10
+   :test-props {:testing-name "text-component"
+                :x 200
                 :y-intersect {:proportional-val 0.1}
                 :colour-str nil
                 :txt-with-units "See me?"
                 :line-id 1
-                :current-label "Dunno"}}
+                :current-label {:name 1}}}
+  )
+
+;; height visible? x-position in-sticky-time?
+
+(defcard
+  "### PlumbLine in an SVG"
+  (fn [props _] (graph/simple-svg-tester @props))
+  {:id 2 :text ""
+   :test-props {:testing-name "plumb-line"
+                :height 100
+                :visible? true
+                :x-position 10
+                :in-sticky-time? true}}
   )
 
 (defcard

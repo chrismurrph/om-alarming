@@ -19,7 +19,7 @@
 
 (def line-defaults
   {:stroke (rgb-map-to-str black)
-   :stroke-width 1})
+   :strokeWidth 1})
 
 (def point-defaults
   {;:stroke (rgb-map-to-str black)
@@ -30,5 +30,9 @@
 ;; current-label used to be (:current-label @state)
 ;;
 (defn- hidden? [line-id current-label]
-  (let [current (:name current-label)]
-    (not= current line-id)))
+  (assert line-id)
+  (let [current (:name current-label)
+        _ (assert current)
+        res (not= current line-id)
+        _ (when res (println "Hidden b/c not equal: " current line-id))]
+    res))
