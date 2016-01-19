@@ -1,4 +1,4 @@
-(ns om-training.utils
+(ns om-alarming.utils
   )
 
 (defn log [& txts]

@@ -3,7 +3,7 @@
             [goog.dom :as gdom]
     ;[om.next :as om :refer-macros [defui]]
     ;[om.dom :as dom]
-            [om-training.utils :as u]))
+            [om-alarming.utils :as u]))
 
 (enable-console-print!)
 

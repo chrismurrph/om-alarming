@@ -51,19 +51,29 @@
                (for [gas hdr-gases]
                  (grid-data-cell (om/computed gas {:tube-num id})))))))
 
+(defui GridHeaderLabel
+  Object
+  (render [this]
+    (let [{:keys [gas]} (om/props this)
+          ;_ (println "GAS:" gas-kw)
+          ;gas-kw (:gas gas)
+          ;_ (println "GAS:" gas-kw)
+          gas-name (-> bus/gas->details gas :name)]
+      (dom/div #js {:className "three wide column center aligned"}
+               (dom/label nil gas-name)))))
+
+(def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
+
+;;
+;; The props have been significantly altered by the time arrive here. Is this okay?
+;;
 (defui GridHeaderRow
   Object
   (render [this]
     (let [{:keys [id gases]} (om/props this)]
       (dom/div #js {:className "row"}
-               (for [gas gases
-                     :let [gas-kw (:gas gas)
-                           ;_ (println "GAS:" gas-kw)
-                           gas-name (-> bus/gas->details gas-kw :name)
-                           ;_ (println "gas:" gas-name)
-                           ]]
-                 (dom/div #js {:className "three wide column center aligned"}
-                          (dom/label nil gas-name)))))))
+               (for [gas gases]
+                 (grid-header-label gas))))))
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 (def grid-row (om/factory GridRow {:keyfn :id}))

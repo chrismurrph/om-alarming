@@ -4,21 +4,29 @@
             [om.dom :as dom :include-macros true]
             [om-alarming.components.nav :as nav]
             [om-alarming.components.grid :as grid]
+            [om-alarming.components.graphing :as graph]
             [cards.util :refer [render-cb-info update-cb-info]]))
 
 (enable-console-print!)
 
+;; x y-intersect colour-str txt-with-units line-id current-label
 
 (defcard
-  "## Om Alarming cards
-
-   Examples demonstrating how Alarming cards look given different properties
-   or layout constraints.")
+  "### TextBox on an SVG"
+  (fn [props _] (graph/simple-svg @props))
+  {:id 1 :text ""
+   :test-props {:x 10
+                :y-intersect {:proportional-val 0.1}
+                :colour-str nil
+                :txt-with-units "See me?"
+                :line-id 1
+                :current-label "Dunno"}}
+  )
 
 (defcard
   "### Navbar buttons"
   (fn [props _] (nav/menubar @props))
-  {:id 1 :text "Navbar with buttons going across"
+  {:id 10 :text "Navbar with buttons going across"
    :buttons [{:id 1 :name "First" :description "First Title"}
              {:id 2 :name "Second" :description "Second Title"}
              {:id 3 :name "Third" :description "Third Title" :selected true}
@@ -31,7 +39,7 @@
 (defcard
   "### Graphing selection Grid"
   (fn [props _] (grid/gas-selection-grid @props))
-  {:id 2 :text "Selection Grid"
+  {:id 11 :text "Selection Grid"
    :tubes    [{:id    1
                :gases [{:id  1
                         :gas :methane
@@ -80,7 +88,7 @@
 (defcard
   "### A checked CheckBox"
   (fn [props _] (grid/checkbox @props))
-  {:id 1 :text "Checked checkbox"
+  {:id 12 :text "Checked checkbox"
    :test-props {:id  1
                 :gas :methane
                 :selected true
