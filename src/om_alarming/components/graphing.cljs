@@ -74,17 +74,22 @@
 (defui TextComponent
   Object
   (render [this]
-    (let [{:keys [x y-intersect colour-str txt-with-units line-id current-label testing-name]} (om/props this)
+    (let [{:keys [x proportional-y proportional-val dec-places name my-lines current-label testing-name]} (om/props this)
           lower-by (if testing-name 50 0)
+          line-doing (process/find-line my-lines name)
+          _ (assert line-doing (str "Not found a name for " name " from " my-lines))
+          colour-str (-> line-doing :colour process/rgb-map-to-str)
+          units-str (:units line-doing)
+          line-id (:name line-doing)
           text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
                       :x        (+ x 10)
-                      :y        (+ lower-by (+ (:proportional-y y-intersect) 4))
+                      :y        (+ lower-by (+ proportional-y 4))
                       :fontSize "0.8em"
                       :stroke   colour-str}
           ;_ (println text-props)
           ]
       (dom/text (clj->js text-props)
-                (process/format-as-str (or (:dec-places y-intersect) 2) (:proportional-val y-intersect) txt-with-units)))))
+                (process/format-as-str (or dec-places 2) proportional-val units-str)))))
 
 (def text-component (om/factory TextComponent {:keyfn :id}))
 

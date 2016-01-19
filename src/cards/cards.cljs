@@ -20,7 +20,7 @@
                         {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id "Oxygen"}
                         ])
 
-(def drop-infos (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
+(def drop-infos (mapv #(merge {:x 50 :dec-places 1 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
 
 (defcard backing-rects
          (fn [props _] (graph/simple-svg-tester @props))
@@ -53,17 +53,21 @@
                 :in-sticky-time? true}}
   )
 
+;; old
 ;; x y-intersect colour-str txt-with-units line-id current-label
+;; new
+;; x proportional-y proportional-val dec-places name my-lines current-label testing-name
 (defcard text-component
   (fn [props _] (graph/simple-svg-tester @props))
   {:id 7
    :test-props {:testing-name "text-component"
                 :x 200
-                :y-intersect {:proportional-val 0.1}
-                :colour-str nil
-                :txt-with-units "See me?"
-                :line-id 1
-                :current-label {:name 1}}}
+                :proportional-y 50
+                :proportional-val 0.1
+                :dec-places 1
+                :name "Oxygen"
+                :my-lines data/my-lines
+                :current-label {:name "Oxygen"}}}
   )
 
 (defcard navbar-buttons
