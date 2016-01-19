@@ -26,6 +26,9 @@
    ;:stroke-width 2
    :r 2})
 
+(defn find-line [my-lines name]
+  (get my-lines name))
+
 ;;
 ;; current-label used to be (:current-label @state)
 ;;

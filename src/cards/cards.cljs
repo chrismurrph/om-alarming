@@ -4,27 +4,48 @@
             [om-alarming.components.nav :as nav]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
+            [om-alarming.graph.known-data-model :as data]
             [cards.util :refer [render-cb-info update-cb-info]])
   (:require-macros
     [devcards.core :as dc :refer [defcard]]))
 
 (enable-console-print!)
 
+;;
+;; Each drop-info s/be denormalised, so have more than this. Also have:
+;; :x :current-label
+;;
+(def simple-drop-infos [{:name "Carbon Dioxide", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207 :id "Carbon Dioxide"}
+                        {:name "Carbon Monoxide", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731 :id "Carbon Monoxide"}
+                        {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id "Oxygen"}
+                        ])
+
+(def drop-infos (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
+
+(defcard backing-rects
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 4
+          :test-props {:testing-name "backing-rects"
+                       :drop-infos drop-infos}}
+         {:inspect-data false}
+         )
+
 ;; x y line-id current-label
 (defcard opaque-rect
-  (fn [props _] (graph/simple-svg-tester @props))
-  {:id 5 :text ""
-   :test-props {:testing-name "opaque-rect"
-                :x 50
-                :y 50
-                :line-id 1
-                :current-label {:name 1}}}
-  )
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 5
+          :test-props {:testing-name  "opaque-rect"
+                       :x 50
+                       :proportional-y 50
+                       :name 1
+                       :current-label {:name 1}}}
+         {:inspect-data false}
+         )
 
 ;; height visible? x-position in-sticky-time?
 (defcard plumb-line
   (fn [props _] (graph/simple-svg-tester @props))
-  {:id 6 :text ""
+  {:id 6
    :test-props {:testing-name "plumb-line"
                 :height 100
                 :visible? true
@@ -35,7 +56,7 @@
 ;; x y-intersect colour-str txt-with-units line-id current-label
 (defcard text-component
   (fn [props _] (graph/simple-svg-tester @props))
-  {:id 7 :text ""
+  {:id 7
    :test-props {:testing-name "text-component"
                 :x 200
                 :y-intersect {:proportional-val 0.1}

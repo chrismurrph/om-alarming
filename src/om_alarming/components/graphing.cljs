@@ -21,14 +21,15 @@
 (defui OpaqueRect
   Object
   (render [this]
-    (let [{:keys [x y line-id current-label]} (om/props this)
+    (let [{:keys [x proportional-y name current-label]} (om/props this)
+          line-id name
           height 16
           half-height (/ height 2)
           width 45 ;; later we might use how many digits there are
           indent 8
           width-after-indent (- width 4)
           new-x (+ indent x)
-          new-y (- y half-height)
+          new-y (- proportional-y half-height)
           opacity (if (process/hidden? line-id current-label) 0.0 1.0)
           fill (process/rgb-map-to-str black)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
@@ -37,6 +38,33 @@
       (dom/g nil (dom/rect (clj->js rect-props))))))
 
 (def opaque-rect (om/factory OpaqueRect {:keyfn :id}))
+
+;;
+;;(defn- backing-rects [x drop-infos]
+;;  (for [drop-info drop-infos
+;;        :let [y (:proportional-y drop-info)
+;;              line-id (:name drop-info)]]
+;;    ^{:key y} [opaque-rect x y line-id])
+;;  )
+;;
+
+(defn many-rects [drop-infos]
+  (for [drop-info drop-infos]
+    (opaque-rect drop-info)))
+;;
+;; Need some kind of container when stand alone
+;;
+(defui BackingRects
+  Object
+  (render [this]
+    (let [{:keys [drop-infos testing-name]} (om/props this)
+          _ (println drop-infos)]
+      (if testing-name
+        (dom/g nil
+               (many-rects drop-infos))
+        (many-rects drop-infos)))))
+
+(def backing-rects (om/factory BackingRects {:keyfn :id}))
 
 ;;
 ;; (defn- text-component [x y-intersect colour-str txt-with-units line-id]
@@ -59,6 +87,25 @@
                 (process/format-as-str (or (:dec-places y-intersect) 2) (:proportional-val y-intersect) txt-with-units)))))
 
 (def text-component (om/factory TextComponent {:keyfn :id}))
+
+(defn many-texts [drop-infos]
+  (for [drop-info drop-infos]
+    (text-component drop-info)))
+
+;;
+;; Need some kind of container when stand alone
+;;
+(defui InsertTexts
+  Object
+  (render [this]
+    (let [{:keys [drop-infos testing-name]} (om/props this)
+          _ (println drop-infos)]
+      (if testing-name
+        (dom/g nil
+               (many-texts drop-infos))
+        (many-texts drop-infos)))))
+
+(def insert-texts (om/factory InsertTexts {:keyfn :id}))
 
 ;;
 ;;(defn- plum-line [height visible x-position]
@@ -91,7 +138,9 @@
   (case name
     "opaque-rect" (opaque-rect test-props)
     "text-component" (text-component test-props)
-    "plumb-line" (plumb-line test-props)))
+    "plumb-line" (plumb-line test-props)
+    "backing-rects" (backing-rects test-props)
+    ))
 
 (defui SimpleSVGTester
   Object

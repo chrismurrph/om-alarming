@@ -64,5 +64,10 @@
                    :units "%"}
                   {:colour red
                    :name "Carbon Monoxide"
-                   :units "%"}
+                   :units "ppm"}
                   ]))
+
+(def my-lines {"Methane" {:name "Methane" :units "%" :colour pink :points methanes}
+               "Oxygen" {:name "Oxygen" :units "%" :colour green :points oxygens}
+               "Carbon Dioxide" {:name "Carbon Dioxide" :units "%" :colour blue :points carbon-dioxides}
+               "Carbon Monoxide" {:name "Carbon Monoxide" :units "ppm" :colour red :points carbon-monoxides}})
