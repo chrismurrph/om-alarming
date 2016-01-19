@@ -5,7 +5,7 @@
                  [org.omcljs/om "1.0.0-alpha24"]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]
-                 [devcards "0.2.1"]
+                 [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
                  ]
 

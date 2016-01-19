@@ -1,20 +1,41 @@
 (ns cards.cards
-  (:require [devcards.core :as dc :refer-macros [defcard]]
-            [om.next :as om]
+  (:require [om.next :as om]
             [om.dom :as dom :include-macros true]
             [om-alarming.components.nav :as nav]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
-            [cards.util :refer [render-cb-info update-cb-info]]))
+            [cards.util :refer [render-cb-info update-cb-info]])
+  (:require-macros
+    [devcards.core :as dc :refer [defcard]]))
 
 (enable-console-print!)
 
-;; x y-intersect colour-str txt-with-units line-id current-label
-
-(defcard
-  "### TextBox in an SVG"
+;; x y line-id current-label
+(defcard opaque-rect
   (fn [props _] (graph/simple-svg-tester @props))
-  {:id 1 :text ""
+  {:id 5 :text ""
+   :test-props {:testing-name "opaque-rect"
+                :x 50
+                :y 50
+                :line-id 1
+                :current-label {:name 1}}}
+  )
+
+;; height visible? x-position in-sticky-time?
+(defcard plumb-line
+  (fn [props _] (graph/simple-svg-tester @props))
+  {:id 6 :text ""
+   :test-props {:testing-name "plumb-line"
+                :height 100
+                :visible? true
+                :x-position 10
+                :in-sticky-time? true}}
+  )
+
+;; x y-intersect colour-str txt-with-units line-id current-label
+(defcard text-component
+  (fn [props _] (graph/simple-svg-tester @props))
+  {:id 7 :text ""
    :test-props {:testing-name "text-component"
                 :x 200
                 :y-intersect {:proportional-val 0.1}
@@ -24,21 +45,7 @@
                 :current-label {:name 1}}}
   )
 
-;; height visible? x-position in-sticky-time?
-
-(defcard
-  "### PlumbLine in an SVG"
-  (fn [props _] (graph/simple-svg-tester @props))
-  {:id 2 :text ""
-   :test-props {:testing-name "plumb-line"
-                :height 100
-                :visible? true
-                :x-position 10
-                :in-sticky-time? true}}
-  )
-
-(defcard
-  "### Navbar buttons"
+(defcard navbar-buttons
   (fn [props _] (nav/menubar @props))
   {:id 10 :text "Navbar with buttons going across"
    :buttons [{:id 1 :name "First" :description "First Title"}
@@ -50,8 +57,7 @@
              {:id 7 :name "Seventh" :description "Seventh Title"}]}
   {:inspect-data false})
 
-(defcard
-  "### Graphing selection Grid"
+(defcard selection-grid
   (fn [props _] (grid/gas-selection-grid @props))
   {:id 11 :text "Selection Grid"
    :tubes    [{:id    1
@@ -99,8 +105,7 @@
                        ]}]}
   {:inspect-data false})
 
-(defcard
-  "### A checked CheckBox"
+(defcard checked-checkbox
   (fn [props _] (grid/checkbox @props))
   {:id 12 :text "Checked checkbox"
    :test-props {:id  1

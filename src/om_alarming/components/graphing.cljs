@@ -2,7 +2,41 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.util :refer [class-names]]
-            [om-alarming.graph.processing :as process]))
+            [om-alarming.graph.processing :as process]
+            [om-alarming.graph.known-data-model :refer [white black]]))
+
+;;;;
+;;;; Using another :g means this is on a different layer so the text that is put on top of this rect does not have its
+;;;; opacity affected.
+;;;;
+;;(defn- opaque-rect [x y line-id]
+;;  (let [height 16
+;;        half-height (/ height 2)
+;;        width 45 ;; later we might use how many digits there are
+;;        indent 8
+;;        width-after-indent (- width 4)]
+;;    [:g [:rect {:x (+ indent x) :y (- y half-height) :width width-after-indent :height height :opacity (if (hidden? line-id) 0.0 1.0) :fill (rgb-map-to-str white) :rx 5 :ry 5}]]))
+;;
+
+(defui OpaqueRect
+  Object
+  (render [this]
+    (let [{:keys [x y line-id current-label]} (om/props this)
+          height 16
+          half-height (/ height 2)
+          width 45 ;; later we might use how many digits there are
+          indent 8
+          width-after-indent (- width 4)
+          new-x (+ indent x)
+          new-y (- y half-height)
+          opacity (if (process/hidden? line-id current-label) 0.0 1.0)
+          fill (process/rgb-map-to-str black)
+          rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
+          _ (println "rect-props: " rect-props)
+          ]
+      (dom/g nil (dom/rect (clj->js rect-props))))))
+
+(def opaque-rect (om/factory OpaqueRect {:keyfn :id}))
 
 ;;
 ;; (defn- text-component [x y-intersect colour-str txt-with-units line-id]
@@ -12,13 +46,15 @@
 (defui TextComponent
   Object
   (render [this]
-    (let [{:keys [x y-intersect colour-str txt-with-units line-id current-label]} (om/props this)
-          text-props {:opacity (if (process/hidden? line-id current-label) 0.0 1.0)
-                      :x (+ x 10)
-                      :y (+ (:proportional-y y-intersect) 4)
+    (let [{:keys [x y-intersect colour-str txt-with-units line-id current-label testing-name]} (om/props this)
+          lower-by (if testing-name 50 0)
+          text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
+                      :x        (+ x 10)
+                      :y        (+ lower-by (+ (:proportional-y y-intersect) 4))
                       :fontSize "0.8em"
-                      :stroke colour-str}
-          _ (println text-props)]
+                      :stroke   colour-str}
+          ;_ (println text-props)
+          ]
       (dom/text (clj->js text-props)
                 (process/format-as-str (or (:dec-places y-intersect) 2) (:proportional-val y-intersect) txt-with-units)))))
 
@@ -46,7 +82,6 @@
                              :x2           x-position
                              :y2           height
                              :strokeWidth stroke-width})
-          _ (println line-props)
           res (when visible? (dom/line (clj->js line-props)))]
       res)))
 
@@ -54,6 +89,7 @@
 
 (defn testing-component [name test-props]
   (case name
+    "opaque-rect" (opaque-rect test-props)
     "text-component" (text-component test-props)
     "plumb-line" (plumb-line test-props)))
 

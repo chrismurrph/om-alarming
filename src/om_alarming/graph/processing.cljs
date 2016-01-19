@@ -2,7 +2,7 @@
   (:require [goog.string :as gstring]
             [goog.string.format]
             [om-alarming.utils :as u]
-            [om-alarming.graph.known-data-model :refer [gray black white very-light-blue]]))
+            [om-alarming.graph.known-data-model :refer [black]]))
 
 ;;
 ;; Anything that originally comes from graphing that does have to do with Reagent or the state
