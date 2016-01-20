@@ -22,6 +22,23 @@
 
 (def drop-infos (mapv #(merge {:x 50 :dec-places 1 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
 
+;(defcard tick-lines
+;         (fn [props _] (graph/simple-svg-tester @props))
+;         {:id 2
+;          :test-props {:testing-name "tick-lines"
+;                       :drop-infos drop-infos
+;                       :visible? true}}
+;         {:inspect-data false}
+;         )
+
+(defcard insert-texts
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 3
+          :test-props {:testing-name "insert-texts"
+                       :drop-infos drop-infos}}
+         {:inspect-data false}
+         )
+
 (defcard backing-rects
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 4

@@ -33,7 +33,7 @@
           opacity (if (process/hidden? line-id current-label) 0.0 1.0)
           fill (process/rgb-map-to-str black)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
-          _ (println "rect-props: " rect-props)
+          ;_ (println "rect-props: " rect-props)
           ]
       (dom/g nil (dom/rect (clj->js rect-props))))))
 
@@ -58,7 +58,8 @@
   Object
   (render [this]
     (let [{:keys [drop-infos testing-name]} (om/props this)
-          _ (println drop-infos)]
+          _ (println "testing-name: " testing-name)
+          ]
       (if testing-name
         (dom/g nil
                (many-rects drop-infos))
@@ -104,7 +105,8 @@
   Object
   (render [this]
     (let [{:keys [drop-infos testing-name]} (om/props this)
-          _ (println drop-infos)]
+          ;_ (println drop-infos)
+          ]
       (if testing-name
         (dom/g nil
                (many-texts drop-infos))
@@ -139,12 +141,24 @@
 
 (def plumb-line (om/factory PlumbLine {:keyfn :id}))
 
+(defui TickLines
+  Object
+  (render [this]
+    (let [{:keys [visible? drop-infos]} (om/props this)]
+      (println "visible: " visible?)
+      (when visible?
+        (many-rects drop-infos)))))
+
+(def tick-lines (om/factory TickLines {:keyfn :id}))
+
 (defn testing-component [name test-props]
   (case name
     "opaque-rect" (opaque-rect test-props)
     "text-component" (text-component test-props)
     "plumb-line" (plumb-line test-props)
     "backing-rects" (backing-rects test-props)
+    "insert-texts" (insert-texts test-props)
+    "tick-lines" (tick-lines test-props)
     ))
 
 (defui SimpleSVGTester
