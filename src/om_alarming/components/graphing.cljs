@@ -3,7 +3,7 @@
             [om.dom :as dom]
             [om-alarming.util :refer [class-names]]
             [om-alarming.graph.processing :as process]
-            [om-alarming.graph.known-data-model :refer [white black]]))
+            [om-alarming.graph.mock-values :refer [white black]]))
 
 ;;;;
 ;;;; Using another :g means this is on a different layer so the text that is put on top of this rect does not have its

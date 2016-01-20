@@ -1,4 +1,4 @@
-(ns om-alarming.graph.known-data-model
+(ns om-alarming.graph.mock-values
   (:require [om-alarming.utils :as u]))
 
 (def black {:r 0 :g 0 :b 0})
@@ -11,6 +11,9 @@
 (def green {:r 0 :g 102 :b 0})
 (def red {:r 255 :g 0 :b 0})
 (def gray {:r 64 :g 64 :b 64})
+
+(def graph-width 640)
+(def graph-height 250)
 
 ;;
 ;; Client will know the width and height of the area it needs to put dots onto. These will change and every time

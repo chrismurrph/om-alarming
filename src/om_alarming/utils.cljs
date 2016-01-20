@@ -4,6 +4,9 @@
 (defn log [& txts]
   (.log js/console (apply str txts)))
 
+(defn no-log [& txts]
+  ())
+
 (defn str-seq
   ([seq msg]
    (letfn [(lineify-seq [items]
@@ -65,4 +68,9 @@
   "remove elem in coll"
   [coll pos]
   (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
+
+(defn abs [val]
+  (if (neg? val)
+    (* -1 val)
+    val))
 

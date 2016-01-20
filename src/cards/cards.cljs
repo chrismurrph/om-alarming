@@ -4,7 +4,7 @@
             [om-alarming.components.nav :as nav]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
-            [om-alarming.graph.known-data-model :as data]
+            [om-alarming.graph.mock-values :as data]
             [cards.util :refer [render-cb-info update-cb-info]])
   (:require-macros
     [devcards.core :as dc :refer [defcard]]))

@@ -2,7 +2,7 @@
   (:require [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout alts!]]
             [om-alarming.utils :refer [log]]
-            [om-alarming.graph.known-data-model :as db]
+            [om-alarming.graph.mock-values :as db]
             ;[graphing.graphing :as g]
             [om-alarming.utils :as u]
             )
