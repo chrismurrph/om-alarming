@@ -145,14 +145,29 @@
   Object
   (render [this]
     (let [{:keys [visible? drop-infos]} (om/props this)]
-      (println "visible: " visible?)
+      ;(println "visible: " visible?)
       (when visible?
         (dom/g nil
                (many-rects drop-infos)
                (many-texts drop-infos)
-               (for [drop-info drop-infos]
-                 (dom/line (clj->js (merge process/line-defaults
-                                           {:x1 10 :y1 20 :x2 90 :y2 100})))))))))
+               (for [drop-info drop-infos
+                     :let [my-lines (:my-lines drop-info)
+                           find-line (partial process/find-line my-lines)
+                           line-doing (-> drop-info :name find-line)
+                           ;_ (println "line-doing is " line-doing)
+                           colour-str (-> line-doing :colour process/rgb-map-to-str)
+                           ;_ (println (:name drop-info) " going to be " colour-str)
+                           drop-distance (:proportional-y drop-info)
+                           x (:x drop-info)
+                           current-label (:current-label drop-info)
+                           line-props (merge process/line-defaults
+                                             {:x1 x :y1 drop-distance
+                                              :x2 (+ x 6) :y2 drop-distance
+                                              :stroke colour-str
+                                              :opacity (if (process/hidden? (:name line-doing) current-label) 0.0 1.0)})
+                           ;_ (println "line-props: " line-props)
+                           res (dom/line (clj->js line-props))]]
+                 res))))))
 
 (def tick-lines (om/factory TickLines {:keyfn :id}))
 
