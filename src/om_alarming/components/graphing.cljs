@@ -147,7 +147,12 @@
     (let [{:keys [visible? drop-infos]} (om/props this)]
       (println "visible: " visible?)
       (when visible?
-        (many-rects drop-infos)))))
+        (dom/g nil
+               (many-rects drop-infos)
+               (many-texts drop-infos)
+               (for [drop-info drop-infos]
+                 (dom/line (clj->js (merge process/line-defaults
+                                           {:x1 10 :y1 20 :x2 90 :y2 100})))))))))
 
 (def tick-lines (om/factory TickLines {:keyfn :id}))
 
