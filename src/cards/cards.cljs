@@ -22,11 +22,24 @@
 
 (def drop-infos (mapv #(merge {:x 50 :dec-places 1 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
 
+(defn merge-testing-name [drop-infos name]
+  (mapv #(merge {:testing-name name} %) drop-infos))
+
+(defcard point
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 1
+          :test-props {:testing-name "point"
+                       :rgb-map data/light-blue
+                       :x 50
+                       :y 50}}
+         {:inspect-data false}
+         )
+
 (defcard tick-lines
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 2
           :test-props {:testing-name "tick-lines"
-                       :drop-infos drop-infos
+                       :drop-infos (merge-testing-name drop-infos "tick-lines")
                        :visible? true}}
          {:inspect-data false}
          )
@@ -35,7 +48,7 @@
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 3
           :test-props {:testing-name "insert-texts"
-                       :drop-infos drop-infos}}
+                       :drop-infos (merge-testing-name drop-infos "insert-texts")}}
          {:inspect-data false}
          )
 
@@ -43,7 +56,7 @@
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 4
           :test-props {:testing-name "backing-rects"
-                       :drop-infos drop-infos}}
+                       :drop-infos (merge-testing-name drop-infos "backing-rects")}}
          {:inspect-data false}
          )
 

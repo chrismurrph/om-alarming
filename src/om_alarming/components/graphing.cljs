@@ -3,7 +3,28 @@
             [om.dom :as dom]
             [om-alarming.util :refer [class-names]]
             [om-alarming.graph.processing :as process]
-            [om-alarming.graph.mock-values :refer [white black]]))
+            [om-alarming.graph.mock-values :refer [white light-blue black]]))
+
+;;
+;;(defn- point [rgb-map x y]
+;;  ;(log rgb-map)
+;;  [:circle
+;;   (merge point-defaults
+;;          {:cx x
+;;           :cy y
+;;           :fill (rgb-map-to-str rgb-map)})])
+;;
+(defui Point
+  Object
+  (render [this]
+    (let [{:keys [rgb-map x y]} (om/props this)
+          circle-props    (merge process/point-defaults
+                                 {:cx x
+                                  :cy y
+                                  :fill (process/rgb-map-to-str rgb-map)})]
+      (dom/circle (clj->js circle-props)))))
+
+(def point (om/factory Point {:keyfn :id}))
 
 ;;;;
 ;;;; Using another :g means this is on a different layer so the text that is put on top of this rect does not have its
@@ -21,7 +42,7 @@
 (defui OpaqueRect
   Object
   (render [this]
-    (let [{:keys [x proportional-y name current-label]} (om/props this)
+    (let [{:keys [x proportional-y name current-label testing-name]} (om/props this)
           line-id name
           height 16
           half-height (/ height 2)
@@ -31,7 +52,8 @@
           new-x (+ indent x)
           new-y (- proportional-y half-height)
           opacity (if (process/hidden? line-id current-label) 0.0 1.0)
-          fill (process/rgb-map-to-str black)
+          colour (if testing-name light-blue white)
+          fill (process/rgb-map-to-str colour)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
           ;_ (println "rect-props: " rect-props)
           ]
@@ -80,6 +102,7 @@
           line-doing (process/find-line my-lines name)
           _ (assert line-doing (str "Not found a name for " name " from " my-lines))
           colour-str (-> line-doing :colour process/rgb-map-to-str)
+          _ (println "colour will be " colour-str)
           units-str (:units line-doing)
           line-id (:name line-doing)
           text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
@@ -179,6 +202,7 @@
     "backing-rects" (backing-rects test-props)
     "insert-texts" (insert-texts test-props)
     "tick-lines" (tick-lines test-props)
+    "point" (point test-props)
     ))
 
 (defui SimpleSVGTester
