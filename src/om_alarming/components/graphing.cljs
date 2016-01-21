@@ -57,7 +57,7 @@
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
           ;_ (println "rect-props: " rect-props)
           ]
-      (dom/g nil (dom/rect (clj->js rect-props))))))
+      (dom/rect (clj->js rect-props)))))
 
 (def opaque-rect (om/factory OpaqueRect {:keyfn :id}))
 
@@ -133,7 +133,6 @@
         (dom/g nil
                (many-texts drop-infos))
         (many-texts drop-infos)))))
-
 (def insert-texts (om/factory InsertTexts {:keyfn :id}))
 
 ;;
@@ -176,7 +175,7 @@
                (many-rects drop-infos)
                (many-texts drop-infos)
                (for [drop-info drop-infos
-                     :let [_ (println "DROP: " drop-info)
+                     :let [;_ (println "DROP: " drop-info)
                            my-lines (:my-lines drop-info)
                            find-line (partial process/find-line my-lines)
                            line-doing (-> drop-info :name find-line)
@@ -199,6 +198,72 @@
 
 (def tick-lines (om/factory TickLines {:keyfn :id}))
 
+(defui RectTextTick
+  Object
+  (render [this]
+    (let [{:keys [x proportional-y proportional-val dec-places name my-lines current-label testing-name]} (om/props this)
+          ;;; text
+          line-doing (process/find-line my-lines name)
+          _ (assert line-doing (str "Not found a name for <" name "> from:" my-lines))
+          text-colour-str (-> line-doing :colour process/rgb-map-to-str)
+          ;_ (println "colour will be " colour-str)
+          units-str (:units line-doing)
+          line-id (:name line-doing)
+          text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
+                      :x        (+ x 10)
+                      :y        (+ proportional-y 4)
+                      :fontSize "0.8em"
+                      :stroke   text-colour-str}
+          ;_ (println text-props)
+          ;;; tick
+          colour-str (-> line-doing :colour process/rgb-map-to-str)
+          ;_ (println (:name drop-info) " going to be " colour-str)
+          drop-distance proportional-y
+          _ (assert drop-distance)
+          line-props (merge process/line-defaults
+                            {:id      drop-distance
+                             :x1      x :y1 drop-distance
+                             :x2      (+ x 6) :y2 drop-distance
+                             :stroke  colour-str
+                             :opacity (if (process/hidden? (:name line-doing) current-label) 0.0 1.0)})
+          ;;; rect
+          height 16
+          half-height (/ height 2)
+          width 45 ;; later we might use how many digits there are
+          indent 8
+          width-after-indent (- width 4)
+          new-x (+ indent x)
+          new-y (- proportional-y half-height)
+          opacity (if (process/hidden? name current-label) 0.0 1.0)
+          _ (when (= 0 opacity) (println "name:" name ", current-label" current-label "not being displayed"))
+          colour (if testing-name light-blue white)
+          fill (process/rgb-map-to-str colour)
+          rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
+          _ (println "rect-props: " rect-props)
+          ]
+      (dom/g nil
+             (dom/rect (clj->js rect-props))
+             (dom/text (clj->js text-props)(process/format-as-str (or dec-places 2) proportional-val units-str))
+             (dom/line (clj->js line-props))))))
+
+(def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
+
+(defn many-rect-text-ticks [drop-infos]
+  (for [drop-info drop-infos]
+    (rect-text-tick drop-info)))
+
+(defui ManyRectTextTick
+  Object
+  (render [this]
+    (let [{:keys [drop-infos testing-name]} (om/props this)
+          ;_ (println drop-infos)
+          ]
+      (if testing-name
+        (dom/g nil
+               (many-rect-text-ticks drop-infos))
+        (many-rect-text-ticks drop-infos)))))
+(def many-rect-text-tick (om/factory ManyRectTextTick {:keyfn :id}))
+
 (defn testing-component [name test-props]
   (case name
     "opaque-rect" (opaque-rect test-props)
@@ -208,6 +273,8 @@
     "insert-texts" (insert-texts test-props)
     "tick-lines" (tick-lines test-props)
     "point" (point (om/computed {} test-props))
+    "rect-text-tick" (rect-text-tick test-props)
+    "many-rect-text-tick" (many-rect-text-tick test-props)
     ))
 
 (defui SimpleSVGTester
