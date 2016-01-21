@@ -37,7 +37,8 @@
   (let [current (:name current-label)
         _ (assert current)
         res (not= current line-id)
-        _ (when res (println "Hidden b/c not equal: " current line-id))]
+        ;_ (when res (println "Hidden b/c not equal: " current line-id))
+        ]
     res))
 
 (def default-init-state {:translator nil})

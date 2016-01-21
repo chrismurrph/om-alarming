@@ -17,7 +17,8 @@
 (defui Point
   Object
   (render [this]
-    (let [{:keys [rgb-map x y]} (om/props this)
+    (let [{:keys [rgb-map x y]} (om/get-computed this)
+          _ (println "POINT: " rgb-map " " x " " y)
           circle-props    (merge process/point-defaults
                                  {:cx x
                                   :cy y
@@ -43,7 +44,6 @@
   Object
   (render [this]
     (let [{:keys [x proportional-y name current-label testing-name]} (om/props this)
-          line-id name
           height 16
           half-height (/ height 2)
           width 45 ;; later we might use how many digits there are
@@ -51,7 +51,7 @@
           width-after-indent (- width 4)
           new-x (+ indent x)
           new-y (- proportional-y half-height)
-          opacity (if (process/hidden? line-id current-label) 0.0 1.0)
+          opacity (if (process/hidden? name current-label) 0.0 1.0)
           colour (if testing-name light-blue white)
           fill (process/rgb-map-to-str colour)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
@@ -101,7 +101,7 @@
           line-doing (process/find-line my-lines name)
           _ (assert line-doing (str "Not found a name for " name " from " my-lines))
           colour-str (-> line-doing :colour process/rgb-map-to-str)
-          _ (println "colour will be " colour-str)
+          ;_ (println "colour will be " colour-str)
           units-str (:units line-doing)
           line-id (:name line-doing)
           text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
@@ -163,6 +163,9 @@
 
 (def plumb-line (om/factory PlumbLine {:keyfn :id}))
 
+(defn alter-react-id [new-word infos]
+  (map (fn [info] (update-in info [:id] (fn [id] (str new-word id)))) infos))
+
 (defui TickLines
   Object
   (render [this]
@@ -170,26 +173,29 @@
       ;(println "visible: " visible?)
       (when visible?
         (dom/g nil
-               (many-rects drop-infos)
-               (many-texts drop-infos)
+               ;(many-rects drop-infos)
+               ;(many-texts drop-infos)
                (for [drop-info drop-infos
-                     :let [my-lines (:my-lines drop-info)
+                     :let [_ (println "DROP: " drop-info)
+                           my-lines (:my-lines drop-info)
                            find-line (partial process/find-line my-lines)
                            line-doing (-> drop-info :name find-line)
                            ;_ (println "line-doing is " line-doing)
                            colour-str (-> line-doing :colour process/rgb-map-to-str)
                            ;_ (println (:name drop-info) " going to be " colour-str)
                            drop-distance (:proportional-y drop-info)
+                           _ (assert drop-distance)
                            x (:x drop-info)
                            current-label (:current-label drop-info)
                            line-props (merge process/line-defaults
-                                             {:x1 x :y1 drop-distance
-                                              :x2 (+ x 6) :y2 drop-distance
-                                              :stroke colour-str
+                                             {:id      drop-distance
+                                              :x1      x :y1 drop-distance
+                                              :x2      (+ x 6) :y2 drop-distance
+                                              :stroke  colour-str
                                               :opacity (if (process/hidden? (:name line-doing) current-label) 0.0 1.0)})
-                           ;_ (println "line-props: " line-props)
                            res (dom/line (clj->js line-props))]]
-                 res))))))
+                 res
+                 ))))))
 
 (def tick-lines (om/factory TickLines {:keyfn :id}))
 
@@ -201,7 +207,7 @@
     "backing-rects" (backing-rects test-props)
     "insert-texts" (insert-texts test-props)
     "tick-lines" (tick-lines test-props)
-    "point" (point test-props)
+    "point" (point (om/computed {} test-props))
     ))
 
 (defui SimpleSVGTester
