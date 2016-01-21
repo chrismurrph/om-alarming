@@ -20,7 +20,7 @@
                         {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id 3}
                         ])
 
-(def drop-infos (mapv #(merge {:x 50 :dec-places 1 :current-label {:name "Carbon Monoxide"} :my-lines data/my-lines} %) simple-drop-infos))
+(def drop-infos (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide" :dec-places 1} :my-lines data/my-lines} %) simple-drop-infos))
 
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
@@ -40,6 +40,8 @@
          {:inspect-data false}
          )
 
+;; We won't need ticklines, in fact will be getting rid many components altogether
+;;
 ;(defcard tick-lines
 ;         (fn [props _] (graph/simple-svg-tester @props))
 ;         {:id 2
@@ -73,7 +75,7 @@
                        :x 50
                        :proportional-y 50
                        :name 1
-                       :current-label {:name 1}}}
+                       :current-label {:name 1 :dec-places 1}}}
          {:inspect-data false}
          )
 ;
@@ -99,10 +101,9 @@
                 :x 200
                 :proportional-y 50
                 :proportional-val 0.1
-                :dec-places 1
                 :name "Oxygen"
                 :my-lines data/my-lines
-                :current-label {:name "Oxygen"}}}
+                :current-label {:name "Oxygen" :dec-places 1}}}
   )
 
 (defcard navbar-buttons

@@ -97,7 +97,7 @@
 (defui TextComponent
   Object
   (render [this]
-    (let [{:keys [x proportional-y proportional-val dec-places name my-lines current-label]} (om/props this)
+    (let [{:keys [x proportional-y proportional-val name my-lines current-label]} (om/props this)
           line-doing (process/find-line my-lines name)
           _ (assert line-doing (str "Not found a name for " name " from " my-lines))
           colour-str (-> line-doing :colour process/rgb-map-to-str)
@@ -112,7 +112,7 @@
           ;_ (println text-props)
           ]
       (dom/text (clj->js text-props)
-                (process/format-as-str (or dec-places 2) proportional-val units-str)))))
+                (process/format-as-str (or (:dec-places current-label) 2) proportional-val units-str)))))
 
 (def text-component (om/factory TextComponent {:keyfn :id}))
 
@@ -201,7 +201,7 @@
 (defui RectTextTick
   Object
   (render [this]
-    (let [{:keys [x proportional-y proportional-val dec-places name my-lines current-label testing-name]} (om/props this)
+    (let [{:keys [x proportional-y proportional-val name my-lines current-label testing-name]} (om/props this)
           ;;; text
           line-doing (process/find-line my-lines name)
           _ (assert line-doing (str "Not found a name for <" name "> from:" my-lines))
@@ -243,7 +243,7 @@
           ]
       (dom/g nil
              (dom/rect (clj->js rect-props))
-             (dom/text (clj->js text-props)(process/format-as-str (or dec-places 2) proportional-val units-str))
+             (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-label) 2) proportional-val units-str))
              (dom/line (clj->js line-props))))))
 
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
@@ -255,9 +255,7 @@
 (defui ManyRectTextTick
   Object
   (render [this]
-    (let [{:keys [drop-infos testing-name]} (om/props this)
-          ;_ (println drop-infos)
-          ]
+    (let [{:keys [drop-infos testing-name]} (om/props this)]
       (if testing-name
         (dom/g nil
                (many-rect-text-ticks drop-infos))
