@@ -173,8 +173,8 @@
       ;(println "visible: " visible?)
       (when visible?
         (dom/g nil
-               ;(many-rects drop-infos)
-               ;(many-texts drop-infos)
+               (many-rects drop-infos)
+               (many-texts drop-infos)
                (for [drop-info drop-infos
                      :let [_ (println "DROP: " drop-info)
                            my-lines (:my-lines drop-info)

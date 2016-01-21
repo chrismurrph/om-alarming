@@ -3,7 +3,7 @@
              :refer [<! >! chan close! put! timeout pipe onto-chan]]
             [om-alarming.utils :refer [log no-log abs]]
             [om-alarming.graph.mock-values :refer [light-blue green pink]]
-            )
+            [om-alarming.utils :as u])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 ;;
@@ -122,11 +122,11 @@
 ;;
 ;;
 ;;
-(defn create [lines]
-  ""
-  (g/remove-all-lines)
-  (doseq [line lines]
-    (g/add-line (select-keys line line-keys))))
+;(defn create [lines]
+;  ""
+;  (g/remove-all-lines)
+;  (doseq [line lines]
+;    (g/add-line (select-keys line line-keys))))
 
 (defn show
   ""
