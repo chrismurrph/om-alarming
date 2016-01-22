@@ -5,10 +5,12 @@
 
 (defmulti read om/dispatch)
 
-(defmulti mutate om/dispatch)
+;(defmulti mutate om/dispatch)
 
 (def parser
-  (om/parser {:read read :mutate mutate}))
+  (om/parser {:read read
+              ;:mutate mutate
+              }))
 
 (def reconciler
   (om/reconciler {:state initial-state

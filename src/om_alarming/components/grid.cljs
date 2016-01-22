@@ -29,7 +29,7 @@
 (defui GridDataCell
   Object
   (render [this]
-    (let [{:keys [id gas selected] :as props} (om/props this)
+    (let [{:keys [id gas] :as props} (om/props this)
           gas-name (-> bus/gas->details gas :name)
           {:keys [tube-num]} (om/get-computed this)
           full-name (str "Tube " tube-num " " gas-name)

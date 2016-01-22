@@ -5,15 +5,6 @@
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]))
 
-;;
-;;(defn- point [rgb-map x y]
-;;  ;(log rgb-map)
-;;  [:circle
-;;   (merge point-defaults
-;;          {:cx x
-;;           :cy y
-;;           :fill (rgb-map-to-str rgb-map)})])
-;;
 (defui Point
   Object
   (render [this]
@@ -27,17 +18,6 @@
 
 (def point (om/factory Point {:keyfn :id}))
 
-;;
-;;(defn- plum-line [height visible x-position]
-;;  (let [currently-sticky (get-in @state [:in-sticky-time?])
-;;        res (when visible [:line
-;;                           (merge line-defaults
-;;                                  {:x1 x-position :y1 0
-;;                                   :x2 x-position :y2 height
-;;                                   :stroke-width (if currently-sticky 2 1)})
-;; ])]
-;;    res))
-;;
 (defui PlumbLine
   Object
   (render [this]
