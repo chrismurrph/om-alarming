@@ -15,6 +15,10 @@
 ;         {:inspect-data false}
 ;         )
 
+;; For the sake of compiling
+(def drop-infos nil)
+(def merge-testing-name nil)
+
 (defcard insert-texts
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 3

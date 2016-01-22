@@ -57,7 +57,10 @@
 (defui RectTextTick
   Object
   (render [this]
-    (let [{:keys [x proportional-y proportional-val name my-lines current-label testing-name]} (om/props this)
+    (let [{:keys [x-gas-info current-label x id my-lines]} (om/props this)
+          {:keys [proportional-y proportional-val name testing-name]} x-gas-info
+          _ (assert name (str "x-gas-info w/out a name: " x-gas-info))
+          _ (println "my-lines count: " (count my-lines))
           ;;; text
           line-doing (process/find-line my-lines name)
           _ (assert line-doing (str "Not found a name for <" name "> from:" my-lines))
@@ -104,31 +107,41 @@
 
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
-(defn many-rect-text-ticks [drop-infos]
-  (for [drop-info drop-infos]
-    (rect-text-tick drop-info)))
+(defn many-rect-text-ticks [drop-info]
+  (let [{:keys [x-gas-details current-label x my-lines]} drop-info]
+    (println "count x-gas-details: " (count x-gas-details))
+    (println "names: " (map :name x-gas-details))
+    (assert (:name current-label))
+    (assert my-lines)
+    (for [x-gas-info x-gas-details]
+      (rect-text-tick {:x-gas-info x-gas-info
+                       :current-label current-label
+                       :x x
+                       :my-lines my-lines
+                       :id (:id x-gas-info)}))))
 
 (defui ManyRectTextTick
   Object
   (render [this]
-    (let [{:keys [drop-infos testing-name]} (om/props this)]
+    (let [{:keys [drop-info testing-name]} (om/props this)]
       (if testing-name
         (dom/g nil
-               (many-rect-text-ticks drop-infos))
-        (many-rect-text-ticks drop-infos)))))
+               (many-rect-text-ticks drop-info))
+        (many-rect-text-ticks drop-info)))))
 (def many-rect-text-tick (om/factory ManyRectTextTick {:keyfn :id}))
 
 (defn testing-component [name test-props]
   (case name
-    "opaque-rect" (surplus/opaque-rect test-props)
-    "text-component" (surplus/text-component test-props)
     "plumb-line" (plumb-line test-props)
-    "backing-rects" (surplus/backing-rects test-props)
-    "insert-texts" (surplus/insert-texts test-props)
-    "tick-lines" (surplus/tick-lines test-props)
     "point" (point (om/computed {} test-props))
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (many-rect-text-tick test-props)
+    ;; These may all be surplus:
+    "tick-lines" (surplus/tick-lines test-props)
+    "text-component" (surplus/text-component test-props)
+    "backing-rects" (surplus/backing-rects test-props)
+    "insert-texts" (surplus/insert-texts test-props)
+    "opaque-rect" (surplus/opaque-rect test-props)
     ))
 
 (defui SimpleSVGTester

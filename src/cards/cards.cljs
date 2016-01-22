@@ -15,12 +15,14 @@
 ;; Each drop-info s/be denormalised, so have more than this. Also have:
 ;; :x :current-label
 ;;
-(def simple-drop-infos [{:name "Carbon Dioxide", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207 :id 1}
-                        {:name "Carbon Monoxide", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731 :id 2}
-                        {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id 3}
-                        ])
+(def simple-x-gas-details
+  [
+   {:name "Carbon Dioxide", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207 :id 1}
+   {:name "Carbon Monoxide", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731 :id 2}
+   {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id 3}
+   ])
 
-(def drop-infos (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide" :dec-places 1} :my-lines data/my-lines} %) simple-drop-infos))
+(def x-gas-details (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide" :dec-places 1} :my-lines data/my-lines} %) simple-x-gas-details))
 
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
@@ -29,14 +31,24 @@
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 29
           :test-props {:testing-name "many-rect-text-tick"
-                       :drop-infos (merge-testing-name drop-infos "many-rect-text-tick")}}
+                       :drop-info {:x 50
+                                   :my-lines data/my-lines
+                                   :current-label {:name "Carbon Monoxide" :dec-places 1}
+                                   :x-gas-details (merge-testing-name simple-x-gas-details "many-rect-text-tick")}}}
          {:inspect-data false}
          )
 
 (defcard rect-text-tick
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 30
-          :test-props (merge {:testing-name "rect-text-tick"} (nth drop-infos 1))}
+          :test-props {:height 200
+                       :width 200
+                       :testing-name "rect-text-tick"
+                       :x-gas-info (merge {:testing-name "rect-text-tick"} (nth simple-x-gas-details 0))
+                       :current-label {:name "Carbon Dioxide" :dec-places 2}
+                       :x 120
+                       :id 1
+                       :my-lines data/my-lines}}
          {:inspect-data false}
          )
 
