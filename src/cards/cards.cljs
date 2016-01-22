@@ -41,7 +41,7 @@
 (defcard rect-text-tick
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 30
-          :test-props {:height 200
+          :test-props {:height 500 ;; not effective
                        :width 200
                        :testing-name "rect-text-tick"
                        :x-gas-info (merge {:testing-name "rect-text-tick"} (nth simple-x-gas-details 0))
