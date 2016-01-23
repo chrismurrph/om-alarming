@@ -4,5 +4,8 @@
 
 (defmethod read :app/gases
   [{:keys [state query]} key _]
-  (let [st @state]
+  (let [st @state
+        _ (println "In read with:" key "," query ".")
+        _ (println "In read with:" (get st key))
+        ]
     {:value (om/db->tree query (get st key) st)}))

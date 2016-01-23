@@ -12,6 +12,13 @@
 ;; -----------------------------------------------------------------------------
 ;; Components (clj->js )
 
+(defui Gas
+  static om/Ident
+  (ident [this props]
+    [:gas/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :name]))
 
 ;(def reconciler
 ;  (om/reconciler
@@ -25,11 +32,12 @@
 (defui App
   static om/IQuery
   (query [this]
-    [:app/gases])
+    [{:app/gases (om/get-query Gas)}])
   Object
   (render [this]
-    (let [{:keys [gases]} (om/props this)]
-      (dom/h1 nil (str "Howdy there partner, gases are " (map name gases))))))
+    (let [props (om/props this)
+          {:keys [app/gases]} props]
+      (dom/h1 nil (str "Howdy there partner, gases are " (map :name gases))))))
 ;
 ;(om/add-root! reconciler SayHello (gdom/getElement "app"))
 

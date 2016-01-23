@@ -47,16 +47,16 @@
     {:id 3 :name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
     ]
    :lines
-   [{:id     1 :name "Methane" :units "%" :colour pink
+   [{:id     1 :name "Methane at 1" :units "%" :colour pink
      :points [0.03 0.04 0.05 0.04 0.03 0.02 0.01 0.01 0.07 0.07 0.10 0.13]}
-    {:id     2 :name "Oxygen" :units "%" :colour green
+    {:id     2 :name "Oxygen at 1" :units "%" :colour green
      :points [21.0 22.0 22.0 21.4 20.0 21.3 22.0 19.5 19.8 21.0 21.1 21.5]}
-    {:id     3 :name "Carbon Dioxide" :units "%" :colour blue
+    {:id     3 :name "Carbon Dioxide at 1" :units "%" :colour blue
      :points [0.05 0.08 0.07 0.09 0.10 0.20 0.21 0.23 0.27 0.13 0.18 0.19]}
-    {:id     4 :name "Carbon Monoxide" :units "ppm" :colour red
+    {:id     4 :name "Carbon Monoxide at 1" :units "ppm" :colour red
      :points [7 8 9 10 11 12 11 10 9 8 7 6 5]}
     ]
-   :app/gases ["Methane" "Oxygen" "Mon" "Diox"]
+   :app/gases [{:id 1 :name "Methane"} {:id 2 :name "Oxygen"} {:id 3 :name "Mon"} {:id 4 :name "Diox"}]
    :current-label
    {:id 0 :name "Carbon Monoxide" :dec-places 1}
    :tubes
