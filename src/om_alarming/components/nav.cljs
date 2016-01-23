@@ -4,6 +4,12 @@
             [om-alarming.util :refer [class-names]]))
 
 (defui TabButton
+  static om/Ident
+  (ident [this props]
+    [:button/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :selected :name :description])
   Object
   (render [this]
     (let [{:keys [id selected name]} (om/props this)]
@@ -17,8 +23,11 @@
 (defui MenuBar
   Object
   (render [this]
-    (let [items (:buttons (om/props this))
-          current-heading (current-heading items)]
+    (let [items (:app/buttons (om/props this))
+          _ (println "items: " items)
+          current-heading (current-heading items)
+          _ (println "heading: " current-heading)
+          ]
       (dom/div nil
                (dom/h3 #js {:className "ui block center aligned header"} current-heading)
                (dom/div #js {:className "ui tabular menu"}

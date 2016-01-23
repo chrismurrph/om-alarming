@@ -27,6 +27,12 @@
 ;; </div>
 ;;
 (defui GridDataCell
+  static om/Ident
+  (ident [this props]
+    [:gas-at-location/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :gas :selected])
   Object
   (render [this]
     (let [{:keys [id gas] :as props} (om/props this)
@@ -43,9 +49,15 @@
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
 
 (defui GridRow
+  static om/Ident
+  (ident [this props]
+    [:tube/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
-    (let [{:keys [id gases]} (om/props this)
+    (let [{:keys [id tube/gases]} (om/props this)
           hdr-gases (into [{:id 0 :gas :tube}] gases)]
       (dom/div #js {:className "row"}
                (for [gas hdr-gases]
