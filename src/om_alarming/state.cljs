@@ -12,12 +12,12 @@
      :name        "Trending"
      :description "Live data, Trending"
      :showing     true
-     :selected    false}
+     :selected    true}
     {:id          3
      :name        "Thresholds"
      :description "Alarm Thresholds"
      :showing     true
-     :selected    true}
+     :selected    false}
     {:id          4
      :name        "Reports"
      :description "Event Reports"

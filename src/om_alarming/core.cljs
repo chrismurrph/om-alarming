@@ -4,7 +4,7 @@
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.reconciler :refer [reconciler]]
-            [om-alarming.parsing.all :as app]
+            [om-alarming.parsing.reads]
             [om-alarming.utils :as u]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.nav :as nav]
@@ -37,8 +37,9 @@
       (dom/div nil
                (let [buttons-props (select-keys props [:app/buttons])]
                  (nav/menubar buttons-props))
-               (dom/h3 nil (str "gases are " (map :name gases)))
-               (dom/h3 nil (str "tubes are " tubes)))
+               ;(dom/h4 nil (str "gases are " (map :name gases)))
+               ;(dom/h4 nil (str "tubes are " tubes))
+               )
       )))
 
 (defn run []
