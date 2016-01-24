@@ -4,9 +4,8 @@
 
 (defmethod mutate 'app/tab
   [{:keys [state]} _ {:keys [new-id]}]
-  {:value  {:keys [:app/buttons]}
+  {:value  {:keys [:app/selected-button]}
    :action (fn []
-             (let [;_ (println "Selected: " new-id)
+             (let [_ (println "Selected: " new-id)
                    ]
-               (swap! (swap! state update-in [:app/buttons 1] assoc :selected false)
-                      update-in [:app/buttons (dec new-id)] assoc :selected true)))})
+               (swap! state assoc-in [:app/selected-button :id] new-id)))})

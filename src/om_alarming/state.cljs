@@ -6,34 +6,29 @@
    [{:id          1
      :name        "Map"
      :description "Mine plan"
-     :showing     true
-     :selected    false}
+     :showing     true}
     {:id          2
      :name        "Trending"
      :description "Live data, Trending"
-     :showing     true
-     :selected    true}
+     :showing     true}
     {:id          3
      :name        "Thresholds"
      :description "Alarm Thresholds"
-     :showing     true
-     :selected    false}
+     :showing     true}
     {:id          4
      :name        "Reports"
      :description "Event Reports"
-     :showing     true
-     :selected    false}
+     :showing     true}
     {:id          5
      :name        "Automatic"
      :description "Automatic Tube Bundle"
-     :showing     true
-     :selected    false}
+     :showing     true}
     {:id          6
      :name        "Logs"
      :description "Warning Log"
-     :showing     true
-     :selected    false}
+     :showing     true}
     ]
+   :app/selected-button {:id 3}
    :graph/drop-info
    {:id            0                                        ;; Just in case React needs it (or avoid React using $null)
     :x             50

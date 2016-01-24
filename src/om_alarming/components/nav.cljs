@@ -10,10 +10,11 @@
     [:button/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :selected :name :description])
+    [:id :name :description])
   Object
   (render [this]
-    (let [{:keys [id selected name]} (om/props this)]
+    (let [{:keys [id name]} (om/props this)
+          {:keys [selected]} (om/get-computed this)]
       (dom/a #js {:key id
                   :className (class-names {:item true :active selected})
                   :onClick #(om/transact! this `[(app/tab {:new-id ~id})])}
@@ -21,27 +22,29 @@
 
 (def tab-button (om/factory TabButton {:keyfn :id}))
 
-(defn current-button [items]
-  (first (filter :selected items)))
-
 (defui MenuBar
+  ;static om/Ident
+  ;(ident [this props]
+  ;  [:selected-button/by-id (:id props)])
+
   ;static om/IQuery
   ;(query [this]
-  ;  [{:app/buttons (om/get-query TabButton)}
-  ;   ])
+  ;  [:app/buttons :app/selected-button])
   Object
   (render [this]
-    (let [items (:app/buttons (om/props this))
-          _ (println "items: " items)
-          current-button-fn (partial current-button items)
-          _ (println "heading: " (:description (current-button-fn)))
+    (let [{:keys [:app/buttons :app/selected-button]} (om/props this)
+          _ (println "items: " buttons)
+          _ (println "selected: " selected-button)
+          selected-id (get selected-button :id)
+          selected (first (filter #(= (:id %) selected-id) buttons))
+          _ (println "heading: " (:description selected))
           ]
       (dom/div nil
-               (dom/h3 #js {:className "ui block center aligned top attached header"} (:description (current-button-fn)))
+               (dom/h3 #js {:className "ui block center aligned top attached header"} (:description selected))
                (dom/div #js {:className "ui tabular attached menu"}
-                        (for [item items]
+                        (for [item buttons]
                           (when (not (= false (:showing item)))
-                            (tab-button item))))
+                            (tab-button (om/computed item {:selected (= selected-id (:id item))})))))
                ;(dom/h3 #js {:className "ui left aligned attached header"} (str current-heading " has not been implemented"))
                (dom/div #js {:className "ui attached segment"}
                         (dom/p #js {:height 300} "Content"))

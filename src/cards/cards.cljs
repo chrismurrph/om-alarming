@@ -67,9 +67,10 @@
 (defcard navbar-buttons
   (fn [props _] (nav/menubar @props))
   {:id 10 :text "Navbar with buttons going across"
+   :app/selected-button {:id 3}
    :app/buttons [{:id 1 :name "First" :description "First Title"}
              {:id 2 :name "Second" :description "Second Title"}
-             {:id 3 :name "Third" :description "Third Title" :selected true}
+             {:id 3 :name "Third" :description "Third Title"}
              {:id 4 :name "Fourth" :description "Fourth Title" :showing false}
              {:id 5 :name "Fifth" :description "Fifth Title"}
              {:id 6 :name "Sixth" :description "Sixth Title"}

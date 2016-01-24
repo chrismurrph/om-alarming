@@ -29,13 +29,15 @@
     [{:app/gases (om/get-query Gas)}
      {:app/tubes (om/get-query grid/GridRow)}
      {:app/buttons (om/get-query nav/TabButton)}
+     :app/selected-button
      ])
   Object
   (render [this]
     (let [props (om/props this)
-          {:keys [app/gases app/tubes]} props]
+          ;{:keys [app/gases app/tubes]} props
+          ]
       (dom/div nil
-               (let [buttons-props (select-keys props [:app/buttons])]
+               (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
                ;(dom/h4 nil (str "gases are " (map :name gases)))
                ;(dom/h4 nil (str "tubes are " tubes))
