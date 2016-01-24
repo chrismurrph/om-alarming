@@ -18,7 +18,7 @@
           {:keys [selected]} (om/get-computed this)]
       (dom/a #js {:key id
                   :className (class-names {:item true :active selected})
-                  :onClick #(om/transact! reconciler `[(app/tab {:new-id ~id})])}
+                  :onClick #(om/transact! this `[(app/tab {:new-id ~id}) :app/selected-button])}
              name))))
 
 (def tab-button (om/factory TabButton {:keyfn :id}))
