@@ -40,8 +40,8 @@
                           (when (not (= false (:showing item)))
                             (tab-button (om/computed item {:selected (= selected-id (:id item))})))))
                ;(dom/h3 #js {:className "ui left aligned attached header"} (str current-heading " has not been implemented"))
-               (dom/div #js {:className "ui attached segment"}
-                        (dom/p #js {:height 300} "Content"))
+               ;(dom/div #js {:height 700 :className "ui attached segment"}
+               ;         (dom/p nil "Content"))
                ;(dom/h5 #js {:className "ui bottom attached header"} (str current-heading " really has not been implemented"))
                ))))
 

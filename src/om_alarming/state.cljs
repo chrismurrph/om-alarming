@@ -55,7 +55,7 @@
      :name "Carbon Monoxide at 1" :units "ppm" :colour red
      :points [7 8 9 10 11 12 11 10 9 8 7 6 5]}
     ]
-   :app/gases [{:id 1 :name "Methane"} {:id 2 :name "Oxygen"} {:id 3 :name "Carbon Monoxide"} {:id 4 :name "Carbon Dioxide"}]
+   :app/gases [{:id 1 :gas :methane} {:id 2 :gas :oxygen} {:id 3 :gas :carbon-monoxide} {:id 4 :gas :carbon-dioxide}]
    :graph/current-label
    {:id 0 :name "Carbon Monoxide at 1" :dec-places 1}
    :app/tubes

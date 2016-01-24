@@ -67,11 +67,10 @@
   Object
   (render [this]
     (let [{:keys [gas]} (om/props this)
-          ;_ (println "GAS:" gas)
+          _ (println "GAS:" gas)
           gas-name (-> bus/gas->details gas :name)]
       (dom/div #js {:className "three wide column center aligned"}
-               (dom/label nil gas-name)
-               ))))
+               (dom/label nil gas-name)))))
 
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
@@ -98,13 +97,13 @@
   Object
   (render [this]
     (let [props (om/props this)
-          tubes (:tubes props)
-          gases (:gases (nth tubes 0))
-          ;_ (println "Gases from first tube: " gases)
+          {:keys [gases tubes]} props
+          _ (println "Grid has " (count gases) " gases and " (count tubes) " tubes")
           ]
       (dom/div #js {:className "ui five column grid"}
                (grid-header-row {:gases gases})
                (for [tube tubes]
-                 (grid-row tube))))))
+                 (grid-row tube))
+               ))))
 
 (def gas-selection-grid (om/factory GasSelectionGrid {:keyfn :id}))

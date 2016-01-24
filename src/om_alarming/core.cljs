@@ -13,15 +13,15 @@
 (enable-console-print!)
 
 ;;
-;; Need an Ident for db->query to work
+;; Need an Ident for db->query to work. These are just the gases themselves, so there might only be 4 of them
 ;;
 (defui Gas
   static om/Ident
   (ident [this props]
-    [:gas/by-id (:id props)])
+    [:gas-of-system/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name]))
+    [:id :gas]))
 
 (defui App
   static om/IQuery
@@ -39,8 +39,13 @@
       (dom/div nil
                (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
-               ;(dom/h4 nil (str "gases are " (map :name gases)))
-               ;(dom/h4 nil (str "tubes are " tubes))
+               (let [grid-props (select-keys props [:app/gases :app/tubes])]
+                 ;(grid/gas-selection-grid grid-props)
+                 (dom/div nil
+                          (dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
+                          (dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
+                          )
+                 )
                )
       )))
 

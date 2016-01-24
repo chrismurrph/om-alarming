@@ -80,8 +80,9 @@
 (defcard selection-grid
   (fn [props _] (grid/gas-selection-grid @props))
   {:id 11 :text "Selection Grid"
+   :gases [{:id 1 :gas :methane} {:id 2 :gas :oxygen} {:id 3 :gas :carbon-monoxide} {:id 4 :gas :carbon-dioxide}]
    :tubes    [{:id    1
-               :gases [{:id  1
+               :tube/gases [{:id  1
                         :gas :methane
                         :selected true}
                        {:id  2
@@ -92,35 +93,35 @@
                         :gas :carbon-dioxide}
                        ]}
               {:id    2
-               :gases [{:id  1
+               :tube/gases [{:id  5
                         :gas :methane}
-                       {:id  2
+                       {:id  6
                         :gas :oxygen}
-                       {:id  3
+                       {:id  7
                         :gas :carbon-monoxide}
-                       {:id  4
+                       {:id  8
                         :gas :carbon-dioxide}
                        ]}
               {:id    3
-               :gases [{:id  1
+               :tube/gases [{:id  9
                         :gas :methane}
-                       {:id  2
+                       {:id  10
                         :gas :oxygen}
-                       {:id  3
+                       {:id  11
                         :gas :carbon-monoxide}
-                       {:id  4
+                       {:id  12
                         :gas :carbon-dioxide
                         :selected true}
                        ]}
               {:id    4
-               :gases [{:id  1
+               :tube/gases [{:id  13
                         :gas :methane}
-                       {:id  2
+                       {:id  14
                         :gas :oxygen
                         :selected true}
-                       {:id  3
+                       {:id  15
                         :gas :carbon-monoxide}
-                       {:id  4
+                       {:id  16
                         :gas :carbon-dioxide}
                        ]}]}
   {:inspect-data false})
