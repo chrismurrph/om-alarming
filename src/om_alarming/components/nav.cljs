@@ -2,6 +2,7 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.parsing.mutates]
+            [om-alarming.reconciler :refer [reconciler]]
             [om-alarming.util :refer [class-names]]))
 
 (defui TabButton
@@ -17,19 +18,12 @@
           {:keys [selected]} (om/get-computed this)]
       (dom/a #js {:key id
                   :className (class-names {:item true :active selected})
-                  :onClick #(om/transact! this `[(app/tab {:new-id ~id})])}
+                  :onClick #(om/transact! reconciler `[(app/tab {:new-id ~id})])}
              name))))
 
 (def tab-button (om/factory TabButton {:keyfn :id}))
 
 (defui MenuBar
-  ;static om/Ident
-  ;(ident [this props]
-  ;  [:selected-button/by-id (:id props)])
-
-  ;static om/IQuery
-  ;(query [this]
-  ;  [:app/buttons :app/selected-button])
   Object
   (render [this]
     (let [{:keys [:app/buttons :app/selected-button]} (om/props this)

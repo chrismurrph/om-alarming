@@ -2,7 +2,8 @@
   (:require [om-alarming.graph.mock-values :refer [pink green blue red]]))
 
 (def initial-state
-  {:app/buttons
+  {:app/selected-button {:id 3}
+   :app/buttons
    [{:id          1
      :name        "Map"
      :description "Mine plan"
@@ -28,7 +29,6 @@
      :description "Warning Log"
      :showing     true}
     ]
-   :app/selected-button {:id 3}
    :graph/drop-info
    {:id            0                                        ;; Just in case React needs it (or avoid React using $null)
     :x             50
@@ -207,4 +207,7 @@
     ]
    }
   )
+
+(defn test-select-7 []
+  (:app/selected-button (assoc-in initial-state [:app/selected-button :id] 7)))
 
