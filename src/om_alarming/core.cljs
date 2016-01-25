@@ -23,6 +23,12 @@
   (query [this]
     [:id :gas]))
 
+(defn gas-selection-grid [grid-props]
+  (dom/div #js {:className "ui five column grid"}
+           (grid/grid-header-row {:app/gases grid-props})
+           (for [tube (:app/tubes grid-props)]
+             (grid/grid-row tube))))
+
 (defui App
   static om/IQuery
   (query [this]
@@ -39,13 +45,15 @@
       (dom/div nil
                (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
-               (let [grid-props (select-keys props [:app/gases :app/tubes])]
-                 (dom/div nil
-                          (grid/gas-selection-grid grid-props)
-                          ;(dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
-                          ;(dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
-                          )
-                 )
+               (gas-selection-grid props)
+               ;(let [grid-props (select-keys props [:app/gases :app/tubes])]
+               ;  (gas-selection-grid grid-props)
+               ;  ;(dom/div nil
+               ;  ;         (gas-selection-grid grid-props)
+               ;  ;         ;(dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
+               ;  ;         ;(dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
+               ;  ;         )
+               ;  )
                )
       )))
 

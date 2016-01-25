@@ -36,11 +36,11 @@
   Object
   (render [this]
     (let [{:keys [id gas] :as props} (om/props this)
-          _ (assert gas "GridDataCell needs to be given a gas keyword")
+          _ (assert gas (str "GridDataCell needs to be given a gas keyword, props: " props))
           gas-name (-> bus/gas->details gas :name)
           {:keys [tube-num]} (om/get-computed this)
           full-name (str "Tube " tube-num " " gas-name)
-          ;_ (println full-name ", selected" selected)
+          _ (println full-name)
           ]
       (dom/div #js {:className "three wide column center aligned"}
                (if (= gas :tube)
@@ -58,10 +58,11 @@
     [:id {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
-    (let [{:keys [id gases]} (om/props this)
+    (let [{:keys [id tube/gases]} (om/props this)
+          _ (println "gases: " gases)
           hdr-gases (into [{:id 0 :gas :tube}] gases)]
       (dom/div #js {:className "row"}
-               (for [gas hdr-gases]
+               (for [gas gases]
                  (grid-data-cell (om/computed gas {:tube-num id})))))))
 
 (def grid-row (om/factory GridRow {:keyfn :id}))
@@ -95,17 +96,24 @@
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
-(defui GasSelectionGrid
-  Object
-  (render [this]
-    (let [props (om/props this)
-          {:keys [app/gases app/tubes]} props
-          ;_ (println "Grid has " (count gases) " gases and " (count tubes) " tubes")
-          ]
-      (dom/div #js {:className "ui five column grid"}
-               (grid-header-row {:gases gases})
-               (for [tube tubes]
-                 (grid-row tube))
-               ))))
-
-(def gas-selection-grid (om/factory GasSelectionGrid {:keyfn :id}))
+;;
+;; Make this just a function and the queries should compose from top to bottom
+;;
+;(defui GasSelectionGrid
+;  static om/IQuery
+;  (query [this]
+;    [{:app/tubes (om/get-query GridRow)}
+;     ])
+;  Object
+;  (render [this]
+;    (let [props (om/props this)
+;          {:keys [app/gases app/tubes]} props
+;          ;_ (println "Grid has " (count gases) " gases and " (count tubes) " tubes")
+;          ]
+;      (dom/div #js {:className "ui five column grid"}
+;               (grid-header-row {:gases gases})
+;               (for [tube tubes]
+;                 (grid-row tube))
+;               ))))
+;
+;(def gas-selection-grid (om/factory GasSelectionGrid {:keyfn :id}))
