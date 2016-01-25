@@ -29,14 +29,14 @@
 (defmethod read :app/selected-button
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In read to ret:" (get st key))
+        ;_ (println "In read to ret:" (get st key))
         ]
     {:value (get st key)}))
 
 (defmethod read :tube/gases
   [{:keys [state query]} key _]
   (let [st @state
-        ;_ (println "In read with:" key "," query ".")
-        ;_ (println "In read with:" (get st key))
+        _ (println "In read with:" key "," query ".")
+        _ (println "In read with:" (get st key))
         ]
     {:value (om/db->tree query (get st key) st)}))

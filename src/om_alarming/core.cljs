@@ -40,10 +40,10 @@
                (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
                (let [grid-props (select-keys props [:app/gases :app/tubes])]
-                 ;(grid/gas-selection-grid grid-props)
                  (dom/div nil
-                          (dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
-                          (dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
+                          (grid/gas-selection-grid grid-props)
+                          ;(dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
+                          ;(dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
                           )
                  )
                )

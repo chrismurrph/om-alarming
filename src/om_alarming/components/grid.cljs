@@ -36,6 +36,7 @@
   Object
   (render [this]
     (let [{:keys [id gas] :as props} (om/props this)
+          _ (assert gas "GridDataCell needs to be given a gas keyword")
           gas-name (-> bus/gas->details gas :name)
           {:keys [tube-num]} (om/get-computed this)
           full-name (str "Tube " tube-num " " gas-name)
@@ -57,17 +58,19 @@
     [:id {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
-    (let [{:keys [id tube/gases]} (om/props this)
+    (let [{:keys [id gases]} (om/props this)
           hdr-gases (into [{:id 0 :gas :tube}] gases)]
       (dom/div #js {:className "row"}
                (for [gas hdr-gases]
                  (grid-data-cell (om/computed gas {:tube-num id})))))))
 
+(def grid-row (om/factory GridRow {:keyfn :id}))
+
 (defui GridHeaderLabel
   Object
   (render [this]
     (let [{:keys [gas]} (om/props this)
-          _ (println "GAS:" gas)
+          ;_ (println "GAS:" gas)
           gas-name (-> bus/gas->details gas :name)]
       (dom/div #js {:className "three wide column center aligned"}
                (dom/label nil gas-name)))))
@@ -91,14 +94,13 @@
                  (grid-header-label gas))))))
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
-(def grid-row (om/factory GridRow {:keyfn :id}))
 
 (defui GasSelectionGrid
   Object
   (render [this]
     (let [props (om/props this)
-          {:keys [gases tubes]} props
-          _ (println "Grid has " (count gases) " gases and " (count tubes) " tubes")
+          {:keys [app/gases app/tubes]} props
+          ;_ (println "Grid has " (count gases) " gases and " (count tubes) " tubes")
           ]
       (dom/div #js {:className "ui five column grid"}
                (grid-header-row {:gases gases})

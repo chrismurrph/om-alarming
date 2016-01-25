@@ -80,8 +80,8 @@
 (defcard selection-grid
   (fn [props _] (grid/gas-selection-grid @props))
   {:id 11 :text "Selection Grid"
-   :gases [{:id 1 :gas :methane} {:id 2 :gas :oxygen} {:id 3 :gas :carbon-monoxide} {:id 4 :gas :carbon-dioxide}]
-   :tubes    [{:id    1
+   :app/gases [{:id 1 :gas :methane} {:id 2 :gas :oxygen} {:id 3 :gas :carbon-monoxide} {:id 4 :gas :carbon-dioxide}]
+   :app/tubes    [{:id    1
                :tube/gases [{:id  1
                         :gas :methane
                         :selected true}
