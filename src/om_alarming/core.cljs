@@ -21,13 +21,7 @@
     [:gas-of-system/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :gas]))
-
-(defn gas-selection-grid [grid-props]
-  (dom/div #js {:className "ui five column grid"}
-           (grid/grid-header-row {:app/gases grid-props})
-           (for [tube (:app/tubes grid-props)]
-             (grid/grid-row tube))))
+    '[:id :gas]))
 
 (defui App
   static om/IQuery
@@ -45,7 +39,7 @@
       (dom/div nil
                (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
-               (gas-selection-grid props)
+               (grid/gas-selection-grid props)
                ;(let [grid-props (select-keys props [:app/gases :app/tubes])]
                ;  (gas-selection-grid grid-props)
                ;  ;(dom/div nil

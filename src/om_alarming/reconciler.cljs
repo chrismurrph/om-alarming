@@ -11,6 +11,12 @@
   (om/parser {:read read
               :mutate mutate}))
 
+;;
+;; We are not passing in an atom so normalization WILL happen by default. Thus:
+;; `:normalize true` is just for documentation purposes. But it is important
+;; because our reads use db->tree, which works with normalized state.
+;;
 (def reconciler
-  (om/reconciler {:state initial-state
+  (om/reconciler {:normalize true
+                  :state initial-state
                   :parser parser}))

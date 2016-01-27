@@ -32,7 +32,7 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :gas :selected])
+    '[:id :gas :selected])
   Object
   (render [this]
     (let [{:keys [id gas] :as props} (om/props this)
@@ -55,7 +55,7 @@
     [:tube/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id {:tube/gases (om/get-query GridDataCell)}])
+    `[:id {:tube/gases ~(om/get-query GridDataCell)}])
   Object
   (render [this]
     (let [{:keys [id tube/gases]} (om/props this)
@@ -117,3 +117,9 @@
 ;               ))))
 ;
 ;(def gas-selection-grid (om/factory GasSelectionGrid {:keyfn :id}))
+
+(defn gas-selection-grid [grid-props]
+  (dom/div #js {:className "ui five column grid"}
+           (grid-header-row {:app/gases grid-props})
+           (for [tube (:app/tubes grid-props)]
+             (grid-row tube))))

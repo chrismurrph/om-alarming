@@ -11,7 +11,7 @@
     [:button/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :description])
+    '[:id :name :description])
   Object
   (render [this]
     (let [{:keys [id name]} (om/props this)
