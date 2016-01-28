@@ -111,9 +111,9 @@
                   :parser parser}))
 
 (defn show-db
-  (str "(in-ns 'kanban/tree-db)"
-       "(show-db)"
-       "from the REPL you started with `lein figwheel test`")
+  "(in-ns 'om-alarming/tree-db)
+   (show-db)
+   from the REPL you started with `lein figwheel test`"
   []
   (pprint @reconciler)
   nil)
