@@ -4,11 +4,8 @@
             [cljs.pprint :as pp :refer [pprint]]))
 
 (comment
-  "My theory of how to create an application with Om Next is to start off with denormalized data and
-  get components that don't have a render method to do the normalization for me. If these components can
-  do this then hopefully they will be a good set for rendering too. At the moment I
-  can get normalization happening for the master-detail relationships, but not for the lookup relationships.
-  The actual output is in the next comment...")
+  "Idea to create an application with Om Next - start off with denormalized data and
+  get components that don't have a render method to do the normalization.")
 (def initial-state
   {:system-gases
    [{:id 200 :gas-name "Methane"}
@@ -19,14 +16,14 @@
    [{:id 100 :location-name "Invercargill"}
     {:id 101 :location-name "Dunedin"}]
    :location-gases
-   [{:id 300 :value 10.1 :location 100 :system-gas 200}
-    {:id 301 :value 10.2 :location 100 :system-gas 201}
-    {:id 302 :value 10.3 :location 100 :system-gas 202}
-    {:id 303 :value 10.4 :location 100 :system-gas 203}
-    {:id 304 :value 10.5 :location 101 :system-gas 200}
-    {:id 305 :value 10.6 :location 101 :system-gas 201}
-    {:id 306 :value 10.7 :location 101 :system-gas 202}
-    {:id 307 :value 10.8 :location 101 :system-gas 203}]})
+   [{:id 300 :value 10.1 :location {:id 100} :system-gas {:id 200}}
+    {:id 301 :value 10.2 :location {:id 100} :system-gas {:id 201}}
+    {:id 302 :value 10.3 :location {:id 100} :system-gas {:id 202}}
+    {:id 303 :value 10.4 :location {:id 100} :system-gas {:id 203}}
+    {:id 304 :value 10.5 :location {:id 101} :system-gas {:id 200}}
+    {:id 305 :value 10.6 :location {:id 101} :system-gas {:id 201}}
+    {:id 306 :value 10.7 :location {:id 101} :system-gas {:id 202}}
+    {:id 307 :value 10.8 :location {:id 101} :system-gas {:id 203}}]})
 
 (defui SystemGas
   static om/Ident
@@ -50,9 +47,6 @@
     [:location-gas/by-id (:id props)])
   static om/IQuery
   (query [this]
-    ;;
-    ;; These joins are for lookup relationships and unfortunately are not working
-    ;;
     [:id :value {:location (om/get-query Location)} {:system-gas (om/get-query SystemGas)}]))
 
 ;;
@@ -83,45 +77,20 @@
                   :state initial-state
                   :parser parser}))
 
-;; Just:
-;; (in-ns 'om-alarming/tree-db)
-;; (show-db)
-;; from the REPL you started with `lein figwheel test`
-(defn show-db []
+(defn show-db
+  (str "(in-ns 'om-alarming/tree-db)"
+       "(show-db)"
+       "from the REPL you started with `lein figwheel test`")
+  []
   (pprint @reconciler)
-  nil
-  )
-(comment
-  "RESULT HERE"
-  {:system-gases
-              [[:gas-of-system/by-id 200]
-               [:gas-of-system/by-id 201]
-               [:gas-of-system/by-id 202]
-               [:gas-of-system/by-id 203]],
-   :locations [[:location/by-id 100] [:location/by-id 101]],
-   :location-gases
-              [{:id 300, :value 10.1, :location 100, :system-gas 200}
-               {:id 301, :value 10.2, :location 100, :system-gas 201}
-               {:id 302, :value 10.3, :location 100, :system-gas 202}
-               {:id 303, :value 10.4, :location 100, :system-gas 203}
-               {:id 304, :value 10.5, :location 101, :system-gas 200}
-               {:id 305, :value 10.6, :location 101, :system-gas 201}
-               {:id 306, :value 10.7, :location 101, :system-gas 202}
-               {:id 307, :value 10.8, :location 101, :system-gas 203}],
-   :gas-of-system/by-id
-              {200 {:id 200, :gas-name "Methane"},
-               201 {:id 201, :gas-name "Oxygen"},
-               202 {:id 202, :gas-name "Carbon Monoxide"},
-               203 {:id 203, :gas-name "Carbon Dioxide"}},
-   :location/by-id
-              {100 {:id 100, :location-name "Invercargill"},
-               101 {:id 101, :location-name "Dunedin"}}})
+  nil)
 
 (defui Root
   static om/IQuery
   (query [this]
     [{:system-gases (om/get-query SystemGas)}
-     {:locations (om/get-query LocationRow)}])
+     {:locations (om/get-query LocationRow)}
+     {:location-gases (om/get-query LocationGasCell)}])
   ;Object
   ;(render [this]
   ;  (show-db))

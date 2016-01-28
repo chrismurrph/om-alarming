@@ -3,6 +3,9 @@
             [om.dom :as dom]
             [cljs.pprint :as pp :refer [pprint]]))
 
+(comment
+  "Idea to create an application with Om Next - start off with denormalized data and
+  get components that don't have a render method to do the normalization.")
 (def initial-state
   {:boards
    [{:id 1
@@ -107,14 +110,13 @@
                   :state initial-state
                   :parser parser}))
 
-;; Just:
-;; (in-ns 'kanban/tree-db)
-;; (show-db)
-;; from the REPL you started with `lein figwheel test`
-(defn show-db []
+(defn show-db
+  (str "(in-ns 'kanban/tree-db)"
+       "(show-db)"
+       "from the REPL you started with `lein figwheel test`")
+  []
   (pprint @reconciler)
-  nil
-  )
+  nil)
 
 (defui App
   static om/IQuery
