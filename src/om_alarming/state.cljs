@@ -55,7 +55,7 @@
      :name "Carbon Monoxide at 1" :units "ppm" :colour red
      :points [7 8 9 10 11 12 11 10 9 8 7 6 5]}
     ]
-   :app/gases [{:id 150 :gas :methane} {:id 151 :gas :oxygen} {:id 152 :gas :carbon-monoxide} {:id 153 :gas :carbon-dioxide}]
+   :app/gases [{:id 150 :name "Methane"} {:id 151 :name "Oxygen"} {:id 152 :name "Carbon Monoxide"} {:id 153 :name "Carbon Dioxide"}]
    :graph/current-label
    {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
    :app/tubes
@@ -122,88 +122,88 @@
     ]
    :tube/gases
    [{:id       500
-     :gas      :methane
+     :system-gas      {:id 150}
      :selected true}
     {:id  501
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  502
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  503
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  504
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  505
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  506
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  507
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  508
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  509
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  510
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id       511
-     :gas      :carbon-dioxide
+     :system-gas      {:id 153}
      :selected true}
     {:id  512
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id       513
-     :gas      :oxygen
+     :system-gas      {:id 151}
      :selected true}
     {:id  514
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  515
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  516
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  517
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  518
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  519
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  520
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  521
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  522
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  523
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  524
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  525
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  526
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  527
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  528
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  529
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  530
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  531
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  532
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  533
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  534
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  535
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     {:id  536
-     :gas :methane}
+     :system-gas {:id 150}}
     {:id  537
-     :gas :oxygen}
+     :system-gas {:id 151}}
     {:id  538
-     :gas :carbon-monoxide}
+     :system-gas {:id 152}}
     {:id  539
-     :gas :carbon-dioxide}
+     :system-gas {:id 153}}
     ]
    }
   )

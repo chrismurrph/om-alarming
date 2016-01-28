@@ -2,7 +2,7 @@
   :description "Alarming and Trending"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
-                 [org.omcljs/om "1.0.0-alpha28"]
+                 [org.omcljs/om "1.0.0-alpha30"]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1-4"]
@@ -15,9 +15,17 @@
   :clean-targets ^{:protect false} ["resources/public/js/"
                                     "target"]
                                     
-  :source-paths ["src"]                                    
+  :source-paths ["src" "test"]
                  
-  :cljsbuild {:builds [{:id "dev"
+  :cljsbuild {:builds [{:id "test"
+                        :source-paths ["test"]
+                        :figwheel true
+                        :compiler {:main       "om-alarming.tree-db"
+                                   :asset-path "js/out"
+                                   :output-to  "resources/public/js/main.js"
+                                   :output-dir "resources/public/js/out"
+                                   :source-map-timestamp true }}
+                       {:id "dev"
                         :source-paths ["src"]
                         :figwheel true
                         :compiler {:main       "om-alarming.core"

@@ -8,32 +8,25 @@
             [om-alarming.utils :as u]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.nav :as nav]
+            [cljs.pprint :as pp :refer [pprint]]
             ))
 
 (enable-console-print!)
 
-;;
-;; Need an Ident for db->query to work. These are just the gases themselves, so there might only be 4 of them
-;;
-(defui Gas
-  static om/Ident
-  (ident [this props]
-    [:gas-of-system/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    '[:id :gas]))
-
 (defui App
   static om/IQuery
   (query [this]
-    [{:app/gases (om/get-query Gas)}
+    [
+     {:app/gases (om/get-query grid/SystemGas)}
      {:app/tubes (om/get-query grid/GridRow)}
+     {:tube/gases (om/get-query grid/GridDataCell)}
      {:app/buttons (om/get-query nav/TabButton)}
      :app/selected-button
      ])
   Object
   (render [this]
     (let [props (om/props this)
+          ;_ (pprint @reconciler)
           ;{:keys [app/gases app/tubes]} props
           ]
       (dom/div nil

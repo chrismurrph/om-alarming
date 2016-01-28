@@ -18,6 +18,13 @@
 
 (def point (om/factory Point {:keyfn :id}))
 
+(defui Poly
+  Object
+  (render [this]
+    (dom/polygon #js {:points "1 2, 3 4, 5 6, 7 8, 9 10, 0 20" :stroke "blue" :fill "none"})))
+
+(def poly (om/factory Poly {:keyfn :id}))
+
 (defui PlumbLine
   Object
   (render [this]
@@ -113,6 +120,7 @@
 (defn testing-component [name test-props]
   (case name
     "plumb-line" (plumb-line test-props)
+    "poly" (poly test-props)
     "point" (point (om/computed {} test-props))
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (many-rect-text-tick test-props)

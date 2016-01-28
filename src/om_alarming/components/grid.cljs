@@ -21,6 +21,17 @@
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
 ;;
+;; Need an Ident for db->query to work. These are just the gases themselves, so there might only be 4 of them
+;;
+(defui SystemGas
+  static om/Ident
+  (ident [this props]
+    [:gas-of-system/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :name]))
+
+;;
 ;; <div class="ui checkbox">
 ;; <input type="checkbox" name="example">
 ;; <label>Make my profile visible</label>
@@ -32,18 +43,19 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    '[:id :gas :selected])
+    [:id :selected {:system-gas (om/get-query SystemGas)}])
   Object
   (render [this]
-    (let [{:keys [id gas] :as props} (om/props this)
-          _ (assert gas (str "GridDataCell needs to be given a gas keyword, props: " props))
-          gas-name (-> bus/gas->details gas :name)
+    (let [{:keys [id system-gas] :as props} (om/props this)
+          _ (assert system-gas (str "GridDataCell needs to be given a gas keyword, props: " props))
+          ;gas-name (-> bus/gas->details system-gas :name)
+          gas-name (:name system-gas)
           {:keys [tube-num]} (om/get-computed this)
           full-name (str "Tube " tube-num " " gas-name)
-          _ (println full-name)
+          ;_ (println full-name)
           ]
       (dom/div #js {:className "three wide column center aligned"}
-               (if (= gas :tube)
+               (if (= system-gas :tube)
                  (dom/label nil tube-num)
                  (checkbox (om/computed props {:full-name full-name})))))))
 
@@ -55,11 +67,11 @@
     [:tube/by-id (:id props)])
   static om/IQuery
   (query [this]
-    `[:id {:tube/gases ~(om/get-query GridDataCell)}])
+    [:id {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
     (let [{:keys [id tube/gases]} (om/props this)
-          _ (println "gases: " gases)
+          ;_ (println "gases: " gases)
           hdr-gases (into [{:id 0 :gas :tube}] gases)]
       (dom/div #js {:className "row"}
                (for [gas gases]
@@ -70,11 +82,15 @@
 (defui GridHeaderLabel
   Object
   (render [this]
-    (let [{:keys [gas]} (om/props this)
-          ;_ (println "GAS:" gas)
-          gas-name (-> bus/gas->details gas :name)]
+    (let [props (om/props this)
+          ;_ (println "props:" props)
+          {:keys [name]} props
+          ;_ (println "GAS:" name)
+          ;gas-name (-> bus/gas->details gas :name)
+          ;gas-name (:name name)
+          ]
       (dom/div #js {:className "three wide column center aligned"}
-               (dom/label nil gas-name)))))
+               (dom/label nil name)))))
 
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
@@ -88,17 +104,14 @@
 (defui GridHeaderRow
   Object
   (render [this]
-    (let [{:keys [gases]} (om/props this)
+    (let [{:keys [app/gases]} (om/props this)
           hdr-gases (into [{:id 0 :gas :tube}] gases)]
       (dom/div #js {:className "row"}
-               (for [gas hdr-gases]
+               (for [gas gases]
                  (grid-header-label gas))))))
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
-;;
-;; Make this just a function and the queries should compose from top to bottom
-;;
 ;(defui GasSelectionGrid
 ;  static om/IQuery
 ;  (query [this]
@@ -115,11 +128,10 @@
 ;               (for [tube tubes]
 ;                 (grid-row tube))
 ;               ))))
-;
 ;(def gas-selection-grid (om/factory GasSelectionGrid {:keyfn :id}))
 
 (defn gas-selection-grid [grid-props]
   (dom/div #js {:className "ui five column grid"}
-           (grid-header-row {:app/gases grid-props})
+           (grid-header-row {:app/gases (:app/gases grid-props)})
            (for [tube (:app/tubes grid-props)]
              (grid-row tube))))
