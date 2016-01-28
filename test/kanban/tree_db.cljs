@@ -13,7 +13,8 @@
           "they move these cards to doing and assign them to "
           "themselves. Once completed, they move the card to "
           "Test for testers to verify the results of the work.")
-     :lanes [{:id 10} {:id 11} {:id 12} {:id 13}]}
+     :lanes [{:id 10} {:id 11} {:id 12} {:id 13}]
+     :secret {:id 2000}}
     {:id 2
      :name "Testing"
      :description
@@ -45,7 +46,9 @@
      :text "Create GitHub repository for the demo app"}]
    :users
    [{:id 1000 :username "konrad" :name "Konrad Zuse"}
-    {:id 1001 :username "ada" :name "Ada Lovelace"}]})
+    {:id 1001 :username "ada" :name "Ada Lovelace"}]
+   :secrets
+   [{:id 2000 :name "First Secret"}{:id 2001 :name "Second Secret"}]})
 
 (defui Secret
   static om/Ident
@@ -85,8 +88,7 @@
     [:board/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :description {:board-lanes (om/get-query Lane)}
-     {:board-secret (om/get-query Secret)}]))
+    [:id :name :description {:secret (om/get-query Secret)} {:lanes (om/get-query Lane)}]))
 
 ;;
 ;; Not implemented. As these methods do not need to be called this should not matter.
@@ -120,6 +122,7 @@
     [{:boards (om/get-query Board)}
      {:boards/active (om/get-query Board)}
      {:lanes (om/get-query Lane)}
+     {:secrets (om/get-query Secret)}
      {:cards (om/get-query Card)}
      :cards/dragged
      {:users (om/get-query Assignee)}]))
