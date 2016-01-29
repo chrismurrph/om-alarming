@@ -60,60 +60,70 @@
    {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
    :app/tubes
    [{:id    1000
+     :tube-num 1
      :tube/gases [{:id 500}
              {:id 501}
              {:id 502}
              {:id 503}
              ]}
     {:id    1001
+     :tube-num 2
      :tube/gases [{:id 504}
              {:id 505}
              {:id 506}
              {:id 507}
              ]}
     {:id    1002
+     :tube-num 3
      :tube/gases [{:id 508}
              {:id 509}
              {:id 510}
              {:id 511}
              ]}
     {:id    1003
+     :tube-num 4
      :tube/gases [{:id 512}
              {:id 513}
              {:id 514}
              {:id 515}
              ]}
     {:id    1004
+     :tube-num 5
      :tube/gases [{:id 516}
              {:id 517}
              {:id 518}
              {:id 519}
              ]}
     {:id    1005
+     :tube-num 6
      :tube/gases [{:id 520}
              {:id 521}
              {:id 522}
              {:id 523}
              ]}
     {:id    1006
+     :tube-num 7
      :tube/gases [{:id 524}
              {:id 525}
              {:id 526}
              {:id 527}
              ]}
     {:id    1007
+     :tube-num 8
      :tube/gases [{:id 528}
              {:id 529}
              {:id 530}
              {:id 531}
              ]}
     {:id    1008
+     :tube-num 9
      :tube/gases [{:id 532}
              {:id 533}
              {:id 534}
              {:id 535}
              ]}
     {:id    1009
+     :tube-num 10
      :tube/gases [{:id 536}
              {:id 537}
              {:id 538}

@@ -147,3 +147,12 @@
                             ))))))
 
 (def tick-lines (om/factory TickLines {:keyfn :id}))
+
+;; Testing for someone from Slack group
+(defui Poly
+  Object
+  (render [this]
+    (dom/polygon #js {:points "1 2, 3 4, 5 6, 7 8, 9 10, 0 20" :stroke "blue" :fill "none"})))
+
+(def poly (om/factory Poly {:keyfn :id}))
+
