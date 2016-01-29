@@ -20,3 +20,16 @@
   (om/reconciler {:normalize true
                   :state initial-state
                   :parser my-parser}))
+
+;; (in-ns 'om-alarming.reconciler)
+(defn query [kw]
+  (let [res (my-parser {:state my-reconciler} `[[~kw _]])
+        ;_ (println res)
+        ;_ (println (type res))
+        ]
+    (when (not-empty res) (apply val res))))
+
+;; (change 'app/tab {:new-id 1} :app/selected-button)
+(defn change [mutate-key param-map kw]
+  (om/transact! my-reconciler `[(~mutate-key ~param-map) ~kw]))
+

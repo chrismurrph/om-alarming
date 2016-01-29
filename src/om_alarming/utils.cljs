@@ -1,6 +1,32 @@
 (ns om-alarming.utils
   )
 
+(defn bisect-vertical-between [[x0 y0 val0] [x1 y1 val1] x]
+  (let [x-diff (- x1 x0)
+        y-diff (- y1 y0)
+        val-diff (- val1 val0)
+        y-ratio (/ y-diff x-diff)
+        val-ratio (/ val-diff x-diff)
+        x-from-start (- x x0)
+        y-res (+ y0 (* x-from-start y-ratio))
+        val-res (+ val0 (* x-from-start val-ratio))]
+    {:proportional-y y-res :proportional-val val-res}))
+
+(defn round [n]
+  (js/Math.round n))
+
+(defn exp [x n]
+  (reduce * (repeat n x)))
+
+(def sqrt (.-sqrt js/Math))
+
+(defn distance [[x1 y1] [x2 y2]]
+  (let [x-delta-squared (exp (- x2 x1) 2)
+        y-delta-squared (exp (- y2 y1) 2)
+        sum-of-differences (+ x-delta-squared y-delta-squared)
+        now-squared (sqrt sum-of-differences)]
+    (round now-squared)))
+
 (defn log [& txts]
   (.log js/console (apply str txts)))
 

@@ -2,6 +2,8 @@
   :description "Alarming and Trending"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
+                 [org.clojure/core.async "0.2.371"]
+                 [org.clojure/core.match "0.2.1"]
                  [org.omcljs/om "1.0.0-alpha30"]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]

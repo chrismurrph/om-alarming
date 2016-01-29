@@ -60,15 +60,6 @@
     )
   )
 
-;; These work, depending on how well the reads are implemented
-;;
-;;(my-parser {:state my-reconciler} [{:app/selected-button [:name] }])
-;;(my-parser {:state my-reconciler} [{:app/buttons [:name] }])
-;;
-;; Does not require a read method, and how we can get a simple bit of top level state
-;;
-;;(my-parser {:state my-reconciler} '[[:graph/in-sticky-time? _]])
-
 ;;
 ;; Directly puts dots on the screen. Really it is staging-area's job to do this intelligently. So this will go.
 ;;

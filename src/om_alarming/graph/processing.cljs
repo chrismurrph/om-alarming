@@ -1,8 +1,14 @@
 (ns om-alarming.graph.processing
   (:require [goog.string :as gstring]
             [goog.string.format]
-            [om-alarming.utils :as u]
-            [om-alarming.graph.mock-values :refer [black]]))
+            [om-alarming.utils :as u :refer [log distance bisect-vertical-between]]
+            ;[om-alarming.utils :as u]
+            [om-alarming.graph.mock-values :refer [black]]
+            [om-alarming.reconciler :as reconciler]
+            [cljs.core.async :as async
+             :refer [<! >! chan close! put! timeout]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+                   [cljs.core.match.macros :refer [match]]))
 
 ;;
 ;; Anything that originally comes from graphing that does have to do with Reagent or the state
@@ -51,6 +57,45 @@
         ]
     {:horiz horiz-trans-fn :vert vert-trans-fn :point trans-point-fn}))
 
+;; These work, depending on how well the reads are implemented
+;; (in-ns 'om-alarming/graph.processing)
+;;
+;;(my-parser {:state my-reconciler} [{:app/selected-button [:name] }])
+;;(my-parser {:state my-reconciler} [{:app/buttons [:name] }])
+;;
+;; How we can get a simple bit of top level state
+;;
+;;(my-parser {:state my-reconciler} '[[:graph/in-sticky-time? _]])
+
+(defn- controller [inchan]
+  (go-loop [cur-x nil cur-y nil old-x nil old-y nil]
+           (match [(<! inchan)]
+
+                  [{:type "mousemove" :x x :y y}]
+                  (let [now-moment (now-time)
+                        in-sticky-time? (reconciler/query :in-sticky-time?)
+                        diff (distance [old-x old-y] [cur-x cur-y])
+                        is-flick (> diff 10)]
+                    (when (not is-flick)
+                      (when (not in-sticky-time?)
+                        (reconciler/change 'graph/hover-pos {:x x} :graph/hover-pos)
+                        (reconciler/change 'graph/last-mouse-moment {:now-moment now-moment} :graph/last-mouse-moment)
+                        (reconciler/change 'graph/labels-visible? {:b false} :graph/labels-visible?)
+                        ;(u/log (get-in @state-ref [:hover-pos]))
+                        ))
+                    (recur x y cur-x cur-y))
+
+                  ;[{:type "mouseup" :x x :y y}]
+                  ;(let [current-line (dec (my-lines-size))]
+                  ;  (log "Already colour of current line at " current-line " is " (get-in @state [:my-lines current-line :colour]))
+                  ;  (swap! state update-in [:my-lines current-line :points] (fn [points-at-n] (vec (conj points-at-n [x y]))))
+                  ;  ;(u/log "When mouse up time is: " when-last-moved)
+                  ;  (recur x y old-x old-y))
+
+                  [_]
+                  (do
+                    (recur cur-x cur-y old-x old-y)))))
+
 ;;
 ;; keyword options:
 ;; :height :width :trans-point :get-positions :get-colour
@@ -58,7 +103,10 @@
 ;; Note that :trans-colour does not exist - colours have to be of shape {:r :g :b}
 ;;
 (defn init [options-map]
-  (let [staging (:staging options-map)
+  (let [ch (chan)
+        proc (controller ch)
+        args (into {:comms ch} options-map)
+        staging (:staging options-map)
         graph-width (:width options-map)
         _ (assert graph-width ":width needs to be supplied at init")
         graph-height (:height options-map)
