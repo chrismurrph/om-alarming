@@ -26,7 +26,7 @@
     [:gas-of-system/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name]))
+    [:id :short-name]))
 
 (defui GridDataCell
   static om/Ident
@@ -38,15 +38,15 @@
   Object
   (render [this]
     (let [{:keys [id system-gas] :as props} (om/props this)
-          ;_ (assert system-gas (str "GridDataCell needs to be given a gas keyword, props: " props))
-          {:keys [tube-num]} (om/get-computed this)
+          {:keys [tube-num sui-col-info]} (om/get-computed this)
+          ;sui-col-info #js {:className "two wide column center aligned"}
           ]
       (if system-gas
         (let [gas-name (:name system-gas)
               full-name (str "Tube " tube-num " " gas-name)]
-          (dom/div #js {:className "three wide column center aligned"}
+          (dom/div sui-col-info
                    (checkbox (om/computed props {:full-name full-name}))))
-        (dom/div #js {:className "three wide column center aligned"}
+        (dom/div sui-col-info
                  (dom/label nil tube-num))))))
 
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
@@ -61,12 +61,13 @@
   Object
   (render [this]
     (let [{:keys [id tube-num tube/gases]} (om/props this)
+          ;{:keys [sui-col-info]} (om/get-computed this)
           _ (println "gases: " gases)
           hdr-and-gases (into [{:id 0}] gases)
           ]
       (dom/div #js {:className "row"}
                (for [gas hdr-and-gases]
-                 (grid-data-cell (om/computed gas {:tube-num tube-num})))))))
+                 (grid-data-cell (om/computed gas (merge {:tube-num tube-num} (om/get-computed this)))))))))
 
 (def grid-row (om/factory GridRow {:keyfn :id}))
 
@@ -74,11 +75,12 @@
   Object
   (render [this]
     (let [props (om/props this)
-          {:keys [name]} props
+          {:keys [short-name]} props
+          {:keys [sui-col-info]} (om/get-computed this)
           ;_ (println "GAS:" name)
           ]
-      (dom/div #js {:className "three wide column center aligned"}
-               (dom/label nil name)))))
+      (dom/div sui-col-info
+               (dom/label nil short-name)))))
 
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
@@ -86,15 +88,17 @@
   Object
   (render [this]
     (let [{:keys [app/gases]} (om/props this)
-          hdr-gases (into [{:id 0 :name "Tube"}] gases)]
+          hdr-gases (into [{:id 0 :short-name "Tube"}] gases)]
       (dom/div #js {:className "row"}
                (for [gas hdr-gases]
-                 (grid-header-label gas))))))
+                 (grid-header-label (om/computed gas (om/get-computed this))))))))
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
 (defn gas-selection-grid [grid-props]
-  (dom/div #js {:className "ui five column grid"}
-           (grid-header-row (select-keys grid-props [:app/gases]))
-           (for [tube (:app/tubes grid-props)]
-             (grid-row tube))))
+  (let [sui-col-info-map {:sui-col-info #js {:className "one wide column center aligned"}}
+        sui-grid-info #js {:className "ui five column grid"}]
+    (dom/div sui-grid-info
+             (grid-header-row (om/computed (select-keys grid-props [:app/gases]) sui-col-info-map))
+             (for [tube (:app/tubes grid-props)]
+               (grid-row (om/computed tube sui-col-info-map))))))

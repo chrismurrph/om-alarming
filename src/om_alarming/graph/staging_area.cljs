@@ -18,6 +18,7 @@
 
 ;;
 ;; Although they say lowest and highest they actually mean lowest and highest thresholds
+;; (a higher threshold means that it is worse, which may mean it has a lower value)
 ;;
 (def gas-infos [{:name "Carbon Dioxide" :lowest 0.5 :highest 1.35}
                 {:name "Carbon Monoxide" :lowest 30 :highest 55}
