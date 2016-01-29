@@ -55,9 +55,16 @@
      :name "Carbon Monoxide at 1" :units "ppm" :colour red
      :points [7 8 9 10 11 12 11 10 9 8 7 6 5]}
     ]
-   :app/gases [{:id 150 :name "Methane"} {:id 151 :name "Oxygen"} {:id 152 :name "Carbon Monoxide"} {:id 153 :name "Carbon Dioxide"}]
+   :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"}
+               {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
+               {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
+               {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
    :graph/current-label
    {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
+   :graph/in-sticky-time? false
+   :graph/hover-pos nil
+   :graph/last-mouse-moment nil
+   :graph/labels-visible? false
    :app/tubes
    [{:id    1000
      :tube-num 1

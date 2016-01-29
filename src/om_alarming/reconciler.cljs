@@ -7,7 +7,7 @@
 
 (defmulti mutate om/dispatch)
 
-(def parser
+(def my-parser
   (om/parser {:read read
               :mutate mutate}))
 
@@ -16,7 +16,7 @@
 ;; `:normalize true` is just for documentation purposes. But it is important
 ;; because our reads use db->tree, which works with normalized state.
 ;;
-(def reconciler
+(def my-reconciler
   (om/reconciler {:normalize true
                   :state initial-state
-                  :parser parser}))
+                  :parser my-parser}))

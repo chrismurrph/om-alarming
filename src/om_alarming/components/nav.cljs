@@ -2,7 +2,7 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.parsing.mutates]
-            [om-alarming.reconciler :refer [reconciler]]
+            [om-alarming.reconciler :refer [my-reconciler]]
             [om-alarming.util :refer [class-names]]))
 
 (defui TabButton
