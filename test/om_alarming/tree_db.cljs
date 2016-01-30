@@ -44,7 +44,7 @@
 (defui LocationGasCell
   static om/Ident
   (ident [this props]
-    [:location-gas/by-id (:id props)])
+    [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
     [:id :value {:location (om/get-query Location)} {:system-gas (om/get-query SystemGas)}]))
