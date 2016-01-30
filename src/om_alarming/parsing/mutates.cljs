@@ -12,6 +12,19 @@
 (defmethod mutate 'graph/hover-pos
   [{:keys [state]} _ {:keys [x]}]
   {:value  {:keys [:graph/hover-pos]}
-   :action #(let [;_ (println "Selected: " new-id)
-                  ]
-             (swap! state assoc-in [:graph/hover-pos] x))})
+   :action #(swap! state assoc :graph/hover-pos x)})
+
+(defmethod mutate 'graph/last-mouse-moment
+  [{:keys [state]} _ {:keys [now-moment]}]
+  {:value  {:keys [:graph/last-mouse-moment]}
+   :action #(swap! state assoc :graph/last-mouse-moment now-moment)})
+
+(defmethod mutate 'graph/labels-visible?
+  [{:keys [state]} _ {:keys [b]}]
+  {:value  {:keys [:graph/labels-visible?]}
+   :action #(swap! state assoc :graph/labels-visible? b)})
+
+(defmethod mutate 'graph/translators
+  [{:keys [state]} _ {:keys [translators]}]
+  {:value  {:keys [:graph/translators]}
+   :action #(swap! state assoc-in [:graph/translators] translators)})

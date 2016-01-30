@@ -59,12 +59,15 @@
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
                {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
-   :graph/current-label
-   {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
+   :graph/init {:height 250
+                :width 640}
+   :graph/translators {:horiz nil :vert nil :point nil}
+   :graph/current-label nil ; {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
    :graph/in-sticky-time? false
    :graph/hover-pos nil
    :graph/last-mouse-moment nil
    :graph/labels-visible? false
+   :graph/labels []
    :app/tubes
    [{:id    1000
      :tube-num 1

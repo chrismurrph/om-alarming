@@ -8,6 +8,7 @@
             [om-alarming.utils :as u]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.nav :as nav]
+            [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             ))
 
@@ -47,6 +48,6 @@
 (defn run []
   (om/add-root! my-reconciler
                 App
-                (.. js/document (getElementById "main-app-area"))))
-
+                (.. js/document (getElementById "main-app-area")))
+  (p/init))
 (run)

@@ -47,8 +47,8 @@
         ]
     res))
 
-(def default-init-state {:translator nil})
-(def init-state (atom default-init-state))
+;(def default-init-state {:translator nil})
+;(def init-state (atom default-init-state))
 
 (defn- staging-translators [min-x min-y max-x max-y graph-width graph-height]
   (let [horiz-trans-fn (fn [val] (u/scale {:min min-x :max max-x} {:min 0 :max graph-width} val))
@@ -78,9 +78,9 @@
                         is-flick (> diff 10)]
                     (when (not is-flick)
                       (when (not in-sticky-time?)
-                        (reconciler/change 'graph/hover-pos {:x x} :graph/hover-pos)
-                        (reconciler/change 'graph/last-mouse-moment {:now-moment now-moment} :graph/last-mouse-moment)
-                        (reconciler/change 'graph/labels-visible? {:b false} :graph/labels-visible?)
+                        (reconciler/alteration 'graph/hover-pos {:x x} :graph/hover-pos)
+                        (reconciler/alteration 'graph/last-mouse-moment {:now-moment now-moment} :graph/last-mouse-moment)
+                        (reconciler/alteration 'graph/labels-visible? {:b false} :graph/labels-visible?)
                         ;(u/log (get-in @state-ref [:hover-pos]))
                         ))
                     (recur x y cur-x cur-y))
@@ -102,9 +102,11 @@
 ;; All are defaulted - see main-component
 ;; Note that :trans-colour does not exist - colours have to be of shape {:r :g :b}
 ;;
-(defn init [options-map]
+(defn init []
   (let [ch (chan)
         proc (controller ch)
+        options-map (reconciler/query :graph/init)
+        _ (println "Created a controller, width is " (:width options-map))
         args (into {:comms ch} options-map)
         staging (:staging options-map)
         graph-width (:width options-map)
@@ -114,4 +116,8 @@
         translators (staging-translators (or (:min-x staging) 0) (or (:min-y staging) 0) (or (:max-x staging) 999)
                                          (or (:max-y staging) 999) graph-width graph-height)
         ]
-    (swap! init-state assoc-in [:translator] translators)))
+    (reconciler/alteration 'graph/translators {:translators translators} :graph/translators)
+    ;; Leaving in for curiosity
+    (go
+      (let [exit (<! proc)]
+        (prn :exit! exit)))))
