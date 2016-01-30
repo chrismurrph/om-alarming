@@ -19,6 +19,12 @@
 (def drop-infos nil)
 (def merge-testing-name nil)
 
+(defcard poly
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 28
+          :test-props {:testing-name "poly"}}
+         {:inspect-data false})
+
 (defcard insert-texts
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 3

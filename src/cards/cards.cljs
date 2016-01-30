@@ -35,12 +35,6 @@
                        :height 200}}
          {:inspect-data false})
 
-(defcard poly
-         (fn [props _] (graph/simple-svg-tester @props))
-         {:id 28
-          :test-props {:testing-name "poly"}}
-         {:inspect-data false})
-
 (defcard many-rect-text-tick
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 29
