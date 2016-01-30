@@ -143,87 +143,136 @@
    :tube/gases
    [{:id       500
      :system-gas      {:id 150}
+     :tube {:id 1000}
      :selected true}
     {:id  501
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1000}}
     {:id  502
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1000}}
     {:id  503
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1000}}
+
     {:id  504
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1001}}
     {:id  505
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1001}}
     {:id  506
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1001}}
     {:id  507
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1001}}
+
     {:id  508
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1002}}
     {:id  509
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1002}}
     {:id  510
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1002}}
     {:id       511
      :system-gas      {:id 153}
+     :tube {:id 1002}
      :selected true}
+
     {:id  512
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1003}}
     {:id       513
      :system-gas      {:id 151}
+     :tube {:id 1003}
      :selected true}
     {:id  514
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1003}}
     {:id  515
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1003}}
+
     {:id  516
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1004}}
     {:id  517
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1004}}
     {:id  518
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1004}}
     {:id  519
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1004}}
+
     {:id  520
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1005}}
     {:id  521
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1005}}
     {:id  522
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1005}}
     {:id  523
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1005}}
+
     {:id  524
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1006}}
     {:id  525
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1006}}
     {:id  526
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1006}}
     {:id  527
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1006}}
+
     {:id  528
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1007}}
     {:id  529
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1007}}
     {:id  530
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1007}}
     {:id  531
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1007}}
+
     {:id  532
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1008}}
     {:id  533
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1008}}
     {:id  534
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1008}}
     {:id  535
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1008}}
+
     {:id  536
-     :system-gas {:id 150}}
+     :system-gas {:id 150}
+     :tube {:id 1009}}
     {:id  537
-     :system-gas {:id 151}}
+     :system-gas {:id 151}
+     :tube {:id 1009}}
     {:id  538
-     :system-gas {:id 152}}
+     :system-gas {:id 152}
+     :tube {:id 1009}}
     {:id  539
-     :system-gas {:id 153}}
+     :system-gas {:id 153}
+     :tube {:id 1009}}
     ]
    }
   )
