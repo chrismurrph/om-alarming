@@ -5,6 +5,11 @@
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]))
 
+(def careless-text-props (clj->js {:x  10 :y 20
+                          :stroke      (process/rgb-map-to-str black)
+                          :strokeWidth 0.65
+                          :opacity     1.0}))
+
 (defui Point
   Object
   (render [this]
@@ -15,7 +20,6 @@
                                   :cy y
                                   :fill (process/rgb-map-to-str rgb-map)})]
       (dom/circle (clj->js circle-props)))))
-
 (def point (om/factory Point {:keyfn :id}))
 
 (defui PlumbLine
@@ -31,7 +35,6 @@
                              :strokeWidth stroke-width})
           res (when visible? (dom/line (clj->js line-props)))]
       res)))
-
 (def plumb-line (om/factory PlumbLine {:keyfn :id}))
 
 (defui RectTextTick
@@ -52,7 +55,8 @@
                       :x        (+ x 10)
                       :y        (+ proportional-y 4)
                       :fontSize "0.8em"
-                      :stroke   text-colour-str}
+                      :stroke   text-colour-str
+                      :strokeWidth 0.65}
           ;_ (println text-props)
           ;;; tick
           colour-str (-> line-doing :colour process/rgb-map-to-str)
@@ -84,7 +88,6 @@
              (dom/rect (clj->js rect-props))
              (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-label) 2) proportional-val units-str))
              (dom/line (clj->js line-props))))))
-
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn many-rect-text-ticks [drop-info]
@@ -110,12 +113,27 @@
         (many-rect-text-ticks drop-info)))))
 (def many-rect-text-tick (om/factory ManyRectTextTick {:keyfn :id}))
 
+(defui MainComponent
+  static om/IQuery
+  (query [this]
+    [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?])
+  Object
+  (render [this]
+    (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible?]} (om/props this)
+          {:keys [height width]} init
+          init-props (merge {:style {:border "thin solid black"}} init)]
+      (dom/div nil
+               (dom/svg (clj->js init-props)
+                        (dom/text careless-text-props "Hi Mum!"))))))
+(def main-component (om/factory MainComponent {:keyfn :id}))
+
 (defn testing-component [name test-props]
   (case name
     "plumb-line" (plumb-line test-props)
     "point" (point (om/computed {} test-props))
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (many-rect-text-tick test-props)
+    "main-component" (main-component test-props)
     ;; These may all be surplus:
     "poly" (surplus/poly test-props)
     "tick-lines" (surplus/tick-lines test-props)

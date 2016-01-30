@@ -62,7 +62,7 @@
   (render [this]
     (let [{:keys [id tube-num tube/gases]} (om/props this)
           ;{:keys [sui-col-info]} (om/get-computed this)
-          _ (println "gases: " gases)
+          ;_ (println "gases: " gases)
           hdr-and-gases (into [{:id 0}] gases)
           ]
       (dom/div #js {:className "row"}
