@@ -8,13 +8,16 @@
   get components that don't have a render method to do the normalization.")
 (def initial-state
   {:system-gases
-   [{:id 200 :gas-name "Methane"}
-    {:id 201 :gas-name "Oxygen"}
-    {:id 202 :gas-name "Carbon Monoxide"}
-    {:id 203 :gas-name "Carbon Dioxide"}]
+   [{:id 200 :short-name "Methane"}
+    {:id 201 :short-name "Oxygen"}
+    {:id 202 :short-name "Carbon Monoxide"}
+    {:id 203 :short-name "Carbon Dioxide"}]
    :locations
    [{:id 100 :location-name "Invercargill"}
     {:id 101 :location-name "Dunedin"}]
+   :intersects
+   [{:id 2000 :location-name "Invercargill"}
+    {:id 2001 :location-name "Dunedin"}]
    :location-gases
    [{:id 300 :value 10.1 :location {:id 100} :system-gas {:id 200}}
     {:id 301 :value 10.2 :location {:id 100} :system-gas {:id 201}}
@@ -31,7 +34,7 @@
     [:gas-of-system/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :gas-name]))
+    [:id :short-name]))
 
 (defui Location
   static om/Ident

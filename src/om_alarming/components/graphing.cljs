@@ -3,7 +3,8 @@
             [om.dom :as dom]
             [om-alarming.components.surplus :as surplus]
             [om-alarming.graph.processing :as process]
-            [om-alarming.graph.mock-values :refer [white light-blue black]]))
+            [om-alarming.graph.mock-values :refer [white light-blue black]]
+            [om-alarming.components.grid :as grid]))
 
 (def careless-text-props (clj->js {:x  10 :y 20
                           :stroke      (process/rgb-map-to-str black)
@@ -11,6 +12,12 @@
                           :opacity     1.0}))
 
 (defui Point
+  static om/Ident
+  (ident [this props]
+    [:graph-point/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :x :y :rgb-map])
   Object
   (render [this]
     (let [{:keys [rgb-map x y]} (om/get-computed this)
@@ -21,6 +28,25 @@
                                   :fill (process/rgb-map-to-str rgb-map)})]
       (dom/circle (clj->js circle-props)))))
 (def point (om/factory Point {:keyfn :id}))
+
+;;
+;; GridDataCell should be taking care of this one
+;;
+(defui Intersect
+  static om/Ident
+  (ident [this props]
+    [:gas-at-location/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :value {:tube (om/get-query grid/Location)} {:system-gas (om/get-query grid/SystemGas)}]))
+
+(defui Line
+  static om/Ident
+  (ident [this props]
+    [:line/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:points (om/get-query Point)}]))
 
 (defui PlumbLine
   Object
@@ -38,10 +64,16 @@
 (def plumb-line (om/factory PlumbLine {:keyfn :id}))
 
 (defui RectTextTick
+  static om/Ident
+  (ident [this props]
+    [:x-gas-details/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:proportional-y :proportional-val :name])
   Object
   (render [this]
-    (let [{:keys [x-gas-info current-label x id my-lines]} (om/props this)
-          {:keys [proportional-y proportional-val name testing-name]} x-gas-info
+    (let [{:keys [proportional-y proportional-val name]} (om/props this)
+          {:keys [x-gas-info current-label x id my-lines testing-name]} (om/get-computed this)
           _ (assert name (str "x-gas-info w/out a name: " x-gas-info))
           _ (println "my-lines count: " (count my-lines))
           ;;; text
@@ -91,19 +123,35 @@
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn many-rect-text-ticks [drop-info]
-  (let [{:keys [x-gas-details current-label x my-lines]} drop-info]
+  (let [{:keys [x-gas-details current-label x lines]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
     (println "names: " (map :name x-gas-details))
     (assert (:name current-label))
-    (assert my-lines)
+    (assert lines)
     (for [x-gas-info x-gas-details]
-      (rect-text-tick {:x-gas-info x-gas-info
-                       :current-label current-label
-                       :x x
-                       :my-lines my-lines
-                       :id (:id x-gas-info)}))))
+      (rect-text-tick (om/computed x-gas-info {:x-gas-info x-gas-info
+                                               :current-label current-label
+                                               :x x
+                                               :my-lines lines})))))
+
+(defui Label
+  static om/Ident
+  (ident [this props]
+    [:label/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :name :dec-places]))
 
 (defui ManyRectTextTick
+  static om/Ident
+  (ident [this props]
+    [:drop-info/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :x
+     {:graph/x-gas-details (om/get-query RectTextTick)}
+     {:current-label (om/get-query Label)}
+     {:graph/lines (om/get-query Line)}])
   Object
   (render [this]
     (let [{:keys [drop-info testing-name]} (om/props this)]

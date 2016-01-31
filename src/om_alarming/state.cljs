@@ -30,10 +30,10 @@
      :showing     true}
     ]
    :graph/drop-info
-   {:id            10200
+   {:id            10200 ;; Doesn't really need an id as there will only be one
     :x             50
     :graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
-    :current-label {:name "Carbon Monoxide at 1" :dec-places 1}
+    :current-label {:id 10000}
     :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/x-gas-details
    [
@@ -44,17 +44,30 @@
    :graph/lines
    [{:id     100
      :name "Methane at 1" :units "%" :colour pink
-     :points [0.03 0.04 0.05 0.04 0.03 0.02 0.01 0.01 0.07 0.07 0.10 0.13]}
+     :points [{:id 2000}{:id 2001}{:id 2002}]}
     {:id     101
      :name "Oxygen at 1" :units "%" :colour green
-     :points [21.0 22.0 22.0 21.4 20.0 21.3 22.0 19.5 19.8 21.0 21.1 21.5]}
+     :points [{:id 2003}{:id 2004}{:id 2005}]}
     {:id     102
      :name "Carbon Dioxide at 1" :units "%" :colour blue
-     :points [0.05 0.08 0.07 0.09 0.10 0.20 0.21 0.23 0.27 0.13 0.18 0.19]}
+     :points [{:id 2006}{:id 2007}{:id 2008}]}
     {:id     103
      :name "Carbon Monoxide at 1" :units "ppm" :colour red
-     :points [7 8 9 10 11 12 11 10 9 8 7 6 5]}
+     :points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
+   :graph/points
+   [{:id 2000 :x 10 :y 23}
+    {:id 2001 :x 11 :y 24}
+    {:id 2002 :x 12 :y 25}
+    {:id 2003 :x 13 :y 26}
+    {:id 2004 :x 14 :y 27}
+    {:id 2005 :x 15 :y 28}
+    {:id 2006 :x 16 :y 29}
+    {:id 2007 :x 17 :y 30}
+    {:id 2008 :x 18 :y 31}
+    {:id 2009 :x 19 :y 32}
+    {:id 2010 :x 20 :y 33}
+    {:id 2011 :x 21 :y 34}]
    :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"}
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
@@ -62,12 +75,11 @@
    :graph/init {:height 250
                 :width 640}
    :graph/translators {:horiz nil :vert nil :point nil}
-   :graph/current-label nil ; {:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}
    :graph/in-sticky-time? false
    :graph/hover-pos nil
    :graph/last-mouse-moment nil
    :graph/labels-visible? false
-   :graph/labels []
+   :graph/labels [{:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}]
    :app/tubes
    [{:id    1000
      :tube-num 1

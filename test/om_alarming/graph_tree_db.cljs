@@ -10,40 +10,40 @@
 (def initial-state
   {:graph/lines
    [{:id     100
-     :intersect 300
+     :intersect {:id 300}
      :name "Methane at 1" :units "%" :colour pink
      :points [{:id 2000}{:id 2001}{:id 2002}]}
     {:id     101
-     :intersect 301
+     :intersect {:id 301}
      :name "Oxygen at 1" :units "%" :colour green
      :points [{:id 2003}{:id 2004}{:id 2005}]}
     {:id     102
-     :intersect 303
+     :intersect {:id 303}
      :name "Carbon Dioxide at 1" :units "%" :colour blue
      :points [{:id 2006}{:id 2007}{:id 2008}]}
     {:id     103
-     :intersect 302
+     :intersect {:id 302}
      :name "Carbon Monoxide at 1" :units "ppm" :colour red
      :points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
    :system-gases
-   [{:id 200 :gas-name "Methane"}
-    {:id 201 :gas-name "Oxygen"}
-    {:id 202 :gas-name "Carbon Monoxide"}
-    {:id 203 :gas-name "Carbon Dioxide"}]
-   :locations
-   [{:id 1000 :location-name "Invercargill"}
-    {:id 1001 :location-name "Dunedin"}]
-   :location-gases
-   [{:id 300 :value 10.1 :location {:id 1000} :system-gas {:id 200}}
-    {:id 301 :value 10.2 :location {:id 1000} :system-gas {:id 201}}
-    {:id 302 :value 10.3 :location {:id 1000} :system-gas {:id 202}}
-    {:id 303 :value 10.4 :location {:id 1000} :system-gas {:id 203}}
-    {:id 304 :value 10.5 :location {:id 1001} :system-gas {:id 200}}
-    {:id 305 :value 10.6 :location {:id 1001} :system-gas {:id 201}}
-    {:id 306 :value 10.7 :location {:id 1001} :system-gas {:id 202}}
-    {:id 307 :value 10.8 :location {:id 1001} :system-gas {:id 203}}]
-   :points
+   [{:id 200 :short-name "Methane"}
+    {:id 201 :short-name "Oxygen"}
+    {:id 202 :short-name "Carbon Monoxide"}
+    {:id 203 :short-name "Carbon Dioxide"}]
+   :app/tubes
+   [{:id 1000 :tube-num "Invercargill"}
+    {:id 1001 :tube-num "Dunedin"}]
+   :tube/gases
+   [{:id 300 :value 10.1 :tube {:id 1000} :system-gas {:id 200}}
+    {:id 301 :value 10.2 :tube {:id 1000} :system-gas {:id 201}}
+    {:id 302 :value 10.3 :tube {:id 1000} :system-gas {:id 202}}
+    {:id 303 :value 10.4 :tube {:id 1000} :system-gas {:id 203}}
+    {:id 304 :value 10.5 :tube {:id 1001} :system-gas {:id 200}}
+    {:id 305 :value 10.6 :tube {:id 1001} :system-gas {:id 201}}
+    {:id 306 :value 10.7 :tube {:id 1001} :system-gas {:id 202}}
+    {:id 307 :value 10.8 :tube {:id 1001} :system-gas {:id 203}}]
+   :graph/points
    [{:id 2000 :x 10 :y 23}
     {:id 2001 :x 11 :y 24}
     {:id 2002 :x 12 :y 25}
@@ -64,20 +64,20 @@
     [:gas-of-system/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :gas-name]))
+    [:id :short-name]))
 
 (defui Location
   static om/Ident
   (ident [this props]
-    [:location/by-id (:id props)])
+    [:tube/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :location-name]))
+    [:id :tube-num]))
 
 (defui Point
   static om/Ident
   (ident [this props]
-    [:point/by-id (:id props)])
+    [:graph-point/by-id (:id props)])
   static om/IQuery
   (query [this]
     [:id :x :y]))
@@ -88,7 +88,7 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :value {:location (om/get-query Location)} {:system-gas (om/get-query SystemGas)}]))
+    [:id :value {:tube (om/get-query Location)} {:system-gas (om/get-query SystemGas)}]))
 
 (defui Line
   static om/Ident
@@ -127,9 +127,9 @@
   static om/IQuery
   (query [this]
     [{:system-gases (om/get-query SystemGas)}
-     {:locations (om/get-query Location)}
-     {:points (om/get-query Point)}
-     {:location-gases (om/get-query Intersect)}
+     {:app/tubes (om/get-query Location)}
+     {:graph/points (om/get-query Point)}
+     {:tube/gases (om/get-query Intersect)}
      {:graph/lines (om/get-query Line)}])
   ;Object
   ;(render [this]

@@ -8,6 +8,7 @@
             [om-alarming.utils :as u]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.nav :as nav]
+            [om-alarming.components.graphing :as graph]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             ))
@@ -22,12 +23,17 @@
      {:app/tubes (om/get-query grid/GridRow)}
      {:tube/gases (om/get-query grid/GridDataCell)}
      {:app/buttons (om/get-query nav/TabButton)}
-     :app/selected-button
+     {:app/selected-button (om/get-query nav/TabButton)}
+     {:graph/points (om/get-query graph/Point)}
+     {:graph/lines (om/get-query graph/Line)}
+     {:graph/x-gas-details (om/get-query graph/RectTextTick)}
+     {:graph/drop-info (om/get-query graph/ManyRectTextTick)}
+     {:graph/labels (om/get-query graph/Label)}
      ])
   Object
   (render [this]
     (let [props (om/props this)
-          ;_ (pprint @reconciler)
+          _ (pprint @my-reconciler)
           ;{:keys [app/gases app/tubes]} props
           ]
       (dom/div nil

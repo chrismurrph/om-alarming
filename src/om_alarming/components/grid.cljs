@@ -28,13 +28,24 @@
   (query [this]
     [:id :short-name]))
 
+;;
+;; GridRow does same thing so this not needed at top
+;;
+(defui Location
+  static om/Ident
+  (ident [this props]
+    [:tube/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :tube-num]))
+
 (defui GridDataCell
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :selected {:system-gas (om/get-query SystemGas)}])
+    [:id :selected {:system-gas (om/get-query SystemGas)} {:tube (om/get-query Location)}])
   Object
   (render [this]
     (let [{:keys [id system-gas] :as props} (om/props this)
@@ -42,7 +53,7 @@
           ;sui-col-info #js {:className "two wide column center aligned"}
           ]
       (if system-gas
-        (let [gas-name (:name system-gas)
+        (let [gas-name (:short-name system-gas)
               full-name (str "Tube " tube-num " " gas-name)]
           (dom/div sui-col-info
                    (checkbox (om/computed props {:full-name full-name}))))

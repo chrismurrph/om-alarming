@@ -22,7 +22,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "om-alarming.tree-db"
+                        :compiler {:main       "om-alarming.graph-tree-db"
                                    :asset-path "js/out"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/out"
