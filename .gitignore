@@ -5,3 +5,4 @@ figwheel_server.log
 target/
 *min.css
 sui_*.css
+material.css

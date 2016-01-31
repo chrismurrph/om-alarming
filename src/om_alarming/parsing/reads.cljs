@@ -26,6 +26,14 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :app/selected-button
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In read with:" key "," query ".")
+        ;_ (println "In read with:" (get st key))
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :default
   [{:keys [state query]} key _]
   (let [st @state
@@ -33,12 +41,6 @@
         ]
     {:value (get st key)}))
 
-;(defmethod read :app/selected-button
-;  [{:keys [state query]} key _]
-;  (let [st @state
-;        ;_ (println "In read to ret:" (get st key))
-;        ]
-;    {:value (get st key)}))
 ;(defmethod read :graph/in-sticky-time?
 ;  [{:keys [state query]} key _]
 ;  (let [st @state

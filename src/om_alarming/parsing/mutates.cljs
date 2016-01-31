@@ -7,7 +7,7 @@
   {:value  {:keys [:app/selected-button]}
    :action #(let [;_ (println "Selected: " new-id)
                   ]
-             (swap! state assoc-in [:app/selected-button :id] new-id))})
+             (swap! state assoc-in [:app/selected-button 1] new-id))})
 
 (defmethod mutate 'graph/hover-pos
   [{:keys [state]} _ {:keys [x]}]

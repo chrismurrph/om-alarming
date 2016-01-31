@@ -2,6 +2,7 @@
   (:require [om.next :as om]
             [om.dom :as dom :include-macros true]
             [om-alarming.components.nav :as nav]
+            [om-alarming.components.surplus :as surplus]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
             [om-alarming.graph.mock-values :as data]
@@ -27,25 +28,25 @@
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
-(defcard main-component
-         (fn [props _] (graph/simple-svg-tester @props))
-         {:id 28
-          :test-props {:testing-name "main-component"
-                       :width 200
-                       :height 200}}
-         {:inspect-data false})
-
-(defcard many-rect-text-tick
-         (fn [props _] (graph/simple-svg-tester @props))
-         {:id 29
-          :test-props {:testing-name "many-rect-text-tick"
-                       :drop-info {:x 50
-                                   :my-lines data/my-lines
-                                   :current-label {:name "Carbon Monoxide" :dec-places 1}
-                                   :x-gas-details (merge-testing-name simple-x-gas-details "many-rect-text-tick")}}}
-         {:inspect-data false}
-         )
-
+;(defcard main-component
+;         (fn [props _] (graph/simple-svg-tester @props))
+;         {:id 28
+;          :test-props {:testing-name "main-component"
+;                       :width 200
+;                       :height 200}}
+;         {:inspect-data false})
+;
+;(defcard many-rect-text-tick
+;         (fn [props _] (graph/simple-svg-tester @props))
+;         {:id 29
+;          :test-props {:testing-name "many-rect-text-tick"
+;                       :drop-info {:x 50
+;                                   :my-lines data/my-lines
+;                                   :current-label {:name "Carbon Monoxide" :dec-places 1}
+;                                   :x-gas-details (merge-testing-name simple-x-gas-details "many-rect-text-tick")}}}
+;         {:inspect-data false}
+;         )
+;
 (defcard rect-text-tick
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 30
@@ -88,49 +89,49 @@
 (defcard selection-grid
   (fn [props _] (grid/gas-selection-grid @props))
   {:id 11 :text "Selection Grid"
-   :app/gases [{:id 1 :gas :methane} {:id 2 :gas :oxygen} {:id 3 :gas :carbon-monoxide} {:id 4 :gas :carbon-dioxide}]
+   :app/gases [{:id 1 :short-name "CH4"} {:id 2 :short-name "O2"} {:id 3 :short-name "CO"} {:id 4 :short-name "CO2"}]
    :app/tubes    [{:id    1
                :tube/gases [{:id  1
-                        :gas :methane
+                        :system-gas {:short-name "CH4"}
                         :selected true}
                        {:id  2
-                        :gas :oxygen}
+                        :system-gas {:short-name "O2"}}
                        {:id  3
-                        :gas :carbon-monoxide}
+                        :system-gas {:short-name "CO"}}
                        {:id  4
-                        :gas :carbon-dioxide}
+                        :system-gas {:short-name "CO2"}}
                        ]}
               {:id    2
                :tube/gases [{:id  5
-                        :gas :methane}
+                       :system-gas {:short-name "CH4"}}
                        {:id  6
-                        :gas :oxygen}
+                        :system-gas {:short-name "O2"}}
                        {:id  7
-                        :gas :carbon-monoxide}
+                        :system-gas {:short-name "CO"}}
                        {:id  8
-                        :gas :carbon-dioxide}
+                        :system-gas {:short-name "CO2"}}
                        ]}
               {:id    3
                :tube/gases [{:id  9
-                        :gas :methane}
+                       :system-gas {:short-name "CH4"}}
                        {:id  10
-                        :gas :oxygen}
+                        :system-gas {:short-name "O2"}}
                        {:id  11
-                        :gas :carbon-monoxide}
+                        :system-gas {:short-name "CO"}}
                        {:id  12
-                        :gas :carbon-dioxide
+                        :system-gas {:short-name "CO2"}
                         :selected true}
                        ]}
               {:id    4
                :tube/gases [{:id  13
-                        :gas :methane}
+                       :system-gas {:short-name "CH4"}}
                        {:id  14
-                        :gas :oxygen
+                        :system-gas {:short-name "O2"}
                         :selected true}
                        {:id  15
-                        :gas :carbon-monoxide}
+                        :system-gas {:short-name "CO"}}
                        {:id  16
-                        :gas :carbon-dioxide}
+                        :system-gas {:short-name "CO2"}}
                        ]}]}
   {:inspect-data false})
 
@@ -142,3 +143,9 @@
                 :selected true
                 :full-name "Arbitary Cb"}}
   {:inspect-data false})
+
+(defcard md-submit-button
+         (fn [props _] (surplus/md-submit-button @props))
+         {}
+         {:inspect-data false}
+         )

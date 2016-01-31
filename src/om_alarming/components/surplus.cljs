@@ -20,6 +20,30 @@
 ;;    [:g [:rect {:x (+ indent x) :y (- y half-height) :width width-after-indent :height height :opacity (if (hidden? line-id) 0.0 1.0) :fill (rgb-map-to-str white) :rx 5 :ry 5}]]))
 ;;
 
+;;
+;; <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+;; <i class="material-icons">add</i>
+;; </button>
+;;
+(defui MDButton
+  Object
+  (render [this]
+    (dom/button (clj->js {:className "mdl-button mdl-js-button mdl-button--fab mdl-button--colored"})
+                (dom/i (clj->js {:className "material-icons"}) 'add))))
+(def md-button (om/factory MDButton {:keyfn :id}))
+
+;;
+;; [:input {:type "submit"
+;; :className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+;; :value "ok"}]
+;;
+(defui MDSubmitButton
+  Object
+  (render [this]
+    (dom/button (clj->js {:className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"})
+                (dom/i (clj->js {:className "material-icons"}) "add"))))
+(def md-submit-button (om/factory MDSubmitButton {:keyfn :id}))
+
 (defui OpaqueRect
        Object
        (render [this]

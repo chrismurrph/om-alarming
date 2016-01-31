@@ -127,7 +127,7 @@
     (println "count x-gas-details: " (count x-gas-details))
     (println "names: " (map :name x-gas-details))
     (assert (:name current-label))
-    (assert lines)
+    (assert lines, "Expect lines in drop-info")
     (for [x-gas-info x-gas-details]
       (rect-text-tick (om/computed x-gas-info {:x-gas-info x-gas-info
                                                :current-label current-label

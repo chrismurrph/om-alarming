@@ -33,23 +33,22 @@
   Object
   (render [this]
     (let [props (om/props this)
-          _ (pprint @my-reconciler)
+          ;_ (pprint @my-reconciler)
           ;{:keys [app/gases app/tubes]} props
           ]
       (dom/div nil
                (let [buttons-props (select-keys props [:app/buttons :app/selected-button])]
                  (nav/menubar buttons-props))
-               (grid/gas-selection-grid props)
-               ;(let [grid-props (select-keys props [:app/gases :app/tubes])]
-               ;  (gas-selection-grid grid-props)
-               ;  ;(dom/div nil
-               ;  ;         (gas-selection-grid grid-props)
-               ;  ;         ;(dom/h4 nil (str "gases are " (map :gas (:app/gases grid-props))))
-               ;  ;         ;(dom/h4 nil (str "tubes are " (:app/tubes grid-props)))
-               ;  ;         )
-               ;  )
-               )
-      )))
+               (let [selected (:name (:app/selected-button props))]
+                 (case selected
+                   "Map" (dom/div nil "Nufin")
+                   "Trending" (grid/gas-selection-grid props)
+                   "Thresholds" (dom/div nil "Nufin")
+                   "Reports" (dom/div nil "Nufin")
+                   "Automatic" (dom/div nil "Nufin")
+                   "Logs" (dom/div nil "Nufin")
+                   ))))))
+
 
 (defn run []
   (om/add-root! my-reconciler
