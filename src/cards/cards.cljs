@@ -13,14 +13,20 @@
 (enable-console-print!)
 
 ;;
+;; Does the same thing as om/computed
+;;
+(defn om-computed [props computed-props]
+  (merge props {:om.next/computed computed-props}))
+
+;;
 ;; Each drop-info s/be denormalised, so have more than this. Also have:
 ;; :x :current-label
 ;;
 (def simple-x-gas-details
   [
-   {:name "Carbon Dioxide", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207 :id 1}
-   {:name "Carbon Monoxide", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731 :id 2}
-   {:name "Oxygen", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id 3}
+   {:name "Carbon Dioxide at 2", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207 :id 1}
+   {:name "Carbon Monoxide at 3", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731 :id 2}
+   {:name "Oxygen at 4", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731 :id 3}
    ])
 
 (def x-gas-details (mapv #(merge {:x 50 :current-label {:name "Carbon Monoxide" :dec-places 1} :my-lines data/my-lines} %) simple-x-gas-details))
@@ -28,36 +34,41 @@
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
-;(defcard main-component
-;         (fn [props _] (graph/simple-svg-tester @props))
-;         {:id 28
-;          :test-props {:testing-name "main-component"
-;                       :width 200
-;                       :height 200}}
-;         {:inspect-data false})
-;
-;(defcard many-rect-text-tick
-;         (fn [props _] (graph/simple-svg-tester @props))
-;         {:id 29
-;          :test-props {:testing-name "many-rect-text-tick"
-;                       :drop-info {:x 50
-;                                   :my-lines data/my-lines
-;                                   :current-label {:name "Carbon Monoxide" :dec-places 1}
-;                                   :x-gas-details (merge-testing-name simple-x-gas-details "many-rect-text-tick")}}}
-;         {:inspect-data false}
-;         )
-;
+(defcard main-component
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 28
+          :test-props {:testing-name "main-component"
+                       :width 20
+                       :height 20}}
+         {:inspect-data false})
+
+
+(defcard many-rect-text-tick
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 29
+          :test-props
+              {:testing-name "many-rect-text-tick"
+               :drop-info (om/computed {:x 50
+                                        :lines data/my-lines
+                                        :current-label {:name "Carbon Monoxide at 3" :dec-places 1}
+                                        :x-gas-details (merge-testing-name simple-x-gas-details "many-rect-text-tick")
+                                        :testing-name "many-rect-text-tick"}
+                                       {})
+               }}
+         {:inspect-data false}
+         )
+
 (defcard rect-text-tick
          (fn [props _] (graph/simple-svg-tester @props))
          {:id 30
-          :test-props {:height 500 ;; not effective
-                       :width 200
-                       :testing-name "rect-text-tick"
-                       :x-gas-info (merge {:testing-name "rect-text-tick"} (nth simple-x-gas-details 0))
-                       :current-label {:name "Carbon Dioxide" :dec-places 2}
-                       :x 120
-                       :id 1
-                       :my-lines data/my-lines}}
+          :test-props
+              (om-computed (merge {:height 500
+                                   :width  200
+                                   :id     1} (first (map #(merge {:testing-name "rect-text-tick"} %) simple-x-gas-details)))
+                           {:testing-name  "rect-text-tick"
+                            :current-label {:name "Carbon Dioxide at 2" :dec-places 2}
+                            :x             120
+                            :lines   data/my-lines})}
          {:inspect-data false}
          )
 

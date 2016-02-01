@@ -71,6 +71,6 @@
                   ]))
 
 (def my-lines {"Methane" {:name "Methane" :units "%" :colour pink :points methanes}
-               "Oxygen" {:name "Oxygen" :units "%" :colour green :points oxygens}
-               "Carbon Dioxide" {:name "Carbon Dioxide" :units "%" :colour blue :points carbon-dioxides}
-               "Carbon Monoxide" {:name "Carbon Monoxide" :units "ppm" :colour red :points carbon-monoxides}})
+               "Oxygen at 4" {:name "Oxygen at 4" :units "%" :colour green :points oxygens}
+               "Carbon Dioxide at 2" {:name "Carbon Dioxide at 2" :units "%" :colour blue :points carbon-dioxides}
+               "Carbon Monoxide at 3" {:name "Carbon Monoxide at 3" :units "ppm" :colour red :points carbon-monoxides}})

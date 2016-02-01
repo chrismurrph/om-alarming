@@ -49,6 +49,7 @@
   Object
   (render [this]
     (let [{:keys [id system-gas] :as props} (om/props this)
+          ;_ (println "PROPs" props)
           {:keys [tube-num sui-col-info]} (om/get-computed this)
           ;sui-col-info #js {:className "two wide column center aligned"}
           ]

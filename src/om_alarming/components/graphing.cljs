@@ -73,12 +73,12 @@
   Object
   (render [this]
     (let [{:keys [proportional-y proportional-val name]} (om/props this)
-          {:keys [x-gas-info current-label x id my-lines testing-name]} (om/get-computed this)
-          _ (assert name (str "x-gas-info w/out a name: " x-gas-info))
-          _ (println "my-lines count: " (count my-lines))
+          {:keys [current-label x lines testing-name]} (om/get-computed this)
+          _ (assert name (str "x-gas-info w/out a name. \nCOMPUTED:\n" (om/get-computed this) "\nPROPs:\n" (om/props this)))
+          _ (assert (pos? (count lines)))
           ;;; text
-          line-doing (process/find-line my-lines name)
-          _ (assert line-doing (str "Not found a name for <" name "> from:" my-lines))
+          line-doing (process/find-line lines name)
+          _ (assert line-doing (str "Not found a name for <" name "> from:" lines))
           text-colour-str (-> line-doing :colour process/rgb-map-to-str)
           ;_ (println "colour will be " colour-str)
           units-str (:units line-doing)
@@ -123,16 +123,16 @@
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn many-rect-text-ticks [drop-info]
-  (let [{:keys [x-gas-details current-label x lines]} drop-info]
+  (let [{:keys [x-gas-details current-label x lines testing-name]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
     (println "names: " (map :name x-gas-details))
     (assert (:name current-label))
     (assert lines, "Expect lines in drop-info")
     (for [x-gas-info x-gas-details]
-      (rect-text-tick (om/computed x-gas-info {:x-gas-info x-gas-info
-                                               :current-label current-label
+      (rect-text-tick (om/computed x-gas-info {:current-label current-label
                                                :x x
-                                               :my-lines lines})))))
+                                               :lines lines
+                                               :testing-name testing-name})))))
 
 (defui Label
   static om/Ident
@@ -195,6 +195,7 @@
   Object
   (render [this]
     (let [props (om/props this)
+          _ (println "PR:" props)
           {:keys [width height]} props
           test-props (:test-props props)
           testing-name (:testing-name test-props)]

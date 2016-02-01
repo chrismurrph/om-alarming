@@ -65,7 +65,7 @@
                        :proportional-y   50
                        :proportional-val 0.1
                        :name             "Oxygen"
-                       :my-lines         data/my-lines
+                       :graph/lines      data/my-lines
                        :current-label    {:name "Oxygen" :dec-places 1}}}
          )
 
