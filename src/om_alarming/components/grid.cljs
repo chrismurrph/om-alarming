@@ -100,8 +100,8 @@
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "column"}
-                      "Hi Mum"
-                      ;(graph/main-component (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
+                      ;"Hi Mum"
+                      (graph/main-component (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
                       ))))
 
 ;(defui TrendingPanel

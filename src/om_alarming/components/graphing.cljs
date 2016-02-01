@@ -47,10 +47,12 @@
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:points (om/get-query Point)}])
+    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:graph/points (om/get-query Point)}])
   Object
   (render [this]
-    (let [{:keys [name units colour intersect graph/points]} (om/props this)]
+    (let [props (om/props this)
+          {:keys [name units colour intersect graph/points]} props
+          _ (assert (pos? (count points)) (str "No points found in:" props))]
       (println "POINTs count: " (count points))
       (for [point points]
         (point-component point)))))
@@ -173,12 +175,12 @@
 (defui MainComponent
   static om/IQuery
   (query [this]
-    [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?])
+    [{:graph/init [:width :height]} :graph/lines :graph/hover-pos :graph/labels-visible?])
   Object
   (render [this]
     (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible?]} (om/props this)
           {:keys [height width]} init
-          _ (assert (and width height))
+          _ (assert (and width height) (str "No width or height in: " init))
           init-props (merge {:style {:border "thin solid black"}} init)
           _ (println "SVG: " init-props)]
           _ (println "LINEs count: " (count lines))
