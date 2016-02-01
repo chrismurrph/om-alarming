@@ -4,7 +4,8 @@
             [om-alarming.components.surplus :as surplus]
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
-            [om-alarming.components.grid :as grid]))
+            [om-alarming.components.general :as gen]
+            ))
 
 (def careless-text-props (clj->js {:x  10 :y 20
                           :stroke      (process/rgb-map-to-str black)
@@ -20,8 +21,8 @@
     [:id :x :y :rgb-map])
   Object
   (render [this]
-    (let [{:keys [rgb-map x y]} (om/get-computed this)
-          _ (println "POINT: " rgb-map " " x " " y)
+    (let [{:keys [id rgb-map x y]} (om/props this)
+          _ (println "POINT: " id " " rgb-map " " x " " y)
           circle-props    (merge process/point-defaults
                                  {:cx x
                                   :cy y
@@ -38,7 +39,7 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :value {:tube (om/get-query grid/Location)} {:system-gas (om/get-query grid/SystemGas)}]))
+    [:id :value {:tube (om/get-query gen/Location)} {:system-gas (om/get-query gen/SystemGas)}]))
 
 (defui Line
   static om/Ident

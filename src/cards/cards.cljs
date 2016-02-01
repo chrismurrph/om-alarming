@@ -98,7 +98,7 @@
   {:inspect-data false})
 
 (defcard selection-grid
-  (fn [props _] (grid/gas-selection-grid @props))
+  (fn [props _] (grid/gas-query-panel @props))
   {:id 11 :text "Selection Grid"
    :app/gases [{:id 1 :short-name "CH4"} {:id 2 :short-name "O2"} {:id 3 :short-name "CO"} {:id 4 :short-name "CO2"}]
    :app/tubes    [{:id    1

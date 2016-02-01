@@ -2,7 +2,8 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.util :refer [class-names]]
-            [om-alarming.business :as bus]))
+            [om-alarming.components.graphing :as graph]
+            [om-alarming.components.general :as gen]))
 
 (defui CheckBox
   Object
@@ -17,35 +18,13 @@
 
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
-;;
-;; Need an Ident for db->query to work. These are just the gases themselves, so there might only be 4 of them
-;;
-(defui SystemGas
-  static om/Ident
-  (ident [this props]
-    [:gas-of-system/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    [:id :short-name]))
-
-;;
-;; GridRow does same thing so this not needed at top
-;;
-(defui Location
-  static om/Ident
-  (ident [this props]
-    [:tube/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    [:id :tube-num]))
-
 (defui GridDataCell
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :selected {:system-gas (om/get-query SystemGas)} {:tube (om/get-query Location)}])
+    [:id :selected {:system-gas (om/get-query gen/SystemGas)} {:tube (om/get-query gen/Location)}])
   Object
   (render [this]
     (let [{:keys [id system-gas] :as props} (om/props this)
@@ -97,6 +76,9 @@
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
 (defui GridHeaderRow
+  ;static om/IQuery
+  ;(query [this]
+  ;  [:id :app/gases])
   Object
   (render [this]
     (let [{:keys [app/gases]} (om/props this)
@@ -107,15 +89,25 @@
 
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
-(defn gas-selection-grid [grid-props]
+(defn gas-query-panel [app-props]
   (let [sui-col-info-map {:sui-col-info #js {:className "one wide column center aligned"}}
-        sui-grid-info #js {:className "ui five column grid"}]
-    (dom/div sui-grid-info
-             (grid-header-row (om/computed (select-keys grid-props [:app/gases]) sui-col-info-map))
-             (for [tube (:app/tubes grid-props)]
-               (grid-row (om/computed tube sui-col-info-map))))))
+        sui-grid-info #js {:className "ui five column grid"}
+        _ (assert (:app/gases app-props))]
+    (dom/div #js {:className "ui two column grid"}
+             (dom/div #js {:className "column"}
+                      (dom/div sui-grid-info
+                               (grid-header-row (om/computed (select-keys app-props [:app/gases]) sui-col-info-map))
+                               (for [tube (:app/tubes app-props)]
+                                 (grid-row (om/computed tube sui-col-info-map)))))
+             (dom/div #js {:className "column"}
+                      "Hi Mum"
+                      ;(graph/main-component (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
+                      ))))
 
-(defui TrendingPageComponent
-  Object
-  (render [this]
-    ))
+;(defui TrendingPanel
+;  Object
+;  (render [this]
+;    (dom/div nil
+;             (gas-selection-grid (om/props this)))))
+;(def trending-panel (om/factory TrendingPanel {:keyfn :id}))
+
