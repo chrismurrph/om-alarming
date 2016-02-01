@@ -35,11 +35,11 @@
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
 (defcard main-component
-         (fn [props _] (graph/simple-svg-tester @props))
+         (fn [props _] (graph/main-component @props))
          {:id 28
-          :test-props {:testing-name "main-component"
-                       :width 20
-                       :height 20}}
+          :text "main-component"
+          :graph/init {:width 640
+                       :height 250}}
          {:inspect-data false})
 
 

@@ -43,17 +43,29 @@
     ]
    :graph/lines
    [{:id     100
-     :name "Methane at 1" :units "%" :colour pink
-     :points [{:id 2000}{:id 2001}{:id 2002}]}
+     :name "Methane at 1"
+     :units "%"
+     :colour pink
+     :intersect {:id 500}
+     :graph/points [{:id 2000}{:id 2001}{:id 2002}]}
     {:id     101
-     :name "Oxygen at 1" :units "%" :colour green
-     :points [{:id 2003}{:id 2004}{:id 2005}]}
+     :name "Oxygen at 1"
+     :units "%"
+     :colour green
+     :intersect {:id 501}
+     :graph/points [{:id 2003}{:id 2004}{:id 2005}]}
     {:id     102
-     :name "Carbon Dioxide at 1" :units "%" :colour blue
-     :points [{:id 2006}{:id 2007}{:id 2008}]}
+     :name "Carbon Dioxide at 1"
+     :units "%"
+     :colour blue
+     :intersect {:id 503}
+     :graph/points [{:id 2006}{:id 2007}{:id 2008}]}
     {:id     103
-     :name "Carbon Monoxide at 1" :units "ppm" :colour red
-     :points [{:id 2009}{:id 2010}{:id 2011}]}
+     :name "Carbon Monoxide at 1"
+     :units "ppm"
+     :colour red
+     :intersect {:id 502}
+     :graph/points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
    :graph/points
    [{:id 2000 :x 10 :y 23}
@@ -154,7 +166,7 @@
     ]
    :tube/gases
    [{:id       500
-     :system-gas      {:id 150}
+     :system-gas {:id 150}
      :tube {:id 1000}
      :selected true}
     {:id  501

@@ -114,3 +114,8 @@
              (grid-header-row (om/computed (select-keys grid-props [:app/gases]) sui-col-info-map))
              (for [tube (:app/tubes grid-props)]
                (grid-row (om/computed tube sui-col-info-map))))))
+
+(defui TrendingPageComponent
+  Object
+  (render [this]
+    ))

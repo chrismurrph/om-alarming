@@ -8,7 +8,7 @@
 
 (def careless-text-props (clj->js {:x  10 :y 20
                           :stroke      (process/rgb-map-to-str black)
-                          :strokeWidth 0.65
+                          :strokeWidth 0.25
                           :opacity     1.0}))
 
 (defui Point
@@ -27,7 +27,7 @@
                                   :cy y
                                   :fill (process/rgb-map-to-str rgb-map)})]
       (dom/circle (clj->js circle-props)))))
-(def point (om/factory Point {:keyfn :id}))
+(def point-component (om/factory Point {:keyfn :id}))
 
 ;;
 ;; GridDataCell should be taking care of this one
@@ -46,7 +46,15 @@
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:points (om/get-query Point)}]))
+    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:points (om/get-query Point)}])
+  Object
+  (render [this]
+    (let [{:keys [name units colour intersect graph/points]} (om/props this)]
+      (println "POINTs count: " (count points))
+      (for [point points]
+        (point-component point)))))
+
+(def line-component (om/factory Line {:keyfn :id}))
 
 (defui PlumbLine
   Object
@@ -169,19 +177,23 @@
   (render [this]
     (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible?]} (om/props this)
           {:keys [height width]} init
-          init-props (merge {:style {:border "thin solid black"}} init)]
+          _ (assert (and width height))
+          init-props (merge {:style {:border "thin solid black"}} init)
+          _ (println "SVG: " init-props)]
+          _ (println "LINEs count: " (count lines))
       (dom/div nil
                (dom/svg (clj->js init-props)
-                        (dom/text careless-text-props "Hi Mum!"))))))
+                        (dom/g nil
+                               (for [line lines]
+                                 (line-component line))))))))
 (def main-component (om/factory MainComponent {:keyfn :id}))
 
 (defn testing-component [name test-props]
   (case name
     "plumb-line" (plumb-line test-props)
-    "point" (point (om/computed {} test-props))
+    "point" (point-component (om/computed {} test-props))
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (many-rect-text-tick test-props)
-    "main-component" (main-component test-props)
     ;; These may all be surplus:
     "poly" (surplus/poly test-props)
     "tick-lines" (surplus/tick-lines test-props)
