@@ -78,10 +78,10 @@
                         is-flick (> diff 10)]
                     (when (not is-flick)
                       (when (not in-sticky-time?)
-                        (reconciler/alteration 'graph/hover-pos {:x x} :graph/hover-pos)
-                        (reconciler/alteration 'graph/last-mouse-moment {:now-moment now-moment} :graph/last-mouse-moment)
-                        (reconciler/alteration 'graph/labels-visible? {:b false} :graph/labels-visible?)
-                        ;(u/log (get-in @state-ref [:hover-pos]))
+                        (reconciler/alteration 'graph/mouse-change
+                                               {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
+                                               [:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible?])
+                        ;(println "HOVER:" (reconciler/query :graph/hover-pos))
                         ))
                     (recur x y cur-x cur-y))
 

@@ -9,20 +9,10 @@
                   ]
              (swap! state assoc-in [:app/selected-button 1] new-id))})
 
-(defmethod mutate 'graph/hover-pos
-  [{:keys [state]} _ {:keys [x]}]
-  {:value  {:keys [:graph/hover-pos]}
-   :action #(swap! state assoc :graph/hover-pos x)})
-
-(defmethod mutate 'graph/last-mouse-moment
-  [{:keys [state]} _ {:keys [now-moment]}]
-  {:value  {:keys [:graph/last-mouse-moment]}
-   :action #(swap! state assoc :graph/last-mouse-moment now-moment)})
-
-(defmethod mutate 'graph/labels-visible?
-  [{:keys [state]} _ {:keys [b]}]
-  {:value  {:keys [:graph/labels-visible?]}
-   :action #(swap! state assoc :graph/labels-visible? b)})
+(defmethod mutate 'graph/mouse-change
+  [{:keys [state]} _ params]
+  {:value  {:keys [:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible?]}
+   :action #(swap! state (fn [old new] (merge old new)) params)})
 
 (defmethod mutate 'graph/translators
   [{:keys [state]} _ {:keys [translators]}]

@@ -1,6 +1,8 @@
 (ns om-alarming.components.graphing
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
+            [cljs.core.async :as async
+             :refer [<! >! chan close! put! timeout]]
             [om-alarming.components.surplus :as surplus]
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
@@ -186,13 +188,16 @@
     (let [bounds (. (dom/node this) getBoundingClientRect)
           y (- (.-clientY e) (.-top bounds))
           x (- (.-clientX e) (.-left bounds))
-          _ (println x y "in" comms-channel)
-          ]))
+          ;_ (println x y "in" comms-channel)
+          ]
+      (put! comms-channel {:type (.-type e) :x x :y y})
+      nil))
   (render [this]
     (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible? graph/comms-channel]} (om/props this)
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: " init))
-          handlers {:onMouseMove #(.handler-fn this comms-channel %)}
+          handler #(.handler-fn this comms-channel %)
+          handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
           ;_ (println "SVG: " init-props)
           ;_ (println "LINEs count: " (count lines))
