@@ -38,8 +38,9 @@
           ;_ (pprint @my-reconciler)
           ]
       (dom/div nil
-               (let [buttons-props (select-keys app-props [:app/buttons :app/selected-button])]
-                 (nav/menubar buttons-props))
+               (let [;buttons-props (select-keys app-props [:app/buttons :app/selected-button])
+                     ]
+                 (nav/menu-bar (:app/buttons app-props) (:app/selected-button app-props)))
                (let [selected (:name (:app/selected-button app-props))]
                  (case selected
                    "Map" (dom/div nil "Nufin")
