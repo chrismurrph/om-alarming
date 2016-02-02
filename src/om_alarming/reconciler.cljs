@@ -23,10 +23,12 @@
 
 ;; (in-ns 'om-alarming.reconciler)
 (defn query [kw]
+  ;(println "External query for " kw)
   (let [res (my-parser {:state my-reconciler} `[[~kw _]])]
     (when (not-empty res) (apply val res))))
 
 ;; (change 'app/tab {:new-id 1} :app/selected-button)
 (defn alteration [mutate-key param-map kw]
-  (om/transact! my-reconciler `[(~mutate-key ~param-map) ~kw]))
+  (om/transact! my-reconciler `[(~mutate-key ~param-map) ~kw])
+  )
 

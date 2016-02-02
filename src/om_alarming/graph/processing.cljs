@@ -117,6 +117,7 @@
                                          (or (:max-y staging) 999) graph-width graph-height)
         ]
     (reconciler/alteration 'graph/translators {:translators translators} :graph/translators)
+    (reconciler/alteration 'graph/args {:args args} :graph/args)
     ;; Leaving in for curiosity
     (go
       (let [exit (<! proc)]

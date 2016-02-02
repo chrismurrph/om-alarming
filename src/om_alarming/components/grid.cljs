@@ -100,7 +100,7 @@
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "two wide column"}
-                      (graph/trending-graph (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
+                      (graph/trending-graph (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible? :graph/comms-channel]))
                       ))))
 
 ;(defui TrendingPanel

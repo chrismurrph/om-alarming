@@ -18,10 +18,11 @@
     [:graph-point/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :x :y :rgb-map])
+    [:id :x :y])
   Object
   (render [this]
-    (let [{:keys [id rgb-map x y]} (om/props this)
+    (let [{:keys [id x y]} (om/props this)
+          {:keys [rgb-map]} (om/get-computed this)
           ;_ (println "POINT: " id " " rgb-map " " x " " y)
           _ (assert id)
           _ (assert (and x y))
@@ -59,7 +60,7 @@
           ;_ (println "POINTs count: " (count points))
           ]
       (dom/g nil (for [point points]
-                   (point-component point))))))
+                   (point-component (om/computed point {:rgb-map colour})))))))
 
 (def line-component (om/factory Line {:keyfn :id}))
 
@@ -181,11 +182,18 @@
   (query [this]
     [{:graph/init [:width :height]} :graph/lines :graph/hover-pos :graph/labels-visible?])
   Object
+  (handler-fn [this comms-channel e]
+    (let [bounds (. (dom/node this) getBoundingClientRect)
+          y (- (.-clientY e) (.-top bounds))
+          x (- (.-clientX e) (.-left bounds))
+          _ (println x y "in" comms-channel)
+          ]))
   (render [this]
-    (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible?]} (om/props this)
+    (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible? graph/comms-channel]} (om/props this)
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: " init))
-          init-props (merge {:style {:border "thin solid black"}} init)
+          handlers {:onMouseMove #(.handler-fn this comms-channel %)}
+          init-props (merge {:style {:border "thin solid black"}} init handlers)
           ;_ (println "SVG: " init-props)
           ;_ (println "LINEs count: " (count lines))
           ]

@@ -31,11 +31,12 @@
      {:graph/drop-info (om/get-query graph/ManyRectTextTick)}
      {:graph/labels (om/get-query graph/Label)}
      {:graph/init [:width :height]}
+     :graph/comms-channel
      ])
   Object
   (render [this]
     (let [app-props (om/props this)
-          ;_ (pprint @my-reconciler)
+          _ (pprint @my-reconciler)
           ]
       (dom/div nil
                (let [;buttons-props (select-keys app-props [:app/buttons :app/selected-button])

@@ -41,21 +41,19 @@
           :graph/init {:width 640
                        :height 250}
           :graph/lines [{:id 0
+                         :colour black
                          :graph/points [{:id 0
-                                         :rgb-map black
                                          :x 30
                                          :y 30}
                                         {:id 1
-                                         :rgb-map black
                                          :x 35
                                          :y 35}]}
                         {:id 1
+                         :colour light-blue
                          :graph/points [{:id 0
-                                         :rgb-map light-blue
                                          :x 40
                                          :y 40}
                                         {:id 1
-                                         :rgb-map light-blue
                                          :x 45
                                          :y 45}]}]}
          {:inspect-data false})

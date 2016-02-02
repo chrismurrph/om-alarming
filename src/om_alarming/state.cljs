@@ -68,18 +68,18 @@
      :graph/points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
    :graph/points
-   [{:id 2000 :x 10 :y 23}
-    {:id 2001 :x 11 :y 24}
-    {:id 2002 :x 12 :y 25}
-    {:id 2003 :x 13 :y 26}
-    {:id 2004 :x 14 :y 27}
-    {:id 2005 :x 15 :y 28}
-    {:id 2006 :x 16 :y 29}
-    {:id 2007 :x 17 :y 30}
-    {:id 2008 :x 18 :y 31}
-    {:id 2009 :x 19 :y 32}
-    {:id 2010 :x 20 :y 33}
-    {:id 2011 :x 21 :y 34}]
+   [{:id 2000 :x 20 :y 23}
+    {:id 2001 :x 21 :y 24}
+    {:id 2002 :x 22 :y 25}
+    {:id 2003 :x 33 :y 26}
+    {:id 2004 :x 34 :y 27}
+    {:id 2005 :x 35 :y 28}
+    {:id 2006 :x 46 :y 29}
+    {:id 2007 :x 47 :y 30}
+    {:id 2008 :x 48 :y 31}
+    {:id 2009 :x 59 :y 32}
+    {:id 2010 :x 50 :y 33}
+    {:id 2011 :x 51 :y 34}]
    :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"}
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
@@ -91,6 +91,7 @@
    :graph/hover-pos nil
    :graph/last-mouse-moment nil
    :graph/labels-visible? false
+   :graph/args nil
    :graph/labels [{:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}]
    :app/tubes
    [{:id    1000

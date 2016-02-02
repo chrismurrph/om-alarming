@@ -37,6 +37,11 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/comms-channel
+  [{:keys [state query]} _ _]
+  (let [st @state]
+    {:value (get-in st [:graph/args :comms])}))
+
 (defmethod read :graph/lines
   [{:keys [state query]} key _]
   (let [st @state]

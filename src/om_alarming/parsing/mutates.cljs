@@ -28,3 +28,8 @@
   [{:keys [state]} _ {:keys [translators]}]
   {:value  {:keys [:graph/translators]}
    :action #(swap! state assoc-in [:graph/translators] translators)})
+
+(defmethod mutate 'graph/args
+  [{:keys [state]} _ {:keys [args]}]
+  {:value  {:keys [:graph/args]}
+   :action #(swap! state assoc-in [:graph/args] args)})
