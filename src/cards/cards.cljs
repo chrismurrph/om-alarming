@@ -34,23 +34,55 @@
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
-(defcard point
-         (fn [props _] (graph/simple-svg-tester @props))
+(defcard main-component
+         (fn [props _] (graph/main-component @props))
          {:id 28
-          :rgb-map black
-          :x 30
-          :y 30
-          :test-props {:testing-name "point"}}
+          :text "main-component"
+          :graph/init {:width 640
+                       :height 250}
+          :graph/lines [{:id 0
+                         :graph/points [{:id 0
+                                         :rgb-map black
+                                         :x 30
+                                         :y 30}
+                                        {:id 1
+                                         :rgb-map black
+                                         :x 35
+                                         :y 35}]}
+                        {:id 1
+                         :graph/points [{:id 0
+                                         :rgb-map light-blue
+                                         :x 40
+                                         :y 40}
+                                        {:id 1
+                                         :rgb-map light-blue
+                                         :x 45
+                                         :y 45}]}]}
          {:inspect-data false})
 
-;(defcard main-component
-;         (fn [props _] (graph/main-component @props))
-;         {:id 28
-;          :text "main-component"
-;          :graph/init {:width 640
-;                       :height 250}}
-;         {:inspect-data false})
+(defcard line
+         (fn [props _] (graph/simple-svg-tester @props))
+         {:id 28
+          :test-props {:testing-name "line"
+                       :graph/points [{:id 0
+                                       :rgb-map black
+                                       :x 30
+                                       :y 30}
+                                      {:id 1
+                                       :rgb-map light-blue
+                                       :x 35
+                                       :y 35}]}}
+         {:inspect-data false})
 
+;(defcard point
+;         (fn [props _] (graph/simple-svg-tester @props))
+;         {:id 28
+;          :test-props {:testing-name "point"
+;                       :id 0
+;                       :rgb-map black
+;                       :x 30
+;                       :y 30}}
+;         {:inspect-data false})
 
 ;(defcard many-rect-text-tick
 ;         (fn [props _] (graph/simple-svg-tester @props))

@@ -22,7 +22,9 @@
   Object
   (render [this]
     (let [{:keys [id rgb-map x y]} (om/props this)
-          _ (println "POINT: " id " " rgb-map " " x " " y)
+          ;_ (println "POINT: " id " " rgb-map " " x " " y)
+          _ (assert id)
+          _ (assert (and x y))
           circle-props    (merge process/point-defaults
                                  {:cx x
                                   :cy y
@@ -52,10 +54,11 @@
   (render [this]
     (let [props (om/props this)
           {:keys [name units colour intersect graph/points]} props
-          _ (assert (pos? (count points)) (str "No points found in:" props))]
-      (println "POINTs count: " (count points))
-      (for [point points]
-        (point-component point)))))
+          _ (assert (pos? (count points)) (str "No points found in:" props))
+          ;_ (println "POINTs count: " (count points))
+          ]
+      (dom/g nil (for [point points]
+                   (point-component point))))))
 
 (def line-component (om/factory Line {:keyfn :id}))
 
@@ -182,8 +185,9 @@
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: " init))
           init-props (merge {:style {:border "thin solid black"}} init)
-          _ (println "SVG: " init-props)]
-          _ (println "LINEs count: " (count lines))
+          ;_ (println "SVG: " init-props)
+          ;_ (println "LINEs count: " (count lines))
+          ]
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (dom/g nil
@@ -194,7 +198,8 @@
 (defn testing-component [name test-props]
   (case name
     "plumb-line" (plumb-line test-props)
-    "point" (point-component (om/computed {} test-props))
+    "point" (point-component test-props)
+    "line" (line-component test-props)
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (many-rect-text-tick test-props)
     ;; These may all be surplus:
