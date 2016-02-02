@@ -25,7 +25,7 @@
 ;; <i class="material-icons">add</i>
 ;; </button>
 ;;
-(defui MDButton
+(defui ^:once MDButton
   Object
   (render [this]
     (dom/button (clj->js {:className "mdl-button mdl-js-button mdl-button--fab mdl-button--colored"})
@@ -37,14 +37,14 @@
 ;; :className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
 ;; :value "ok"}]
 ;;
-(defui MDSubmitButton
+(defui ^:once MDSubmitButton
   Object
   (render [this]
     (dom/button (clj->js {:className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"})
                 (dom/i (clj->js {:className "material-icons"}) "add"))))
 (def md-submit-button (om/factory MDSubmitButton {:keyfn :id}))
 
-(defui OpaqueRect
+(defui ^:once OpaqueRect
        Object
        (render [this]
                (let [{:keys [x proportional-y name current-label testing-name]} (om/props this)
@@ -80,7 +80,7 @@
 ;;
 ;; Need some kind of container when stand alone
 ;;
-(defui BackingRects
+(defui ^:once BackingRects
        Object
        (render [this]
                (let [{:keys [drop-infos testing-name]} (om/props this)
@@ -98,7 +98,7 @@
 ;; [:text {:opacity (if (hidden? line-id) 0.0 1.0) :x (+ x 10) :y (+ (:proportional-y y-intersect) 4) :font-size "0.8em" :stroke colour-str}
 ;; (format-as-str (or (:dec-places y-intersect) 2) (:proportional-val y-intersect) txt-with-units)])
 ;;
-(defui TextComponent
+(defui ^:once TextComponent
        Object
        (render [this]
                (let [{:keys [x proportional-y proportional-val name my-lines current-label]} (om/props this)
@@ -127,7 +127,7 @@
 ;;
 ;; Need some kind of container when stand alone
 ;;
-(defui InsertTexts
+(defui ^:once InsertTexts
        Object
        (render [this]
                (let [{:keys [drop-infos testing-name]} (om/props this)
@@ -139,7 +139,7 @@
                    (many-texts drop-infos)))))
 (def insert-texts (om/factory InsertTexts {:keyfn :id}))
 
-(defui TickLines
+(defui ^:once TickLines
        Object
        (render [this]
                (let [{:keys [visible? drop-infos]} (om/props this)]
@@ -173,7 +173,7 @@
 (def tick-lines (om/factory TickLines {:keyfn :id}))
 
 ;; Testing for someone from Slack group
-(defui Poly
+(defui ^:once Poly
   Object
   (render [this]
     (dom/polygon #js {:points "1 2, 3 4, 5 6, 7 8, 9 10, 0 20" :stroke "blue" :fill "none"})))

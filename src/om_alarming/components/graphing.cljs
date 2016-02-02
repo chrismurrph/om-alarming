@@ -12,7 +12,7 @@
                           :strokeWidth 0.25
                           :opacity     1.0}))
 
-(defui Point
+(defui ^:once Point
   static om/Ident
   (ident [this props]
     [:graph-point/by-id (:id props)])
@@ -35,7 +35,7 @@
 ;;
 ;; GridDataCell should be taking care of this one
 ;;
-(defui Intersect
+(defui ^:once Intersect
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
@@ -43,13 +43,14 @@
   (query [this]
     [:id :value {:tube (om/get-query gen/Location)} {:system-gas (om/get-query gen/SystemGas)}]))
 
-(defui Line
+(defui ^:once Line
   static om/Ident
   (ident [this props]
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:graph/points (om/get-query Point)}])
+    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:graph/points (om/get-query Point)}
+     ])
   Object
   (render [this]
     (let [props (om/props this)
@@ -62,7 +63,7 @@
 
 (def line-component (om/factory Line {:keyfn :id}))
 
-(defui PlumbLine
+(defui ^:once PlumbLine
   Object
   (render [this]
     (let [{:keys [height visible? x-position in-sticky-time?]} (om/props this)
@@ -77,7 +78,7 @@
       res)))
 (def plumb-line (om/factory PlumbLine {:keyfn :id}))
 
-(defui RectTextTick
+(defui ^:once RectTextTick
   static om/Ident
   (ident [this props]
     [:x-gas-details/by-id (:id props)])
@@ -148,7 +149,7 @@
                                                :lines lines
                                                :testing-name testing-name})))))
 
-(defui Label
+(defui ^:once Label
   static om/Ident
   (ident [this props]
     [:label/by-id (:id props)])
@@ -156,7 +157,7 @@
   (query [this]
     [:id :name :dec-places]))
 
-(defui ManyRectTextTick
+(defui ^:once ManyRectTextTick
   static om/Ident
   (ident [this props]
     [:drop-info/by-id (:id props)])
@@ -175,7 +176,7 @@
         (many-rect-text-ticks drop-info)))))
 (def many-rect-text-tick (om/factory ManyRectTextTick {:keyfn :id}))
 
-(defui MainComponent
+(defui ^:once TrendingGraph
   static om/IQuery
   (query [this]
     [{:graph/init [:width :height]} :graph/lines :graph/hover-pos :graph/labels-visible?])
@@ -190,10 +191,12 @@
           ]
       (dom/div nil
                (dom/svg (clj->js init-props)
-                        (dom/g nil
-                               (for [line lines]
-                                 (line-component line))))))))
-(def main-component (om/factory MainComponent {:keyfn :id}))
+                        (for [line lines]
+                          (line-component line))
+                        ; May be necessary to wrap above in a g - for instance if no lines??
+                        ;(dom/g nil)
+                        )))))
+(def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]
   (case name
@@ -211,7 +214,7 @@
     "opaque-rect" (surplus/opaque-rect test-props)
     ))
 
-(defui SimpleSVGTester
+(defui ^:once SimpleSVGTester
   Object
   (render [this]
     (let [props (om/props this)

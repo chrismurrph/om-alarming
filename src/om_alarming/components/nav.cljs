@@ -5,7 +5,7 @@
             [om-alarming.reconciler :refer [my-reconciler]]
             [om-alarming.util :refer [class-names]]))
 
-(defui TabButton
+(defui ^:once TabButton
   static om/Ident
   (ident [this props]
     [:button/by-id (:id props)])
@@ -23,7 +23,7 @@
 
 (def tab-button (om/factory TabButton {:keyfn :id}))
 
-(defui MenuBar
+(defui ^:once MenuBar
   Object
   (render [this]
     (let [{:keys [:app/buttons :app/selected-button]} (om/props this)

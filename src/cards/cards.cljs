@@ -35,7 +35,7 @@
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
 (defcard main-component
-         (fn [props _] (graph/main-component @props))
+         (fn [props _] (graph/trending-graph @props))
          {:id 28
           :text "main-component"
           :graph/init {:width 640

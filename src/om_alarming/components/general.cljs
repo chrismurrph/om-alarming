@@ -7,7 +7,7 @@
 ;;
 ;; Need an Ident for db->query to work. These are just the gases themselves, so there might only be 4 of them
 ;;
-(defui SystemGas
+(defui ^:once SystemGas
        static om/Ident
        (ident [this props]
               [:gas-of-system/by-id (:id props)])
@@ -18,7 +18,7 @@
 ;;
 ;; GridRow does same thing so this not needed at top
 ;;
-(defui Location
+(defui ^:once Location
        static om/Ident
        (ident [this props]
               [:tube/by-id (:id props)])

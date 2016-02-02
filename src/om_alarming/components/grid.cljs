@@ -5,7 +5,7 @@
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.general :as gen]))
 
-(defui CheckBox
+(defui ^:once CheckBox
   Object
   (render [this]
     (let [props (om/props this)
@@ -18,7 +18,7 @@
 
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
-(defui GridDataCell
+(defui ^:once GridDataCell
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
@@ -42,7 +42,7 @@
 
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
 
-(defui GridRow
+(defui ^:once GridRow
   static om/Ident
   (ident [this props]
     [:tube/by-id (:id props)])
@@ -62,7 +62,7 @@
 
 (def grid-row (om/factory GridRow {:keyfn :id}))
 
-(defui GridHeaderLabel
+(defui ^:once GridHeaderLabel
   Object
   (render [this]
     (let [props (om/props this)
@@ -75,7 +75,7 @@
 
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
-(defui GridHeaderRow
+(defui ^:once GridHeaderRow
   ;static om/IQuery
   ;(query [this]
   ;  [:id :app/gases])
@@ -100,8 +100,7 @@
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "column"}
-                      ;"Hi Mum"
-                      (graph/main-component (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
+                      (graph/trending-graph (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
                       ))))
 
 ;(defui TrendingPanel

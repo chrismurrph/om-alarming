@@ -35,8 +35,7 @@
   Object
   (render [this]
     (let [app-props (om/props this)
-          _ (pprint @my-reconciler)
-          ;{:keys [app/gases app/tubes]} props
+          ;_ (pprint @my-reconciler)
           ]
       (dom/div nil
                (let [buttons-props (select-keys app-props [:app/buttons :app/selected-button])]
