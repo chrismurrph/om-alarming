@@ -90,16 +90,16 @@
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
 (defn gas-query-panel [app-props]
-  (let [sui-col-info-map {:sui-col-info #js {:className "one wide column center aligned"}}
-        sui-grid-info #js {:className "ui five column grid"}
+  (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
+        sui-grid-info #js {:className "ui column grid"}
         _ (assert (:app/gases app-props))]
-    (dom/div #js {:className "ui two column grid"}
+    (dom/div #js {:className "ui three column internally celled grid container"}
              (dom/div #js {:className "column"}
                       (dom/div sui-grid-info
                                (grid-header-row (om/computed (select-keys app-props [:app/gases]) sui-col-info-map))
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
-             (dom/div #js {:className "column"}
+             (dom/div #js {:className "two wide column"}
                       (graph/trending-graph (select-keys app-props [:graph/init :graph/lines :graph/hover-pos :graph/labels-visible?]))
                       ))))
 

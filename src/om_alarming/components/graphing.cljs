@@ -195,7 +195,8 @@
                           (line-component line))
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
-                        )))))
+                        )
+               (dom/div nil "Here goes timing information")))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]
