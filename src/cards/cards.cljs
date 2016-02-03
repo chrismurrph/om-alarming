@@ -111,18 +111,19 @@
 ;         {:inspect-data false}
 ;         )
 ;
-;;
-;;;; height visible? x-position in-sticky-time?
-;(defcard plumb-line
-;  (fn [props _] (graph/simple-svg-tester @props))
-;  {:id 6
-;   :test-props {:testing-name "plumb-line"
-;                :height 100
-;                :visible? true
-;                :x-position 10
-;                :in-sticky-time? true}}
-;  )
 ;
+
+;;; height visible? x-position in-sticky-time?
+(defcard plumb-line
+  (fn [props _] (graph/simple-svg-tester @props))
+  {:id 6
+   :test-props {:testing-name "plumb-line"
+                :height 100
+                :visible? true
+                :x-position 10
+                :in-sticky-time? true}}
+  )
+
 ;(defcard navbar-buttons
 ;  (fn [props _] (nav/menubar @props))
 ;  {:id 10 :text "Navbar with buttons going across"

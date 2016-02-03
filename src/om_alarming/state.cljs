@@ -30,7 +30,7 @@
      :showing     true}
     ]
    :graph/drop-info
-   {:id            10200 ;; Doesn't really need an id as there will only be one
+   {:id            10200 ;; React can use to differentiate
     :x             50
     :graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
     :current-label {:id 10000}
@@ -41,6 +41,15 @@
     {:id 10101 :name "Carbon Monoxide at 1", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
     {:id 10102 :name "Oxygen at 1", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
     ]
+   :graph/plumb-line {:id 10201
+                      :height 30
+                      :visible? true
+                      :x-position 10
+                      :in-sticky-time? false}
+   :graph/hover-pos nil
+   :graph/last-mouse-moment nil
+   :graph/labels-visible? false
+   :graph/labels [{:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}]
    :graph/lines
    [{:id     100
      :name "Methane at 1"
@@ -87,12 +96,7 @@
    :graph/init {:height 250
                 :width 640}
    :graph/translators {:horiz nil :vert nil :point nil}
-   :graph/in-sticky-time? false
-   :graph/hover-pos nil
-   :graph/last-mouse-moment nil
-   :graph/labels-visible? false
    :graph/args nil
-   :graph/labels [{:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}]
    :app/tubes
    [{:id    1000
      :tube-num 1

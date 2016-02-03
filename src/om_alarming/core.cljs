@@ -28,10 +28,11 @@
      {:graph/points (om/get-query graph/Point)}
      {:graph/lines (om/get-query graph/Line)}
      {:graph/x-gas-details (om/get-query graph/RectTextTick)}
-     {:graph/drop-info (om/get-query graph/ManyRectTextTick)}
+     {:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/labels (om/get-query graph/Label)}
      {:graph/init [:width :height]}
      :graph/comms-channel
+     {:graph/plumb-line (om/get-query graph/PlumbLine)}
      ])
   Object
   (render [this]
@@ -39,9 +40,9 @@
           ;_ (pprint @my-reconciler)
           ]
       (dom/div nil
-               (let [;buttons-props (select-keys app-props [:app/buttons :app/selected-button])
-                     ]
-                 (nav/menu-bar (:app/buttons app-props) (:app/selected-button app-props)))
+               (let []
+                 )
+               (nav/menu-bar (:app/buttons app-props) (:app/selected-button app-props))
                (let [selected (:name (:app/selected-button app-props))]
                  (case selected
                    "Map" (dom/div nil "Nufin")

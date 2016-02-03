@@ -67,9 +67,12 @@
 (def line-component (om/factory Line {:keyfn :id}))
 
 (defui ^:once PlumbLine
+  static om/IQuery
+  (query [this]
+    [:id :height :visible? :x-position :in-sticky-time?])
   Object
   (render [this]
-    (let [{:keys [height visible? x-position in-sticky-time?]} (om/props this)
+    (let [{:keys [id height visible? x-position in-sticky-time?]} (om/props this)
           stroke-width (if in-sticky-time? 2 1)
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -79,7 +82,7 @@
                              :strokeWidth stroke-width})
           res (when visible? (dom/line (clj->js line-props)))]
       res)))
-(def plumb-line (om/factory PlumbLine {:keyfn :id}))
+(def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
 
 (defui ^:once RectTextTick
   static om/Ident
@@ -140,11 +143,11 @@
              (dom/line (clj->js line-props))))))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
-(defn many-rect-text-ticks [drop-info]
+(defn rect-text-ticks [drop-info]
   (let [{:keys [x-gas-details current-label x lines testing-name]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
     (println "names: " (map :name x-gas-details))
-    (assert (:name current-label))
+    (assert (:name current-label) (str "current-label has no name: <" current-label ">"))
     (assert lines, "Expect lines in drop-info")
     (for [x-gas-info x-gas-details]
       (rect-text-tick (om/computed x-gas-info {:current-label current-label
@@ -160,7 +163,7 @@
   (query [this]
     [:id :name :dec-places]))
 
-(defui ^:once ManyRectTextTick
+(defui ^:once DropInfo
   static om/Ident
   (ident [this props]
     [:drop-info/by-id (:id props)])
@@ -172,17 +175,20 @@
      {:graph/lines (om/get-query Line)}])
   Object
   (render [this]
-    (let [{:keys [drop-info testing-name]} (om/props this)]
+    (let [{:keys [testing-name] :as props} (om/props this)]
       (if testing-name
         (dom/g nil
-               (many-rect-text-ticks drop-info))
-        (many-rect-text-ticks drop-info)))))
-(def many-rect-text-tick (om/factory ManyRectTextTick {:keyfn :id}))
+               (rect-text-ticks props))
+        (rect-text-ticks props)))))
+(def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
 (defui ^:once TrendingGraph
   static om/IQuery
   (query [this]
-    [{:graph/init [:width :height]} :graph/lines :graph/hover-pos :graph/labels-visible?])
+    [{:graph/init [:width :height]}
+     :graph/lines :graph/hover-pos :graph/labels-visible?
+     {:graph/plumb-line (om/get-query PlumbLine)}
+     {:graph/drop-info (om/get-query DropInfo)}])
   Object
   (handler-fn [this comms-channel e]
     (let [bounds (. (dom/node this) getBoundingClientRect)
@@ -193,12 +199,15 @@
       (put! comms-channel {:type (.-type e) :x x :y y})
       nil))
   (render [this]
-    (let [{:keys [graph/init graph/lines graph/hover-pos graph/labels-visible? graph/comms-channel]} (om/props this)
+    (let [{:keys [graph/init graph/lines graph/hover-pos
+                  graph/labels-visible? graph/comms-channel
+                  graph/plumb-line graph/drop-info]} (om/props this)
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: " init))
           handler #(.handler-fn this comms-channel %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
+          _ (println "DRP:" drop-info)
           ;_ (println "SVG: " init-props)
           ;_ (println "LINEs count: " (count lines))
           ]
@@ -208,17 +217,19 @@
                           (line-component line))
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
+                        (plumb-line-component plumb-line)
+                        (drop-info-component drop-info)
                         )
                (dom/div nil "Here goes timing information")))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]
   (case name
-    "plumb-line" (plumb-line test-props)
+    "plumb-line" (plumb-line-component test-props)
     "point" (point-component test-props)
     "line" (line-component test-props)
     "rect-text-tick" (rect-text-tick test-props)
-    "many-rect-text-tick" (many-rect-text-tick test-props)
+    "many-rect-text-tick" (drop-info-component test-props)
     ;; These may all be surplus:
     "poly" (surplus/poly test-props)
     "tick-lines" (surplus/tick-lines test-props)
