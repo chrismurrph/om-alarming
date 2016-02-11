@@ -1,9 +1,9 @@
 (ns om-alarming.graph.staging-area
   (:require [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout pipe onto-chan]]
-            [om-alarming.utils :refer [log no-log abs]]
+            [om-alarming.util.utils :refer [log no-log abs]]
             [om-alarming.graph.mock-values :refer [light-blue green pink]]
-            [om-alarming.utils :as u])
+            [om-alarming.util.utils :as u])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 ;;

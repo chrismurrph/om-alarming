@@ -1,10 +1,10 @@
 (ns om-alarming.graph.incoming
   (:require [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout alts!]]
-            [om-alarming.utils :refer [log]]
+            [om-alarming.util.utils :refer [log]]
             [om-alarming.graph.mock-values :as db]
             ;[graphing.graphing :as g]
-            [om-alarming.utils :as u]
+            [om-alarming.util.utils :as u]
             )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 

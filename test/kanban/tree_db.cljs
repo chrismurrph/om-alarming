@@ -111,7 +111,7 @@
                   :parser parser}))
 
 (defn show-db
-  "(in-ns 'om-alarming/tree-db)
+  "(in-ns 'kanban/tree-db)
    (show-db)
    from the REPL you started with `lein figwheel test`"
   []

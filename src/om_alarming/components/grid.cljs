@@ -1,11 +1,11 @@
 (ns om-alarming.components.grid
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.util :refer [class-names]]
+            [om-alarming.util.util :refer [class-names]]
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.general :as gen]))
 
-(defui ^:once CheckBox
+(defui CheckBox
   Object
   (render [this]
     (let [props (om/props this)
@@ -18,7 +18,7 @@
 
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
-(defui ^:once GridDataCell
+(defui GridDataCell
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
@@ -42,7 +42,7 @@
 
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
 
-(defui ^:once GridRow
+(defui GridRow
   static om/Ident
   (ident [this props]
     [:tube/by-id (:id props)])
@@ -62,7 +62,7 @@
 
 (def grid-row (om/factory GridRow {:keyfn :id}))
 
-(defui ^:once GridHeaderLabel
+(defui GridHeaderLabel
   Object
   (render [this]
     (let [props (om/props this)
@@ -75,7 +75,7 @@
 
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
-(defui ^:once GridHeaderRow
+(defui GridHeaderRow
   ;static om/IQuery
   ;(query [this]
   ;  [:id :app/gases])
@@ -92,7 +92,9 @@
 (defn gas-query-panel [app-props]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
         sui-grid-info #js {:className "ui column grid"}
-        _ (assert (:app/gases app-props))]
+        _ (assert (:app/gases app-props))
+        _ (assert (:app/tubes app-props))
+        _ (assert (:trending app-props))]
     (dom/div #js {:className "ui three column internally celled grid container"}
              (dom/div #js {:className "column"}
                       (dom/div sui-grid-info
@@ -100,10 +102,7 @@
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "two wide column"}
-                      (graph/trending-graph (select-keys app-props
-                                                         [:graph/init :graph/lines :graph/hover-pos
-                                                          :graph/labels-visible? :graph/comms-channel
-                                                          :graph/plumb-line :graph/drop-info]))))))
+                      (graph/trending-graph (:trending app-props))))))
 
 ;(defui TrendingPanel
 ;  Object

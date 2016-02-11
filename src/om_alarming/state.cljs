@@ -32,9 +32,9 @@
    :graph/drop-info
    {:id            10200 ;; React can use to differentiate
     :x             50
-    :graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
+    :lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
     :current-label {:id 10000}
-    :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
+    :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/x-gas-details
    [
     {:id 10100 :name "Carbon Dioxide at 1", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}

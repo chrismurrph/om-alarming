@@ -3,9 +3,9 @@
             [om.dom :as dom]
             [om-alarming.parsing.mutates]
             [om-alarming.reconciler :refer [my-reconciler]]
-            [om-alarming.util :refer [class-names]]))
+            [om-alarming.util.util :refer [class-names]]))
 
-(defui ^:once TabButton
+(defui TabButton
   static om/Ident
   (ident [this props]
     [:button/by-id (:id props)])

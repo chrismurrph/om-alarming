@@ -1,4 +1,4 @@
-(ns om-alarming.utils
+(ns om-alarming.util.utils
   )
 
 (defn bisect-vertical-between [[x0 y0 val0] [x1 y1 val1] x]

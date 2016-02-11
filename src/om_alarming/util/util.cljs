@@ -1,4 +1,4 @@
-(ns om-alarming.util
+(ns om-alarming.util.util
   (:require [clojure.string :refer [join]]))
 
 (defn class-names [m]

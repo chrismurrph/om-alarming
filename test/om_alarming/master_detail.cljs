@@ -10,7 +10,7 @@
   {:graph/drop-info
    {:id            10200 ;; React can use to differentiate
     :x             50
-    :lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
+    :graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
     :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/lines
    [{:id     100
@@ -68,8 +68,8 @@
     (let [props (om/props this)
           _ (println "Point PROPs: " props)
           {:keys [x y]} props
-          _ (println "point: " x y)]
-      (dom/div double-tab (str "Point: <" x y ">")))))
+          _ (println "point: " x ", " y)]
+      (dom/div double-tab (str "Point: <" x "," y ">")))))
 (def point-comp (om/factory Point))
 
 (defui Line
@@ -88,48 +88,32 @@
       (dom/div tab (str "\tLine: <" name units ">")
                (for [point points]
                  (point-comp point))))))
- (def line-comp (om/factory Line))
+(def line-comp (om/factory Line))
 
-;;
-;; Not implemented. As these methods do not need to be called this should not matter.
-;; Still it is worth visiting http://localhost:3449, and looking in the Dev Tools
-;; Console - but expect problems. In fact you need to go there and refresh before
-;; calling (show-db).
-;;
+(defui DropInfo
+  static om/Ident
+  (ident [this props]
+    [:drop-info/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :x {:graph/lines (om/get-query Line)}])
+  Object
+  (render [this]
+    (let [props (om/props this)
+          {:keys [x]} props]
+      (dom/span nil "Drop info at: <" x ">"))))
+(def dropinfo-comp (om/factory DropInfo))
+
 (defmulti read om/dispatch)
 (defmulti mutate om/dispatch)
 (def parser
   (om/parser {:read read
               :mutate mutate}))
 
-;(defmethod read :graph/drop-info
-;  [{:keys [state query]} key _]
-;  (let [st @state
-;        _ (println "In :graph/drop-info for:" query)
-;        ]
-;    {:value (om/db->tree query (get st key) st)}))
-
-;;
-;; Too easy to mess up with a default
-;;
-;(defmethod read :default
-;  [{:keys [state query]} key _]
-;  (let [st @state
-;        ;_ (println "In read to ret:" (get st key))
-;        res (get st key)
-;        _ (assert res (str "Nothing found in :default for supposed "
-;                           "top level key: " key))
-;        ]
-;    {:value res}))
-
-;;
-;; Top level and will never be requested with
-;; an Ident so we just grab it
-;;
 (defmethod read :graph/drop-info
   [{:keys [state query]} key _]
   (let [st @state]
-    {:value (get st key)}))
+    {:value (om/db->tree query (get st key) st)}))
 
 ;;
 ;; An Ident will be coming into props so we need db->tree
@@ -142,7 +126,7 @@
 (defmethod read :graph/points
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "Not done!")]
+        _ (println "Not called unless at root: " key ", " query)]
     {:value (om/db->tree query (get st key) st)}))
 
 (def reconciler
@@ -161,8 +145,10 @@
 (defui Root
   static om/IQuery
   (query [this]
-    [:graph/drop-info
-     {:graph/lines (om/get-query Line)}])
+    [{:graph/drop-info (om/get-query DropInfo)}
+     {:graph/lines (om/get-query Line)}
+     {:graph/points (om/get-query Point)}
+     ])
   Object
   (render [this]
     (show-db)
@@ -171,7 +157,7 @@
           {:keys [graph/drop-info graph/lines]} props
           ;_ (println "DROP info: " drop-info)
           ]
-      (dom/div nil (str "Drop down at: <" (:x drop-info) ">")
+      (dom/div nil (dropinfo-comp drop-info)
                (dom/div nil
                         (for [line lines]
                           (line-comp line)))))))

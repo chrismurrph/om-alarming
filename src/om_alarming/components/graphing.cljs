@@ -14,7 +14,7 @@
                           :strokeWidth 0.25
                           :opacity     1.0}))
 
-(defui ^:once Point
+(defui Point
   static om/Ident
   (ident [this props]
     [:graph-point/by-id (:id props)])
@@ -38,25 +38,28 @@
 ;;
 ;; GridDataCell should be taking care of this one
 ;;
-(defui ^:once Intersect
+(defui Intersect
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :value {:tube (om/get-query gen/Location)} {:system-gas (om/get-query gen/SystemGas)}]))
+    [:id :value {:tube (om/get-query gen/Location)}
+     {:system-gas (om/get-query gen/SystemGas)}]))
 
-(defui ^:once Line
+(defui Line
   static om/Ident
   (ident [this props]
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :units :colour {:intersect (om/get-query Intersect)} {:graph/points (om/get-query Point)}
+    [:id :name :units :colour {:intersect (om/get-query Intersect)}
+     {:graph/points (om/get-query Point)}
      ])
   Object
   (render [this]
     (let [props (om/props this)
+          _ (println "Line props:" props)
           {:keys [name units colour intersect graph/points]} props
           _ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
@@ -66,7 +69,10 @@
 
 (def line-component (om/factory Line {:keyfn :id}))
 
-(defui ^:once PlumbLine
+(defui PlumbLine
+  static om/Ident
+  (ident [this props]
+    [:plumb-line/by-id (:id props)])
   static om/IQuery
   (query [this]
     [:id :height :visible? :x-position :in-sticky-time?])
@@ -84,7 +90,7 @@
       res)))
 (def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
 
-(defui ^:once RectTextTick
+(defui RectTextTick
   static om/Ident
   (ident [this props]
     [:x-gas-details/by-id (:id props)])
@@ -155,7 +161,7 @@
                                                :lines lines
                                                :testing-name testing-name})))))
 
-(defui ^:once Label
+(defui Label
   static om/Ident
   (ident [this props]
     [:label/by-id (:id props)])
@@ -163,16 +169,16 @@
   (query [this]
     [:id :name :dec-places]))
 
-(defui ^:once DropInfo
+(defui DropInfo
   static om/Ident
   (ident [this props]
     [:drop-info/by-id (:id props)])
   static om/IQuery
   (query [this]
     [:id :x
-     {:graph/x-gas-details (om/get-query RectTextTick)}
+     {:x-gas-details (om/get-query RectTextTick)}
      {:current-label (om/get-query Label)}
-     {:graph/lines (om/get-query Line)}])
+     {:lines (om/get-query Line)}])
   Object
   (render [this]
     (let [{:keys [testing-name] :as props} (om/props this)]
@@ -182,11 +188,14 @@
         (rect-text-ticks props)))))
 (def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
-(defui ^:once TrendingGraph
+(defui TrendingGraph
   static om/IQuery
   (query [this]
     [{:graph/init [:width :height]}
-     :graph/lines :graph/hover-pos :graph/labels-visible?
+     {:graph/lines (om/get-query Line)}
+     :graph/hover-pos
+     :graph/labels-visible?
+     :graph/comms-channel
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/drop-info (om/get-query DropInfo)}])
   Object
@@ -199,17 +208,18 @@
       (put! comms-channel {:type (.-type e) :x x :y y})
       nil))
   (render [this]
-    (let [{:keys [graph/init graph/lines graph/hover-pos
-                  graph/labels-visible? graph/comms-channel
-                  graph/plumb-line graph/drop-info]} (om/props this)
+    (let [props (om/props this)
+          _ (println "PROPs\n" props)
+          {:keys [graph/init graph/lines graph/hover-pos
+                  graph/labels-visible? comms-channel
+                  graph/plumb-line graph/drop-info]} props
           {:keys [height width]} init
-          _ (assert (and width height) (str "No width or height in: " init))
+          _ (assert (and width height) (str "No width or height in: <" props ">"))
           handler #(.handler-fn this comms-channel %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
-          _ (println "DRP:" drop-info)
           ;_ (println "SVG: " init-props)
-          ;_ (println "LINEs count: " (count lines))
+          _ (println "LINEs count: " (count lines))
           ]
       (dom/div nil
                (dom/svg (clj->js init-props)
@@ -239,7 +249,7 @@
     "opaque-rect" (surplus/opaque-rect test-props)
     ))
 
-(defui ^:once SimpleSVGTester
+(defui SimpleSVGTester
   Object
   (render [this]
     (let [props (om/props this)

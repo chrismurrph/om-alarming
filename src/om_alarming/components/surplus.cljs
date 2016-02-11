@@ -37,7 +37,7 @@
 ;; :className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
 ;; :value "ok"}]
 ;;
-(defui ^:once MDSubmitButton
+(defui MDSubmitButton
   Object
   (render [this]
     (dom/button (clj->js {:className "mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"})

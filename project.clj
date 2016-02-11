@@ -9,6 +9,7 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
+                 [default-db-format "0.1.0-SNAPSHOT"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
@@ -22,10 +23,10 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "om-alarming.graph-tree-db"
-                                   :asset-path "js/out"
+                        :compiler {:main       "kanban.tree-db"
+                                   :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
-                                   :output-dir "resources/public/js/out"
+                                   :output-dir "resources/public/js/test"
                                    :source-map-timestamp true }}
                        {:id "dev"
                         :source-paths ["src"]
