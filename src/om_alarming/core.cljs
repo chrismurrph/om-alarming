@@ -12,8 +12,7 @@
             [om-alarming.components.graphing :as graph]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
-            [default-db-format.core :as format]
-            [default-db-format.components :as comps]
+            [default-db-format.core :as db-format]
             ))
 
 (enable-console-print!)
@@ -24,11 +23,22 @@
                        :graph/translators
                        :graph/init
                        :graph/last-mouse-moment})
-(def check-config {:excluded irrelevant-keys})
+(def okay-val-maps #{[:r :g :b]})
+(def check-config {:excluded-keys irrelevant-keys
+                   :okay-value-maps okay-val-maps})
 
 (defn check-default-db [state]
-  (let [check-result (format/check check-config state)]
-    (comps/display-db-component check-result)))
+  (let [version db-format/version
+        check-result (db-format/check check-config state)
+        ok? (db-format/ok? check-result)
+        msg-boiler (str "normalized using default-db-format version " version)
+        message (if ok?
+                  (str "GOOD: state fully " msg-boiler)
+                  (str "BAD: state not fully " msg-boiler))
+        ]
+    (db-format/display check-result)
+    (println message)
+    (when (not ok?) (pprint @my-reconciler))))
 
 (defui App
   static om/IQuery
@@ -54,9 +64,9 @@
   Object
   (render [this]
     (let [app-props (om/props this)
-          _ (pprint @my-reconciler)
-          _ (println "QUERY: " {:trending (om/get-query graph/TrendingGraph)})
-          _ (println "TRENDING QUERY RES:" (-> app-props :trending))
+          ;_ (pprint @my-reconciler)
+          ;_ (println "QUERY: " {:trending (om/get-query graph/TrendingGraph)})
+          ;_ (println "TRENDING QUERY RES:" (-> app-props :trending))
           ]
       (dom/div nil
                (check-default-db @my-reconciler)
@@ -71,7 +81,6 @@
                    "Automatic" (dom/div nil "Nufin")
                    "Logs" (dom/div nil "Nufin")
                    ))))))
-
 
 (defn run []
   (om/add-root! my-reconciler

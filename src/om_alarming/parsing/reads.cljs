@@ -25,9 +25,10 @@
 (defmethod read :trending
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "trending RECEIVED query: " query)
+        ;_ (println "trending RECEIVED query: " query)
         res (om/db->tree query st st)
-        _ (println "trending query RES: " res)]
+        ;_ (println "trending query RES: " res)
+        ]
     {:value res}))
 
 ;;
