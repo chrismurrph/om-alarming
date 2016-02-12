@@ -96,14 +96,15 @@
     [:x-gas-details/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:proportional-y :proportional-val :name])
+    [:id :proportional-y :proportional-val :name])
   Object
   (render [this]
-    (let [{:keys [proportional-y proportional-val name]} (om/props this)
+    (let [{:keys [id proportional-y proportional-val name]} (om/props this)
           {:keys [current-label x lines testing-name]} (om/get-computed this)
+          _ (assert id)
           _ (assert name (str "x-gas-info w/out a name. \nCOMPUTED:\n" (om/get-computed this) "\nPROPs:\n" (om/props this)))
           _ (assert (pos? (count lines)))
-          ;;; text
+          ;;; text ;;;
           line-doing (process/find-line lines name)
           _ (assert line-doing (str "Not found a name for <" name "> from:" lines))
           text-colour-str (-> line-doing :colour process/rgb-map-to-str)
@@ -117,7 +118,7 @@
                       :stroke   text-colour-str
                       :strokeWidth 0.65}
           ;_ (println text-props)
-          ;;; tick
+          ;;; tick ;;;
           colour-str (-> line-doing :colour process/rgb-map-to-str)
           ;_ (println (:name drop-info) " going to be " colour-str)
           drop-distance proportional-y
@@ -128,7 +129,7 @@
                              :x2      (+ x 6) :y2 drop-distance
                              :stroke  colour-str
                              :opacity (if (process/hidden? (:name line-doing) current-label) 0.0 1.0)})
-          ;;; rect
+          ;;; rect ;;;
           height 16
           half-height (/ height 2)
           width 45 ;; later we might use how many digits there are
@@ -146,7 +147,9 @@
       (dom/g nil
              (dom/rect (clj->js rect-props))
              (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-label) 2) proportional-val units-str))
-             (dom/line (clj->js line-props))))))
+             (dom/line (clj->js line-props))
+             )
+      )))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn rect-text-ticks [drop-info]
@@ -155,11 +158,13 @@
     (println "names: " (map :name x-gas-details))
     (assert (:name current-label) (str "current-label has no name: <" current-label ">"))
     (assert lines, "Expect lines in drop-info")
-    (for [x-gas-info x-gas-details]
-      (rect-text-tick (om/computed x-gas-info {:current-label current-label
-                                               :x x
-                                               :lines lines
-                                               :testing-name testing-name})))))
+    (dom/g nil
+           (for [x-gas-info x-gas-details]
+             (rect-text-tick (om/computed x-gas-info {:current-label current-label
+                                                      :x x
+                                                      :lines lines
+                                                      :testing-name testing-name}))))
+    ))
 
 (defui Label
   static om/Ident
@@ -175,7 +180,8 @@
     [:drop-info/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :x
+    [:id
+     :x
      {:x-gas-details (om/get-query RectTextTick)}
      {:current-label (om/get-query Label)}
      {:lines (om/get-query Line)}])

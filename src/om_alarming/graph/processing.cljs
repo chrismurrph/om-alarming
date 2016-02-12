@@ -32,7 +32,7 @@
    :r 2})
 
 (defn find-line [my-lines name]
-  (get my-lines name))
+  (first (filter #(= name (:name %)) my-lines)))
 
 ;;
 ;; current-label used to be (:current-label @state)
