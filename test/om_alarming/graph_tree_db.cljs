@@ -15,15 +15,15 @@
      :points [{:id 2000}{:id 2001}{:id 2002}]}
     {:id     101
      :intersect {:id 301}
-     :name "Oxygen at 1" :units "%" :colour green
+     :name "Oxygen at 4" :units "%" :colour green
      :points [{:id 2003}{:id 2004}{:id 2005}]}
     {:id     102
      :intersect {:id 303}
-     :name "Carbon Dioxide at 1" :units "%" :colour blue
+     :name "Carbon Dioxide at 2" :units "%" :colour blue
      :points [{:id 2006}{:id 2007}{:id 2008}]}
     {:id     103
      :intersect {:id 302}
-     :name "Carbon Monoxide at 1" :units "ppm" :colour red
+     :name "Carbon Monoxide at 3" :units "ppm" :colour red
      :points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
    :system-gases

@@ -13,7 +13,13 @@
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
-            ))
+            [om-alarming.reconciler :as reconciler]
+            [om-alarming.graph.incoming :as in]
+            [cljs-time.core :as t]
+            [om-alarming.graph.staging-area :as sa]
+            [om-alarming.graph.mock-values :as db]
+            [cljs.core.async :as async :refer [<!]])
+  (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
 
@@ -22,23 +28,29 @@
                        :graph/args
                        :graph/translators
                        :graph/init
-                       :graph/last-mouse-moment})
+                       :graph/last-mouse-moment
+                       :om.next/queries
+                       })
 (def okay-val-maps #{[:r :g :b]})
 (def check-config {:excluded-keys irrelevant-keys
-                   :okay-value-maps okay-val-maps})
+                   :okay-value-maps okay-val-maps
+                   :by-id-kw "by-id"})
 
 (defn check-default-db [state]
   (let [version db-format/version
         check-result (db-format/check check-config state)
         ok? (db-format/ok? check-result)
-        msg-boiler (str "normalized using default-db-format version " version)
+        msg-boiler (str "normalized (default-db-format ver: " version ")")
         message (if ok?
                   (str "GOOD: state fully " msg-boiler)
                   (str "BAD: state not fully " msg-boiler))
         ]
     (db-format/display check-result)
     (println message)
-    (when (not ok?) (pprint @my-reconciler))))
+    (when (not ok?)
+      (pprint check-result)
+      ;(pprint state)
+      )))
 
 (defui App
   static om/IQuery
@@ -52,7 +64,6 @@
      {:graph/points (om/get-query graph/Point)}
      {:graph/x-gas-details (om/get-query graph/RectTextTick)}
      {:graph/labels (om/get-query graph/Label)}
-     :graph/comms-channel
      {:trending (om/get-query graph/TrendingGraph)}
      ;; Have to do?:
      ;{:graph/init [:width :height]}
@@ -63,11 +74,7 @@
      ])
   Object
   (render [this]
-    (let [app-props (om/props this)
-          ;_ (pprint @my-reconciler)
-          ;_ (println "QUERY: " {:trending (om/get-query graph/TrendingGraph)})
-          ;_ (println "TRENDING QUERY RES:" (-> app-props :trending))
-          ]
+    (let [app-props (om/props this)]
       (dom/div nil
                (check-default-db @my-reconciler)
                (nav/menu-bar (:app/buttons app-props)
@@ -86,5 +93,23 @@
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
-  (p/init))
+  (p/init)
+  (let [line-names (keys db/my-lines)
+        ;'("Methane at 1", "Oxygen at 4", "Carbon Dioxide at 2", "Carbon Monoxide at 3")
+        _ (println "NAMES: " line-names)
+        now (t/now)
+        now-millis (.getTime now)
+        week-ago-millis (.getTime (t/minus now (t/weeks 1)))
+        chan (in/query-remote-server line-names week-ago-millis now-millis)
+        ; The lines are already in state so no need for this
+        ;_ (sa/create @db/lines)
+        receiving-chan (sa/show @db/lines week-ago-millis now-millis chan)
+        ]
+    (go-loop []
+             (let [{:keys [name point]} (<! receiving-chan)]
+               ;(println "Receiving " name " " point)
+               ;(g/add-point {:name name :point point})
+               )
+             (recur)))
+  )
 (run)

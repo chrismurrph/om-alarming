@@ -107,6 +107,7 @@
         options-map (reconciler/query :graph/init)
         _ (println "Created a controller, width is " (:width options-map))
         args (into {:comms ch} options-map)
+        _ (println "S/be going into graph/args: " args)
         staging (:staging options-map)
         graph-width (:width options-map)
         _ (assert graph-width ":width needs to be supplied at init")

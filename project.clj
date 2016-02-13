@@ -10,6 +10,7 @@
                  [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
                  [default-db-format "0.1.0-SNAPSHOT"]
+                 [com.andrewmcveigh/cljs-time "0.3.14"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]

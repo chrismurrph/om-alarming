@@ -57,6 +57,13 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/args
+  [{:keys [state query]} key _]
+  (let [st @state
+        _ (println "In :graph/args for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :tube/gases
   [{:keys [state query]} key _]
   (let [st @state
@@ -65,17 +72,17 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :graph/comms-channel
-  [{:keys [state query]} _ _]
+(defmethod read :in-sticky-time?
+  [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get-in st [:graph/args :comms])}))
+    {:value (get-in st [:graph/plumb-line :in-sticky-time?])}))
 
 (defmethod read :default
   [{:keys [state query]} key _]
   (let [st @state
         ;_ (println "In read to ret:" (get st key))
         res (get st key)
-        _ (assert res (str "Nothing found in :default for supposed "
+        _ (assert res (str "Nothing found at :default for supposed "
                            "top level key: " key))
         ]
     {:value res}))

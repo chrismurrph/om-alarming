@@ -25,6 +25,7 @@
 ;; There is a generator for each line
 ;;
 (defn generator [start end name out-chan]
+  (assert out-chan)
   (assert (> end start) "end must be greater than start")
   (let [all-times (create-n-times 50 start end)]
     (go-loop [completed []]

@@ -37,9 +37,9 @@
     :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/x-gas-details
    [
-    {:id 10100 :name "Carbon Dioxide at 1", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
-    {:id 10101 :name "Carbon Monoxide at 1", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
-    {:id 10102 :name "Oxygen at 1", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
+    {:id 10100 :name "Carbon Dioxide at 2", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
+    {:id 10101 :name "Carbon Monoxide at 3", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
+    {:id 10102 :name "Oxygen at 4", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
     ]
    :graph/plumb-line {:id 10201
                       :height 30
@@ -49,7 +49,7 @@
    :graph/hover-pos nil
    :graph/last-mouse-moment nil
    :graph/labels-visible? false
-   :graph/labels [{:id 10000 :name "Carbon Monoxide at 1" :dec-places 1}]
+   :graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
    :graph/lines
    [{:id     100
      :name "Methane at 1"
@@ -58,19 +58,19 @@
      :intersect {:id 500}
      :graph/points [{:id 2000}{:id 2001}{:id 2002}]}
     {:id     101
-     :name "Oxygen at 1"
+     :name "Oxygen at 4"
      :units "%"
      :colour green
      :intersect {:id 501}
      :graph/points [{:id 2003}{:id 2004}{:id 2005}]}
     {:id     102
-     :name "Carbon Dioxide at 1"
+     :name "Carbon Dioxide at 2"
      :units "%"
      :colour blue
      :intersect {:id 503}
      :graph/points [{:id 2006}{:id 2007}{:id 2008}]}
     {:id     103
-     :name "Carbon Monoxide at 1"
+     :name "Carbon Monoxide at 3"
      :units "ppm"
      :colour red
      :intersect {:id 502}

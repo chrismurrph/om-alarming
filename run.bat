@@ -1,1 +1,1 @@
-lein figwheel devcards dev
+lein figwheel dev

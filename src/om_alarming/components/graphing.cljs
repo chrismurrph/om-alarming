@@ -7,6 +7,7 @@
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
             [om-alarming.components.general :as gen]
+            [cljs.pprint :as pp :refer [pprint]]
             ))
 
 (def careless-text-props (clj->js {:x  10 :y 20
@@ -59,14 +60,13 @@
   Object
   (render [this]
     (let [props (om/props this)
-          _ (println "Line props:" props)
+          ;_ (println "Line props:" props)
           {:keys [name units colour intersect graph/points]} props
           _ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
       (dom/g nil (for [point points]
                    (point-component (om/computed point {:rgb-map colour})))))))
-
 (def line-component (om/factory Line {:keyfn :id}))
 
 (defui PlumbLine
@@ -201,11 +201,12 @@
      {:graph/lines (om/get-query Line)}
      :graph/hover-pos
      :graph/labels-visible?
-     :graph/comms-channel
+     {:graph/args [:comms]}
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/drop-info (om/get-query DropInfo)}])
   Object
   (handler-fn [this comms-channel e]
+    (assert comms-channel)
     (let [bounds (. (dom/node this) getBoundingClientRect)
           y (- (.-clientY e) (.-top bounds))
           x (- (.-clientX e) (.-left bounds))
@@ -215,12 +216,14 @@
       nil))
   (render [this]
     (let [props (om/props this)
-          _ (println "PROPs\n" props)
+          ;_ (pprint props)
           {:keys [graph/init graph/lines graph/hover-pos
-                  graph/labels-visible? comms-channel
+                  graph/labels-visible? graph/args
                   graph/plumb-line graph/drop-info]} props
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: <" props ">"))
+          comms-channel (:comms args)
+          _ (assert comms-channel "Need a comms channel to direct mouse movement at")
           handler #(.handler-fn this comms-channel %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init-props (merge {:style {:border "thin solid black"}} init handlers)

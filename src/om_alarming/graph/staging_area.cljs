@@ -132,6 +132,7 @@
 (defn show
   ""
   [lines start end in-chan]
+  (assert in-chan)
   (let [out-chan (chan)
         names (map :name lines)
         receiving-chans (into {} (map (fn [name] (vector name (chan))) names))
@@ -143,6 +144,7 @@
                    its-name (:name latest-val)
                    _ (no-log "name from incoming: " its-name)
                    receiving-chan (get receivers its-name)
+                   _ (assert receiving-chan (str "Not found receiving channel for " its-name " from " receivers))
                    _ (>! receiving-chan latest-val)])
              (recur))
     out-chan))
