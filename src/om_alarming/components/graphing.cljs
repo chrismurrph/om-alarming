@@ -201,7 +201,7 @@
      {:graph/lines (om/get-query Line)}
      :graph/hover-pos
      :graph/labels-visible?
-     {:graph/args [:comms]}
+     {:graph/misc [:comms :receiving-chan]}
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/drop-info (om/get-query DropInfo)}])
   Object
@@ -218,11 +218,11 @@
     (let [props (om/props this)
           ;_ (pprint props)
           {:keys [graph/init graph/lines graph/hover-pos
-                  graph/labels-visible? graph/args
+                  graph/labels-visible? graph/misc
                   graph/plumb-line graph/drop-info]} props
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: <" props ">"))
-          comms-channel (:comms args)
+          comms-channel (:comms misc)
           _ (assert comms-channel "Need a comms channel to direct mouse movement at")
           handler #(.handler-fn this comms-channel %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}

@@ -96,7 +96,7 @@
    :graph/init {:height 250
                 :width 640}
    :graph/translators {:horiz nil :vert nil :point nil}
-   :graph/args nil
+   :graph/misc nil
    :app/tubes
    [{:id    1000
      :tube-num 1

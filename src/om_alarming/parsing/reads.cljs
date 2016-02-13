@@ -46,21 +46,49 @@
 (defmethod read :graph/lines
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In :graph/lines for:" query)
+        ;_ (println "In :graph/lines for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/x-gas-details
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In :graph/x-gas-details for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/labels
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In :graph/labels for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/drop-info
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In :graph/drop-info for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/plumb-line
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In :graph/plumb-line for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
 
 (defmethod read :graph/points
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In :graph/points for:" query)
+        ;_ (println "In :graph/points for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :graph/args
+(defmethod read :graph/misc
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In :graph/args for:" query)
+        _ (println "In :graph/misc for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
 
@@ -76,6 +104,11 @@
   [{:keys [state _]} key _]
   (let [st @state]
     {:value (get-in st [:graph/plumb-line :in-sticky-time?])}))
+
+(defmethod read :receiving-chan
+  [{:keys [state _]} key _]
+  (let [st @state]
+    {:value (get-in st [:graph/misc :receiving-chan])}))
 
 (defmethod read :default
   [{:keys [state query]} key _]

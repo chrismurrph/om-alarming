@@ -25,7 +25,7 @@
 
 (def irrelevant-keys #{:graph/labels-visible?
                        :graph/hover-pos
-                       :graph/args
+                       :graph/misc
                        :graph/translators
                        :graph/init
                        :graph/last-mouse-moment
@@ -36,7 +36,13 @@
                    :okay-value-maps okay-val-maps
                    :by-id-kw "by-id"})
 
-(defn check-default-db [state]
+(defn halt-receiving
+  "Grabs the receiving chan from state and sends it {:pause true}"
+  []
+  (let [chan (reconciler/internal-query [{:graph/misc [:receiving-chan]}])]
+    (println "PAUSE: " chan)))
+
+(defn check-default-db? [state]
   (let [version db-format/version
         check-result (db-format/check check-config state)
         ok? (db-format/ok? check-result)
@@ -48,9 +54,11 @@
     (db-format/display check-result)
     (println message)
     (when (not ok?)
-      (pprint check-result)
-      ;(pprint state)
-      )))
+      ;(pprint check-result)
+      (pprint state)
+      (halt-receiving)
+      )
+    ok?))
 
 (defui App
   static om/IQuery
@@ -71,15 +79,18 @@
      {:graph/lines (om/get-query graph/Line)}
      {:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
+     ;; Not sure, try to remove later:
+     {:graph/misc [:comms :receiving-chan]}
      ])
   Object
   (render [this]
     (let [app-props (om/props this)]
       (dom/div nil
-               (check-default-db @my-reconciler)
+               (check-default-db? @my-reconciler)
                (nav/menu-bar (:app/buttons app-props)
                              (:app/selected-button app-props))
-               (let [selected (:name (:app/selected-button app-props))]
+               (let [selected (:name (:app/selected-button app-props))
+                     _ (assert selected)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
                    "Trending" (grid/gas-query-panel app-props)
@@ -104,12 +115,14 @@
         ; The lines are already in state so no need for this
         ;_ (sa/create @db/lines)
         receiving-chan (sa/show @db/lines week-ago-millis now-millis chan)
+        _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
         ]
     (go-loop []
-             (let [{:keys [name point]} (<! receiving-chan)]
-               ;(println "Receiving " name " " point)
-               ;(g/add-point {:name name :point point})
-               )
+             (let [{:keys [name point pause?]} (<! receiving-chan)]
+               (println "Receiving " name " " point)
+               (when (not pause?)
+                 (reconciler/alteration 'graph/add-point
+                                        {:name name :point point})))
              (recur)))
   )
 (run)
