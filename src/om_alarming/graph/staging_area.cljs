@@ -19,11 +19,12 @@
 ;;
 ;; Although they say lowest and highest they actually mean lowest and highest thresholds
 ;; (a higher threshold means that it is worse, which may mean it has a lower value)
+;; TODO It is wrong that these are line names. But we are going to get rid of line names altogether
 ;;
-(def gas-infos [{:name "Carbon Dioxide" :lowest 0.5 :highest 1.35}
-                {:name "Carbon Monoxide" :lowest 30 :highest 55}
-                {:name "Oxygen" :lowest 19 :highest 12}
-                {:name "Methane" :lowest 0.25 :highest 1}])
+(def gas-infos [{:name "Carbon Dioxide at 2" :lowest 0.5 :highest 1.35}
+                {:name "Carbon Monoxide at 3" :lowest 30 :highest 55}
+                {:name "Oxygen at 4" :lowest 19 :highest 12}
+                {:name "Methane at 1" :lowest 0.25 :highest 1}])
 
 ;;
 ;; Given lowest and highest work out a divider so that given a change of 1 in the business
@@ -39,7 +40,10 @@
     five-hundreth))
 
 (defn stage-ify-changer [lowest highest]
-  (let [divide-num (transition-divide-by lowest highest)]
+  (let [_ (assert lowest)
+        _ (assert highest)
+        divide-num (transition-divide-by lowest highest)
+        _ (assert (not= 0 divide-num) (str "lowest: " lowest ", hightest: " highest))]
   (fn [central-y external-val]
     (let [external-over-central (- external-val central-y)
           stage-val-over-central (quot external-over-central divide-num)
@@ -98,7 +102,8 @@
 ;;
 (defn receiver [name time->x central? out-chan in-chan]
   (let [{:keys [lowest highest]} (first (filter (fn [info] (= name (-> info :name))) gas-infos))
-        _ (log name " " lowest " " highest)
+        _ (assert lowest (str "Not found match for: " name))
+        _ (assert time->x)
         transitioner (stage-ify-changer lowest highest)]
     (go-loop [accumulated []
               release-channel nil]
@@ -132,7 +137,7 @@
 (defn show
   ""
   [lines start end in-chan]
-  (assert in-chan)
+  (assert (and in-chan start end))
   (let [out-chan (chan)
         names (map :name lines)
         receiving-chans (into {} (map (fn [name] (vector name (chan))) names))

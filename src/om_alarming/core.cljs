@@ -118,11 +118,13 @@
         _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
         ]
     (go-loop []
-             (let [{:keys [name point pause?]} (<! receiving-chan)]
-               (println "Receiving " name " " point)
+             (let [{:keys [name point pause?]} (<! receiving-chan)
+                   x (first point)
+                   y (second point)]
+               (println "Receiving " name x y)
                (when (not pause?)
                  (reconciler/alteration 'graph/add-point
-                                        {:name name :point point})))
+                                        {:name name :point {:x x :y y}})))
              (recur)))
   )
 (run)

@@ -20,7 +20,8 @@
 ;;
 (defn add-point [st params]
   (let [{:keys [name point]} params
-        {:keys [x y]} point]
+        {:keys [x y]} point
+        _ (println "ADD:" x y)]
     (:state (create-point st x y))))
 
 (defmethod mutate 'app/tab
