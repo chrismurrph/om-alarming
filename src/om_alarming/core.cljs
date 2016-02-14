@@ -18,7 +18,8 @@
             [cljs-time.core :as t]
             [om-alarming.graph.staging-area :as sa]
             [om-alarming.graph.mock-values :as db]
-            [cljs.core.async :as async :refer [<!]])
+            [cljs.core.async :as async :refer [<!]]
+            [om-alarming.parsing.mutations.lines])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -108,6 +109,12 @@
   (let [line-names (keys db/my-lines)
         ;'("Methane at 1", "Oxygen at 4", "Carbon Dioxide at 2", "Carbon Monoxide at 3")
         _ (println "NAMES: " line-names)
+        line-idents (reconciler/internal-query [:graph/line-idents])
+        _ (println "line idents: " line-idents)
+        first-ident (-> line-idents :graph/line-idents first)
+        _ (println first-ident)
+        data (reconciler/internal-query [{:graph/lines [:id :name]}])
+        _ (println "data:" data)
         now (t/now)
         now-millis (.getTime now)
         week-ago-millis (.getTime (t/minus now (t/weeks 1)))

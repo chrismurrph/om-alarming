@@ -50,6 +50,13 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/line-from-ident
+  [{:keys [state query]} key _]
+  (let [st @state
+        _ (println "In :graph/line-from-ident for:" query)
+        ]
+    {:value (get-in (get st :graph/lines) query)}))
+
 (defmethod read :graph/x-gas-details
   [{:keys [state query]} key _]
   (let [st @state
@@ -84,6 +91,11 @@
         ;_ (println "In :graph/points for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/line-idents
+  [{:keys [state _]} key _]
+  (let [st @state]
+    {:value (get st :graph/lines)}))
 
 (defmethod read :graph/misc
   [{:keys [state query]} key _]
