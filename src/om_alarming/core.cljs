@@ -20,24 +20,11 @@
             [om-alarming.graph.mock-values :as db]
             [cljs.core.async :as async :refer [<!]]
             [om-alarming.parsing.mutations.lines]
-            [om-alarming.parsing.mutations.graph])
+            [om-alarming.parsing.mutations.graph]
+            [om-alarming.state :as state])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
-
-(def irrelevant-keys #{:graph/labels-visible?
-                       :graph/hover-pos
-                       :graph/misc
-                       :graph/translators
-                       :graph/init
-                       :graph/last-mouse-moment
-                       :graph/receiving?
-                       :om.next/queries
-                       })
-(def okay-val-maps #{[:r :g :b]})
-(def check-config {:excluded-keys irrelevant-keys
-                   :okay-value-maps okay-val-maps
-                   :by-id-kw "by-id"})
 
 ;;
 ;; When get rid of this also remove :receiving-chan from the state
@@ -51,9 +38,9 @@
 (defn halt-receiving []
   (reconciler/alteration 'graph/stop-receive nil :graph/receiving?))
 
-(defn check-default-db [state]
+(defn check-default-db [st]
   (let [version db-format/version
-        check-result (db-format/check check-config state)
+        check-result (db-format/check state/check-config st)
         ok? (db-format/ok? check-result)
         msg-boiler (str "normalized (default-db-format ver: " version ")")
         message (if ok?
@@ -145,11 +132,14 @@
              (let [{:keys [name point]} (<! receiving-chan)
                    paused? (not (reconciler/top-level-query :graph/receiving?))
                    x (first point)
-                   y (second point)]
-               (if (and (< count 1) (not paused?))
+                   y (second point)
+                   line-ident (line-name->ident name)
+                   ;_ (println "Ident: " line-ident)
+                   ]
+               (if (and (< count 20) (not paused?))
                  (do
                    (reconciler/alteration 'graph/add-point
-                                          {:line-name-ident (line-name->ident name) :x x :y y}
+                                          {:line-name-ident line-ident :x x :y y}
                                           :graph/lines)
                    (println "Receiving " name x y)
                    (recur (inc count)))

@@ -26,7 +26,7 @@
   (render [this]
     (let [{:keys [id x y]} (om/props this)
           {:keys [rgb-map]} (om/get-computed this)
-          _ (println "POINT: " id " " rgb-map " " x " " y)
+          ;_ (println "POINT: " id " " rgb-map " " x " " y)
           _ (assert id)
           _ (assert (and x y))
           circle-props    (merge process/point-defaults
@@ -142,7 +142,7 @@
           colour (if testing-name light-blue white)
           fill (process/rgb-map-to-str colour)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
-          _ (println "rect-props: " rect-props)
+          ;_ (println "rect-props: " rect-props)
           ]
       (dom/g nil
              (dom/rect (clj->js rect-props))

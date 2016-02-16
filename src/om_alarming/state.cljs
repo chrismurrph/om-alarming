@@ -1,6 +1,20 @@
 (ns om-alarming.state
   (:require [om-alarming.graph.mock-values :refer [pink green blue red]]))
 
+(def irrelevant-keys #{:graph/labels-visible?
+                       :graph/hover-pos
+                       :graph/misc
+                       :graph/translators
+                       :graph/init
+                       :graph/last-mouse-moment
+                       :graph/receiving?
+                       :om.next/queries
+                       })
+(def okay-val-maps #{[:r :g :b]})
+(def check-config {:excluded-keys irrelevant-keys
+                   :okay-value-maps okay-val-maps
+                   :by-id-kw "by-id"})
+
 (def initial-state
   {:app/selected-button {:id 3}
    :app/buttons
@@ -98,7 +112,7 @@
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
                {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
-   :graph/init {:height 250
+   :graph/init {:height 600
                 :width 640}
    :graph/translators {:horiz nil :vert nil :point nil}
    :graph/misc nil

@@ -17,7 +17,7 @@
         _ (assert (> id 2000))
         point {:id id :x x :y y}
         ref  [:graph-point/by-id id]]
-    {:point ref
+    {:point-ident ref
      :state (-> st
                 (assoc-in ref point)
                 (update :graph/points conj ref))}))

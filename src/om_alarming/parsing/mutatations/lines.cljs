@@ -9,13 +9,16 @@
   (into [] (cond-> points
                    (not (some #{ref} points)) (conj ref))))
 
+(defn add-point-to-line [state line-ident point-ident]
+  (update-in state (conj line-ident :graph/points) conj point-ident))
+
 ;;
 ;; To create a point we need to know the name of the line that it is to go in
 ;; and x and y.
 ;;
 (defn create-point [st params]
   (let [{:keys [line-name-ident x y]} params
-        {:keys [state point]} (points/new-point st x y)
+        {:keys [state point-ident]} (points/new-point st x y)
         ;; Do not get executed so why bother
         ;_ (assert (db-format/ident? "by-id" line-name-ident))
         ;_ (println "Received x y: " x y line-name-ident)
@@ -23,8 +26,8 @@
         ;_ (println "Created point: " point)
         ] 
     (-> state
-        (update-in (conj line-name-ident :graph/points) add-to-points line-name-ident)
-        (assoc :graph/points point)
+        (update-in (conj line-name-ident :graph/points) conj point-ident)
+        ;(assoc :graph/points point)
         )
     ))
 

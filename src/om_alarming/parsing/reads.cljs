@@ -64,7 +64,7 @@
 (defmethod read :graph/line-from-ident
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In :graph/line-from-ident for:" query)
+        ;_ (println "In :graph/line-from-ident for:" query)
         ]
     {:value (get-in (get st :graph/lines) query)}))
 
@@ -111,7 +111,7 @@
 (defmethod read :graph/misc
   [{:keys [state query]} key _]
   (let [st @state
-        _ (println "In :graph/misc for:" query)
+        ;_ (println "In :graph/misc for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
 

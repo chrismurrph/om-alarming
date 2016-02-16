@@ -2,7 +2,17 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.reconciler :as reconciler]
-            ))
+            [om-alarming.state :as state]
+            [default-db-format.core :as db-format]))
+
+(defn add-point-to-line [state line-ident point-ident]
+  (update-in state (conj line-ident :graph/points) conj point-ident))
+
+(defn show-added-point-to-line [state line-ident point-ident]
+  (get-in (add-point-to-line state line-ident point-ident) (conj line-ident :graph/points)))
+
+(defn get-point-value [state point-ident]
+  (get-in state point-ident))
 
 (defui Debug
   static om/IQuery
@@ -13,9 +23,20 @@
     (let [props (om/props this)
           ;_ (println "props:" props)
           {:keys [graph/receiving?]} props
-          {:keys [state]} (om/get-computed this)]
+          {:keys [state]} (om/get-computed this)
+          point-value-fn (partial get-point-value state)]
       (dom/div nil 
                (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/receiving?)} "Receive toggle")
                (str "   Whether receiving:" receiving?)
-               (dom/pre nil (with-out-str (cljs.pprint/pprint state)) )))))
+               (dom/br nil)(dom/br nil)
+               (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/points state))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/lines state))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 100 :graph/points]))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 101 :graph/points]))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 102 :graph/points]))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 103 :graph/points]))))
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (map point-value-fn (get-in state [:line/by-id 103 :graph/points])))))
+               ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
+               ))))
 (def debug (om/factory Debug))
