@@ -1,7 +1,7 @@
 (ns om-alarming.components.nav
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.parsing.mutations.misc]
+            [om-alarming.parsing.mutations.app]
             [om-alarming.reconciler :refer [my-reconciler]]
             [om-alarming.util.util :refer [class-names]]))
 
@@ -37,22 +37,3 @@
                         (when (not (= false (:showing item)))
                           (tab-button (om/computed item {:selected (= selected-id (:id item))})))))
              )))
-
-;(defui ^:once MenuBar
-;  Object
-;  (render [this]
-;    (let [{:keys [:app/buttons :app/selected-button]} (om/props this)
-;          _ (println "items: " buttons)
-;          _ (println "selected: " selected-button)
-;          selected-id (get selected-button :id)
-;          selected (first (filter #(= (:id %) selected-id) buttons))
-;          _ (println "heading: " (:description selected))
-;          ]
-;      (dom/div nil
-;               (dom/h3 #js {:className "ui block center aligned top attached header"} (:description selected))
-;               (dom/div #js {:className "ui tabular attached menu"}
-;                        (for [item buttons]
-;                          (when (not (= false (:showing item)))
-;                            (tab-button (om/computed item {:selected (= selected-id (:id item))})))))
-;               ))))
-;(def menubar (om/factory MenuBar {:keyfn :id}))

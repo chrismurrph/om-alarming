@@ -28,6 +28,10 @@
      :name        "Logs"
      :description "Warning Log"
      :showing     true}
+    {:id          7
+     :name        "Debug"
+     :description "Debug while developing"
+     :showing     true}
     ]
    :graph/drop-info
    {:id            10200 ;; React can use to differentiate
@@ -50,6 +54,7 @@
    :graph/last-mouse-moment nil
    :graph/labels-visible? false
    :graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
+   :graph/receiving? false
    :graph/lines
    [{:id     100
      :name "Methane at 1"

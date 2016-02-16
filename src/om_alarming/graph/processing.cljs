@@ -72,7 +72,7 @@
 
                   [{:type "mousemove" :x x :y y}]
                   (let [now-moment (now-time)
-                        in-sticky-time? (reconciler/external-query :in-sticky-time?)
+                        in-sticky-time? (reconciler/top-level-query :in-sticky-time?)
                         diff (distance [old-x old-y] [cur-x cur-y])
                         is-flick (> diff 10)]
                     (when (not is-flick)
@@ -104,7 +104,7 @@
 (defn init []
   (let [ch (chan)
         proc (controller ch)
-        options-map (reconciler/external-query :graph/init)
+        options-map (reconciler/top-level-query :graph/init)
         _ (println "Created a controller, width is " (:width options-map))
         misc (into {:comms ch} options-map)
         _ (println "S/be going into graph/misc: " misc)

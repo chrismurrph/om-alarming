@@ -33,9 +33,8 @@
                   :logger logger}))
 
 ;; (in-ns 'om-alarming.reconciler)
-(defn external-query
-  "Only use for top level keywords that are kept out of Om Next state. Returns
-  the actual value rather than a hashmap"
+(defn top-level-query
+  "Only use for top level keywords. Returns the actual value rather than a hashmap"
   [kw]
   ;(println "External query for " kw)
   (let [res (my-parser {:state my-reconciler} `[[~kw _]])]

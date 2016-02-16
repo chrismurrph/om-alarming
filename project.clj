@@ -1,4 +1,4 @@
-(defproject om-alarming "0.1.0-SNAPSHOT"
+(defproject om-alarming "0.1.0"
   :description "Alarming and Trending"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
@@ -9,7 +9,7 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
-                 [default-db-format "0.1.0-SNAPSHOT"]
+                 [default-db-format "0.1.0"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
                  ]
 

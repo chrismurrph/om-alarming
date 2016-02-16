@@ -31,6 +31,13 @@
         ]
     {:value res}))
 
+(defmethod read :debug
+  [{:keys [state query]} key _]
+  (let [st @state
+        res (om/db->tree query st st)
+        ]
+    {:value res}))
+
 ;;
 ;; For those that can be nil we can't reply on the default
 ;;
@@ -39,6 +46,10 @@
   (let [st @state]
     {:value (get st key)}))
 (defmethod read :graph/labels-visible?
+  [{:keys [state _]} key _]
+  (let [st @state]
+    {:value (get st key)}))
+(defmethod read :graph/receiving?
   [{:keys [state _]} key _]
   (let [st @state]
     {:value (get st key)}))

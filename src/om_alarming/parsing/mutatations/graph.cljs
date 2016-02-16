@@ -1,13 +1,6 @@
-(ns om-alarming.parsing.mutations.misc
+(ns om-alarming.parsing.mutations.graph
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]))
-
-(defmethod mutate 'app/tab
-  [{:keys [state]} _ {:keys [new-id]}]
-  {:value  {:keys [:app/selected-button]}
-   :action #(let [;_ (println "Selected: " new-id)
-                  ]
-             (swap! state assoc-in [:app/selected-button 1] new-id))})
 
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
@@ -28,3 +21,13 @@
   [{:keys [state]} _ {:keys [receiving-chan]}]
   {:value  {:keys [:graph/misc]}
    :action #(swap! state assoc-in [:graph/misc :receiving-chan] receiving-chan)})
+
+(defmethod mutate 'graph/toggle-receive
+  [{:keys [state]} _ _]
+  {:value  {:keys [[:graph/receiving? _]]}
+   :action #(swap! state update-in [:graph/receiving?] not)})
+
+(defmethod mutate 'graph/stop-receive
+  [{:keys [state]} _ _]
+  {:value  {:keys [[:graph/receiving? _]]}
+   :action #(swap! state update-in [:graph/receiving?] false)})

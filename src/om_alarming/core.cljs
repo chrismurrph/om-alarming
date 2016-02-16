@@ -3,23 +3,24 @@
             [goog.dom :as gdom]
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.reconciler :refer [my-reconciler]]
+            [om-alarming.reconciler :as reconciler :refer [my-reconciler]]
             [om-alarming.parsing.reads]
             [om-alarming.util.utils :as u]
             [om-alarming.components.grid :as grid]
+            [om-alarming.components.debug :as debug]
             [om-alarming.components.general :as gen]
             [om-alarming.components.nav :as nav]
             [om-alarming.components.graphing :as graph]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
-            [om-alarming.reconciler :as reconciler]
             [om-alarming.graph.incoming :as in]
             [cljs-time.core :as t]
             [om-alarming.graph.staging-area :as sa]
             [om-alarming.graph.mock-values :as db]
             [cljs.core.async :as async :refer [<!]]
-            [om-alarming.parsing.mutations.lines])
+            [om-alarming.parsing.mutations.lines]
+            [om-alarming.parsing.mutations.graph])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -30,6 +31,7 @@
                        :graph/translators
                        :graph/init
                        :graph/last-mouse-moment
+                       :graph/receiving?
                        :om.next/queries
                        })
 (def okay-val-maps #{[:r :g :b]})
@@ -37,29 +39,32 @@
                    :okay-value-maps okay-val-maps
                    :by-id-kw "by-id"})
 
-(defn halt-receiving
+;;
+;; When get rid of this also remove :receiving-chan from the state
+;;
+(defn halt-receiving-wrong
   "Grabs the receiving chan from state and sends it {:pause true}"
   []
   (let [chan (reconciler/internal-query [{:graph/misc [:receiving-chan]}])]
     (println "PAUSE: " chan)))
 
-(defn check-default-db? [state]
+(defn halt-receiving []
+  (reconciler/alteration 'graph/stop-receive nil :graph/receiving?))
+
+(defn check-default-db [state]
   (let [version db-format/version
         check-result (db-format/check check-config state)
         ok? (db-format/ok? check-result)
         msg-boiler (str "normalized (default-db-format ver: " version ")")
         message (if ok?
                   (str "GOOD: state fully " msg-boiler)
-                  (str "BAD: state not fully " msg-boiler))
-        ]
-    (db-format/display check-result)
+                  (str "BAD: state not fully " msg-boiler))]
     (println message)
     (when (not ok?)
-      ;(pprint check-result)
-      (pprint state)
-      (halt-receiving)
-      )
-    ok?))
+      (pprint check-result)
+      ;(pprint state)
+      (halt-receiving))
+    (db-format/show-hud check-result)))
 
 (defui App
   static om/IQuery
@@ -82,16 +87,16 @@
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
      ;; Not sure, try to remove later:
      {:graph/misc [:comms :receiving-chan]}
+     {:debug (om/get-query debug/Debug)}
      ])
   Object
   (render [this]
     (let [app-props (om/props this)]
       (dom/div nil
-               (check-default-db? @my-reconciler)
+               (check-default-db @my-reconciler)
                (nav/menu-bar (:app/buttons app-props)
                              (:app/selected-button app-props))
-               (let [selected (:name (:app/selected-button app-props))
-                     _ (assert selected)]
+               (let [selected (:name (:app/selected-button app-props))]
                  (case selected
                    "Map" (dom/div nil "Nufin")
                    "Trending" (grid/gas-query-panel app-props)
@@ -99,7 +104,19 @@
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")
                    "Logs" (dom/div nil "Nufin")
+                   "Debug" (debug/debug (:debug app-props))
+                   nil (dom/div nil "Nothing selected, program has crashed!")
                    ))))))
+
+(defn ident-finder
+  "Hack b/c we will stop using names...
+  Given a name will return an Ident"
+  [name-id-maps idents]
+  (fn [name]
+    (let [id (:id (first (filter #(= (-> % :name) name) name-id-maps)))
+          ;_ (println id)
+          ident (first (filter #(= (-> % second) id) idents))]
+      ident)))
 
 (defn run []
   (om/add-root! my-reconciler
@@ -109,12 +126,12 @@
   (let [line-names (keys db/my-lines)
         ;'("Methane at 1", "Oxygen at 4", "Carbon Dioxide at 2", "Carbon Monoxide at 3")
         _ (println "NAMES: " line-names)
+        ;; Not only are we going to get rid of names, but they might change all the time
         line-idents (reconciler/internal-query [:graph/line-idents])
-        _ (println "line idents: " line-idents)
-        first-ident (-> line-idents :graph/line-idents first)
-        _ (println first-ident)
-        data (reconciler/internal-query [{:graph/lines [:id :name]}])
-        _ (println "data:" data)
+        data-values (reconciler/internal-query [{:graph/lines [:id :name]}])
+        finder (ident-finder (:graph/lines data-values) (:graph/line-idents line-idents))
+        line-name->ident (into {} (map (fn [x y] [x y]) line-names (map finder line-names)))
+        ;_ (println line-name->ident)
         now (t/now)
         now-millis (.getTime now)
         week-ago-millis (.getTime (t/minus now (t/weeks 1)))
@@ -125,13 +142,16 @@
         _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
         ]
     (go-loop []
-             (let [{:keys [name point pause?]} (<! receiving-chan)
+             (let [{:keys [name point]} (<! receiving-chan)
+                   paused? (not (reconciler/top-level-query :graph/receiving?))
                    x (first point)
                    y (second point)]
-               (println "Receiving " name x y)
-               (when (not pause?)
+               (when (not paused?)
                  (reconciler/alteration 'graph/add-point
-                                        {:name name :point {:x x :y y}})))
-             (recur)))
-  )
+                                        {:line-name-ident (line-name->ident name) :name name :x x :y y})
+                 (println "Receiving " name x y)))
+             (recur))))
 (run)
+
+;ident (line-name->ident name)]
+;;(println "Receiving " name x y)
