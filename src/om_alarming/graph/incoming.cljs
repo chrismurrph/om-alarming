@@ -18,7 +18,7 @@
         _ (assert (empty? (filter #(= % 0) res)) "Expected a wide enough range could go across without needing fractions")]
     res))
 
-;(log (create-150-times 500 2000))
+(def gas-gen-quantity 50) 
 
 ;;
 ;; Whenever its out channel is not blocked it will be generating a new gas value
@@ -27,7 +27,7 @@
 (defn generator [start end name out-chan]
   (assert out-chan)
   (assert (> end start) "end must be greater than start")
-  (let [all-times (create-n-times 50 start end)]
+  (let [all-times (create-n-times gas-gen-quantity start end)]
     (go-loop [completed []]
              (when (not= (count completed) (count all-times))
                (let [available (remove (into #{} completed) all-times)

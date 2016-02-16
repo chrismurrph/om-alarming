@@ -26,7 +26,7 @@
   (render [this]
     (let [{:keys [id x y]} (om/props this)
           {:keys [rgb-map]} (om/get-computed this)
-          ;_ (println "POINT: " id " " rgb-map " " x " " y)
+          _ (println "POINT: " id " " rgb-map " " x " " y)
           _ (assert id)
           _ (assert (and x y))
           circle-props    (merge process/point-defaults

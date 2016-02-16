@@ -104,7 +104,7 @@
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")
                    "Logs" (dom/div nil "Nufin")
-                   "Debug" (debug/debug (:debug app-props))
+                   "Debug" (debug/debug (om/computed (:debug app-props) {:state @my-reconciler}))
                    nil (dom/div nil "Nothing selected, program has crashed!")
                    ))))))
 
@@ -141,16 +141,19 @@
         receiving-chan (sa/show @db/lines week-ago-millis now-millis chan)
         _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
         ]
-    (go-loop []
+    (go-loop [count 0]
              (let [{:keys [name point]} (<! receiving-chan)
                    paused? (not (reconciler/top-level-query :graph/receiving?))
                    x (first point)
                    y (second point)]
-               (when (not paused?)
-                 (reconciler/alteration 'graph/add-point
-                                        {:line-name-ident (line-name->ident name) :name name :x x :y y})
-                 (println "Receiving " name x y)))
-             (recur))))
+               (if (and (< count 1) (not paused?))
+                 (do
+                   (reconciler/alteration 'graph/add-point
+                                          {:line-name-ident (line-name->ident name) :x x :y y}
+                                          :graph/lines)
+                   (println "Receiving " name x y)
+                   (recur (inc count)))
+                 (recur count))))))
 (run)
 
 ;ident (line-name->ident name)]

@@ -47,7 +47,7 @@
   (let [res (my-parser {:state my-reconciler} query)]
     res))
 
-;; (change 'app/tab {:new-id 1} :app/selected-button)
+;; (alteration 'app/tab {:new-id 1} :app/selected-button)
 (defn alteration
   ([mutate-key param-map kw]
    (om/transact! my-reconciler `[(~mutate-key ~param-map) ~kw]))
