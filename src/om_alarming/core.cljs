@@ -72,9 +72,9 @@
      {:graph/lines (om/get-query graph/Line)}
      {:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
+     {:debug (om/get-query debug/Debug)}
      ;; Not sure, try to remove later:
      {:graph/misc [:comms :receiving-chan]}
-     {:debug (om/get-query debug/Debug)}
      ])
   Object
   (render [this]
@@ -133,13 +133,14 @@
                    paused? (not (reconciler/top-level-query :graph/receiving?))
                    x (first point)
                    y (second point)
+                   val (last point)
                    line-ident (line-name->ident name)
                    ;_ (println "Ident: " line-ident)
                    ]
                (if (and (< count 20) (not paused?))
                  (do
                    (reconciler/alteration 'graph/add-point
-                                          {:line-name-ident line-ident :x x :y y}
+                                          {:line-name-ident line-ident :x x :y y :val val}
                                           :graph/lines)
                    (println "Receiving " name x y)
                    (recur (inc count)))

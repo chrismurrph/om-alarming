@@ -21,17 +21,18 @@
     [:graph-point/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :x :y])
+    [:id :x :y :val])
   Object
   (render [this]
-    (let [{:keys [id x y]} (om/props this)
-          {:keys [rgb-map]} (om/get-computed this)
-          ;_ (println "POINT: " id " " rgb-map " " x " " y)
+    (let [{:keys [id x y val]} (om/props this)
+          {:keys [rgb-map translator]} (om/get-computed this)
+          ;_ (println "POINT: " id " " rgb-map " " x " " y " " translator)
           _ (assert id)
-          _ (assert (and x y))
+          _ (assert (and x y val))
+          [x-trans y-trans val-trans] (translator [x [y val]])
           circle-props    (merge process/point-defaults
-                                 {:cx x
-                                  :cy y
+                                 {:cx x-trans
+                                  :cy y-trans
                                   :fill (process/rgb-map-to-str rgb-map)})]
       (dom/circle (clj->js circle-props)))))
 (def point-component (om/factory Point {:keyfn :id}))
@@ -60,13 +61,15 @@
   Object
   (render [this]
     (let [props (om/props this)
+          {:keys [point-fn]} (om/get-computed this)
+          _ (assert point-fn)
           ;_ (println "Line props:" props)
           {:keys [name units colour intersect graph/points]} props
           _ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
       (dom/g nil (for [point points]
-                   (point-component (om/computed point {:rgb-map colour})))))))
+                   (point-component (om/computed point {:rgb-map colour :translator point-fn})))))))
 (def line-component (om/factory Line {:keyfn :id}))
 
 (defui PlumbLine
@@ -203,7 +206,8 @@
      :graph/labels-visible?
      {:graph/misc [:comms :receiving-chan]}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     {:graph/drop-info (om/get-query DropInfo)}])
+     {:graph/drop-info (om/get-query DropInfo)}
+     {:graph/translators [:point-fn]}])
   Object
   (handler-fn [this comms-channel e]
     (assert comms-channel)
@@ -219,9 +223,12 @@
           ;_ (pprint props)
           {:keys [graph/init graph/lines graph/hover-pos
                   graph/labels-visible? graph/misc
-                  graph/plumb-line graph/drop-info]} props
+                  graph/plumb-line graph/drop-info
+                  graph/translators]} props
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: <" props ">"))
+          {:keys [point-fn]} translators
+          _ (assert point-fn "Trending")
           comms-channel (:comms misc)
           _ (assert comms-channel "Need a comms channel to direct mouse movement at")
           handler #(.handler-fn this comms-channel %)
@@ -233,7 +240,7 @@
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
-                          (line-component line))
+                          (line-component (om/computed line {:point-fn point-fn})))
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
                         (plumb-line-component plumb-line)

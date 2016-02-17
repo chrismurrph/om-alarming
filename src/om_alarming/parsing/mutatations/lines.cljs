@@ -17,8 +17,8 @@
 ;; and x and y.
 ;;
 (defn create-point [st params]
-  (let [{:keys [line-name-ident x y]} params
-        {:keys [state point-ident]} (points/new-point st x y)
+  (let [{:keys [line-name-ident x y val]} params
+        {:keys [state point-ident]} (points/new-point st x y val)
         ;; Do not get executed so why bother
         ;_ (assert (db-format/ident? "by-id" line-name-ident))
         ;_ (println "Received x y: " x y line-name-ident)

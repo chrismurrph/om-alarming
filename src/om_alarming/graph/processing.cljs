@@ -54,7 +54,7 @@
         vert-trans-fn (fn [val] (u/scale {:min min-y :max max-y} {:min 0 :max graph-height} val))
         trans-point-fn (fn [[x [y val]]] [(horiz-trans-fn x) (vert-trans-fn y) val])
         ]
-    {:horiz horiz-trans-fn :vert vert-trans-fn :point trans-point-fn}))
+    {:horiz-fn horiz-trans-fn :vert-fn vert-trans-fn :point-fn trans-point-fn}))
 
 ;; These work, depending on how well the reads are implemented
 ;; (in-ns 'om-alarming/graph.processing)

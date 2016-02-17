@@ -34,7 +34,7 @@
 ;; the 'pixels'.
 ;; (By pixels I mean units of staging area - just easier to think of as pixels)
 ;;
-(defn transition-divide-by [lowest highest]
+(defn- transition-divide-by [lowest highest]
   (let [spread (abs (- highest lowest))
         five-hundreth (/ spread 500)]
     five-hundreth))
@@ -67,7 +67,7 @@
 ;;
 ;; start and end in actual time that to be made between 0 -> 999 inclusive
 ;;
-(defn calc-x-from-time [start end]
+(defn- calc-x-from-time [start end]
   (assert start)
   (assert end)
   (let [from-world {:min start :max end}
@@ -142,8 +142,8 @@
         names (map :name lines)
         receiving-chans (into {} (map (fn [name] (vector name (chan))) names))
         central? (in-middle? 0.1 start end)
-        time->x (calc-x-from-time start end)
-        receivers (into {} (map (fn [[name chan]] (vector name (receiver name time->x central? out-chan chan))) receiving-chans))]
+        x-time (calc-x-from-time start end)
+        receivers (into {} (map (fn [[name chan]] (vector name (receiver name x-time central? out-chan chan))) receiving-chans))]
     (go-loop []
              (let [latest-val (<! in-chan)
                    its-name (:name latest-val)

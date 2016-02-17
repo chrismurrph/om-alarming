@@ -96,25 +96,25 @@
      :graph/points [{:id 2009}{:id 2010}{:id 2011}]}
     ]
    :graph/points
-   [{:id 2000 :x 20 :y 23}
-    {:id 2001 :x 21 :y 24}
-    {:id 2002 :x 22 :y 25}
-    {:id 2003 :x 33 :y 26}
-    {:id 2004 :x 34 :y 27}
-    {:id 2005 :x 35 :y 28}
-    {:id 2006 :x 46 :y 29}
-    {:id 2007 :x 47 :y 30}
-    {:id 2008 :x 48 :y 31}
-    {:id 2009 :x 59 :y 32}
-    {:id 2010 :x 50 :y 33}
-    {:id 2011 :x 51 :y 34}]
+   [{:id 2000 :x 20 :y 23 :val 0}
+    {:id 2001 :x 21 :y 24 :val 0}
+    {:id 2002 :x 22 :y 25 :val 0}
+    {:id 2003 :x 33 :y 26 :val 0}
+    {:id 2004 :x 34 :y 27 :val 0}
+    {:id 2005 :x 35 :y 28 :val 0}
+    {:id 2006 :x 46 :y 29 :val 0}
+    {:id 2007 :x 47 :y 30 :val 0}
+    {:id 2008 :x 48 :y 31 :val 0}
+    {:id 2009 :x 59 :y 32 :val 0}
+    {:id 2010 :x 50 :y 33 :val 0}
+    {:id 2011 :x 51 :y 34 :val 0}]
    :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"}
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
                {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
-   :graph/init {:height 600
+   :graph/init {:height 250
                 :width 640}
-   :graph/translators {:horiz nil :vert nil :point nil}
+   :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
    :graph/misc nil
    :app/tubes
    [{:id    1000

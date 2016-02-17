@@ -14,6 +14,19 @@
 (defn get-point-value [state point-ident]
   (get-in state point-ident))
 
+(defn points-debugging [state]
+  (let [point-value-fn (partial get-point-value state)]
+    (dom/div nil
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/points state))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/lines state))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 100 :graph/points]))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 101 :graph/points]))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 102 :graph/points]))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 103 :graph/points]))))
+             (dom/pre nil (with-out-str (cljs.pprint/pprint (map point-value-fn (get-in state [:line/by-id 103 :graph/points])))))))
+  ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
+  )
+
 (defui Debug
   static om/IQuery
   (query [_]
@@ -23,20 +36,13 @@
     (let [props (om/props this)
           ;_ (println "props:" props)
           {:keys [graph/receiving?]} props
-          {:keys [state]} (om/get-computed this)
-          point-value-fn (partial get-point-value state)]
+          {:keys [state]} (om/get-computed this)]
       (dom/div nil 
                (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/receiving?)} "Receive toggle")
                (str "   Whether receiving:" receiving?)
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/points state))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/lines state))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 100 :graph/points]))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 101 :graph/points]))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 102 :graph/points]))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 103 :graph/points]))))
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (map point-value-fn (get-in state [:line/by-id 103 :graph/points])))))
-               ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
+               ;(points-debugging state)
+               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:graph/translators]))))
                ))))
 (def debug (om/factory Debug))
