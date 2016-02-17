@@ -17,13 +17,13 @@
 (defn points-debugging [state]
   (let [point-value-fn (partial get-point-value state)]
     (dom/div nil
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/points state))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (:graph/lines state))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 100 :graph/points]))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 101 :graph/points]))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 102 :graph/points]))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:line/by-id 103 :graph/points]))))
-             (dom/pre nil (with-out-str (cljs.pprint/pprint (map point-value-fn (get-in state [:line/by-id 103 :graph/points])))))))
+             (db-format/display (:graph/points state))
+             (db-format/display (:graph/lines state))
+             (db-format/display (get-in state [:line/by-id 100 :graph/points]))
+             (db-format/display (get-in state [:line/by-id 101 :graph/points]))
+             (db-format/display (get-in state [:line/by-id 102 :graph/points]))
+             (db-format/display (get-in state [:line/by-id 103 :graph/points]))
+             (db-format/display (map point-value-fn (get-in state [:line/by-id 103 :graph/points])))))
   ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
   )
 
@@ -43,6 +43,7 @@
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                ;(points-debugging state)
-               (dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:graph/translators]))))
+               ;(dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:graph/translators]))))
+               (db-format/display (get-in state [:graph/translators]))
                ))))
 (def debug (om/factory Debug))
