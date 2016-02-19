@@ -27,6 +27,26 @@
   ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
   )
 
+(def by-id-fn (db-format/by-id-kw-hof "by-id"))
+
+(defn translators-debugging 
+  [state]
+  (db-format/display (get-in state [:graph/translators])))
+
+(defn non-id-debugging
+  [state]
+  (db-format/display (db-format/non-by-id-entries by-id-fn state)))
+
+(defn get-in-ids [state tuple]
+  (get-in (db-format/by-id-entries by-id-fn state) tuple))
+
+(defn some-tube [state] (get-in-ids state [:gas-at-location/by-id 512 :tube]))
+
+(defn id-debugging
+  [state]
+  (db-format/display (get-in-ids state (some-tube state)))
+  )
+
 (defui Debug
   static om/IQuery
   (query [_]
@@ -42,8 +62,7 @@
                (str "   Whether receiving:" receiving?)
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
-               ;(points-debugging state)
-               ;(dom/pre nil (with-out-str (cljs.pprint/pprint (get-in state [:graph/translators]))))
-               (db-format/display (get-in state [:graph/translators]))
+               ;(non-id-debugging state)
+               (id-debugging state)
                ))))
 (def debug (om/factory Debug))

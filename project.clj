@@ -9,7 +9,7 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
-                 [default-db-format "0.1.0"]
+                 [default-db-format "0.1.0-SNAPSHOT"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
                  ]
 
