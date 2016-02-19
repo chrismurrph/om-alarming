@@ -65,7 +65,7 @@
           _ (assert point-fn)
           ;_ (println "Line props:" props)
           {:keys [name units colour intersect graph/points]} props
-          _ (assert (pos? (count points)) (str "No points found in:" props))
+          ;_ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
       (dom/g nil (for [point points]

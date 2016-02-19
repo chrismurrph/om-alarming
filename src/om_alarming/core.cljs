@@ -105,7 +105,7 @@
           ident (first (filter #(= (-> % second) id) idents))]
       ident)))
 
-(defn run []
+(defn ^:export run []
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))

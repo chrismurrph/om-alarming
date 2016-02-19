@@ -10,11 +10,10 @@
   (println "Look at" (count (get st :graph/points)))
   (let [id   (->> (om/db->tree [:id] (get st :graph/points) st)
                   (map :id)
-                  (cons 0)
+                  (cons 1999)
                   (reduce max)
                   inc)
         _ (println "In new-point, new id is " id) 
-        _ (assert (> id 2000))
         point {:id id :x x :y y :val val}
         ref  [:graph-point/by-id id]]
     {:point-ident ref
