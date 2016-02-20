@@ -2,14 +2,8 @@
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]))
 
-(defn update-x-pos [new-x existing-x]
-  ;(println "Reting existing " existing-x ", when new is " new-x)
-  new-x)
-
 (defn as-mouse-changes [orig-state params]
-  (let [new-x (:graph/hover-pos params)
-        ;updater (partial update-x-pos new-x)
-        ]
+  (let [new-x (:graph/hover-pos params)]
     (-> orig-state
         (merge params)
         (assoc-in [:plumb-line/by-id 10201 :x-position] new-x)

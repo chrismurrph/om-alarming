@@ -79,7 +79,7 @@
                       (when (not in-sticky-time?)
                         (reconciler/alteration 'graph/mouse-change
                                                {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
-                                               '[:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible? {:graph/plumb-line [x-position]}])
+                                               :trending)
                         ;(println "HOVER:" (reconciler/query :graph/hover-pos))
                         ))
                     (recur x y cur-x cur-y))
