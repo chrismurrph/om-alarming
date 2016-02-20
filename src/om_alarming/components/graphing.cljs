@@ -221,10 +221,11 @@
   (render [this]
     (let [props (om/props this)
           ;_ (pprint props)
-          {:keys [graph/init graph/lines graph/hover-pos
-                  graph/labels-visible? graph/misc
-                  graph/plumb-line graph/drop-info
-                  graph/translators]} props
+          {:keys [graph/init 
+                  graph/lines 
+                  graph/hover-pos 
+                  graph/labels-visible? 
+                  graph/misc graph/plumb-line graph/drop-info graph/translators]} props
           {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: <" props ">"))
           {:keys [point-fn]} translators
@@ -243,7 +244,7 @@
                           (line-component (om/computed line {:point-fn point-fn})))
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
-                        (plumb-line-component plumb-line)
+                        (plumb-line-component (merge plumb-line init))
                         (drop-info-component drop-info)
                         )
                (dom/div nil "Here goes timing information")))))

@@ -60,9 +60,8 @@
     {:id 10102 :name "Oxygen at 4", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
     ]
    :graph/plumb-line {:id 10201
-                      :height 30
                       :visible? true
-                      :x-position 10
+                      :x-position 10 ;; S/be done by mouse so get rid of it soon
                       :in-sticky-time? false}
    :graph/hover-pos nil
    :graph/last-mouse-moment nil

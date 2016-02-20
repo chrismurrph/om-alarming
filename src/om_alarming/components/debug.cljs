@@ -29,6 +29,14 @@
   ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
   )
 
+(defn mouse-debugging [state]
+  (dom/div nil
+           (db-format/display (:graph/hover-pos state))
+           (db-format/display (:graph/last-mouse-moment state))
+           (db-format/display (-> state
+                                  (get-in [:plumb-line/by-id 10201 :x-position])))
+           ))
+
 (defn translators-debugging 
   [state]
   (db-format/display (get-in state [:graph/translators])))
@@ -62,7 +70,7 @@
                (str "   Whether receiving:" receiving?)
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
-               (points-debugging state)
-               (db-format/display (db-format/by-id-entries by-id-fn state))
+               (mouse-debugging state)
+               (db-format/display (:plumb-line/by-id (db-format/by-id-entries by-id-fn state)))
                ))))
 (def debug (om/factory Debug))

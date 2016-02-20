@@ -67,7 +67,7 @@
      {:graph/labels (om/get-query graph/Label)}
      {:trending (om/get-query graph/TrendingGraph)}
      ;; Have to do?:
-     ;{:graph/init [:width :height]}
+     {:graph/init [:width :height]}
      ;; Had to do otherwise not filled up below
      {:graph/lines (om/get-query graph/Line)}
      {:graph/drop-info (om/get-query graph/DropInfo)}

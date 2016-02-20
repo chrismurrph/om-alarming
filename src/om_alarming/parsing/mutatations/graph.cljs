@@ -2,10 +2,23 @@
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]))
 
+(defn update-x-pos [new-x existing-x]
+  ;(println "Reting existing " existing-x ", when new is " new-x)
+  new-x)
+
+(defn as-mouse-changes [orig-state params]
+  (let [new-x (:graph/hover-pos params)
+        ;updater (partial update-x-pos new-x)
+        ]
+    (-> orig-state
+        (merge params)
+        (assoc-in [:plumb-line/by-id 10201 :x-position] new-x)
+        )))
+
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
   {:value  {:keys [:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible?]}
-   :action #(swap! state (fn [old new] (merge old new)) params)})
+   :action #(swap! state as-mouse-changes params)})
 
 (defmethod mutate 'graph/translators
   [{:keys [state]} _ {:keys [translators]}]
