@@ -66,30 +66,33 @@
 ;;
 ;;(my-parser {:state my-reconciler} '[[:graph/in-sticky-time? _]])
 
+(defn boolean? [v]
+  (or (true? v) (false? v)))
+
 (defn- controller [inchan]
   (go-loop [cur-x nil cur-y nil old-x nil old-y nil]
            (match [(<! inchan)]
 
                   [{:type "mousemove" :x x :y y}]
                   (let [now-moment (now-time)
-                        in-sticky-time? (reconciler/top-level-query :in-sticky-time?)
-                        diff (distance [old-x old-y] [cur-x cur-y])
-                        is-flick (> diff 10)]
-                    (when (not is-flick)
-                      (when (not in-sticky-time?)
-                        (reconciler/alteration 'graph/mouse-change
-                                               {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
-                                               :trending)
-                        ;(println "HOVER:" (reconciler/query :graph/hover-pos))
-                        ))
+                        res (reconciler/internal-query [{:graph/plumb-line [:in-sticky-time?]}])
+                        in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
+                        ]
+                    (when (not in-sticky-time?)
+                      (reconciler/alteration 'graph/mouse-change
+                                             {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
+                                             :trending))
                     (recur x y cur-x cur-y))
 
-                  ;[{:type "mouseup" :x x :y y}]
-                  ;(let [current-line (dec (my-lines-size))]
-                  ;  (log "Already colour of current line at " current-line " is " (get-in @state [:my-lines current-line :colour]))
-                  ;  (swap! state update-in [:my-lines current-line :points] (fn [points-at-n] (vec (conj points-at-n [x y]))))
-                  ;  ;(u/log "When mouse up time is: " when-last-moved)
-                  ;  (recur x y old-x old-y))
+                  [{:type "mouseup" :x x :y y}]
+                  (let [res (reconciler/internal-query [{:graph/plumb-line [:in-sticky-time?]}])
+                        in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
+                        _ (assert (boolean? in-sticky-time?))
+                        opposite (not in-sticky-time?)
+                        ]
+                    (reconciler/alteration 'graph/in-sticky-time?
+                                           {:graph/in-sticky-time? opposite})
+                    (recur x y old-x old-y))
 
                   [_]
                   (do

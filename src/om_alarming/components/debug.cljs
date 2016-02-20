@@ -35,6 +35,8 @@
            (db-format/display (:graph/last-mouse-moment state))
            (db-format/display (-> state
                                   (get-in [:plumb-line/by-id 10201 :x-position])))
+           (db-format/display (-> state
+                                  (get-in [:plumb-line/by-id 10201 :in-sticky-time?])))           
            ))
 
 (defn translators-debugging 

@@ -125,8 +125,9 @@
 
 (defmethod read :in-sticky-time?
   [{:keys [state _]} key _]
-  (let [st @state]
-    {:value (get-in st [:graph/plumb-line :in-sticky-time?])}))
+  (let [st @state
+        _ (println "In in-sticky-time? for:" key)]
+    {:value (get-in st [:graph/plumb-line 10201 :in-sticky-time?])}))
 
 (defmethod read :receiving-chan
   [{:keys [state _]} key _]

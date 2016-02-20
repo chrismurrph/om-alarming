@@ -7,12 +7,18 @@
     (-> orig-state
         (merge params)
         (assoc-in [:plumb-line/by-id 10201 :x-position] new-x)
+        (assoc-in [:drop-info/by-id 10200 :x] new-x)
         )))
 
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
   {:value  {:keys [:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible?]}
    :action #(swap! state as-mouse-changes params)})
+
+(defmethod mutate 'graph/in-sticky-time?
+  [{:keys [state]} _ params]
+  {:value  {:keys [:graph/in-sticky-time?]}
+   :action #(swap! state assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] (:graph/in-sticky-time? params))})
 
 (defmethod mutate 'graph/translators
   [{:keys [state]} _ {:keys [translators]}]
