@@ -94,7 +94,8 @@
         sui-grid-info #js {:className "ui column grid"}
         _ (assert (:app/gases app-props))
         _ (assert (:app/tubes app-props))
-        _ (assert (:trending app-props))]
+        _ (assert (:graph/trending-graph app-props))
+        _ (println (:graph/trending-graph app-props))]
     (dom/div #js {:className "ui three column internally celled grid container"}
              (dom/div #js {:className "column"}
                       (dom/div sui-grid-info
@@ -102,7 +103,7 @@
                                (for [tube (:app/tubes app-props)]
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "two wide column"}
-                      (graph/trending-graph (:trending app-props))))))
+                      (graph/trending-graph (:graph/trending-graph app-props))))))
 
 ;(defui TrendingPanel
 ;  Object

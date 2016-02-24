@@ -45,10 +45,10 @@
 
 (defn non-id-debugging
   [state]
-  (db-format/display (db-format/non-by-id-entries by-id-fn state)))
+  (db-format/display (db-format/ref-entries by-id-fn state)))
 
 (defn get-in-ids [state tuple]
-  (get-in (db-format/by-id-entries by-id-fn state) tuple))
+  (get-in (db-format/table-entries by-id-fn state) tuple))
 
 (defn some-tube [state] (get-in-ids state [:gas-at-location/by-id 512 :tube]))
 
@@ -73,6 +73,6 @@
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                (mouse-debugging state)
-               (db-format/display (:plumb-line/by-id (db-format/by-id-entries by-id-fn state)))
+               (db-format/display (:plumb-line/by-id (db-format/table-entries by-id-fn state)))
                ))))
 (def debug (om/factory Debug))

@@ -1,16 +1,10 @@
 (ns om-alarming.state
   (:require [om-alarming.graph.mock-values :refer [pink green blue red]]))
 
-(def irrelevant-keys #{:graph/labels-visible?
-                       :graph/hover-pos
-                       :graph/misc
-                       :graph/translators
-                       :graph/init
-                       :graph/last-mouse-moment
-                       :graph/receiving?
-                       :om.next/queries
+(def irrelevant-keys #{:om.next/queries
                        })
-(def okay-val-maps #{[:r :g :b]})
+(def okay-val-maps #{[:r :g :b]
+                     [:horiz-fn :vert-fn :point-fn]})
 (def check-config {:excluded-keys irrelevant-keys
                    :okay-value-maps okay-val-maps
                    :by-id-kw "by-id"})
@@ -48,11 +42,28 @@
      :showing     true}
     ]
    :graph/drop-info
-   {:id            10200 ;; React can use to differentiate
+   {:id            10200 
     :x             50
     :lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
     :current-label {:id 10000}
     :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
+   :graph/trending-graph
+   {:id 10300
+    :width 640
+    :height 250
+    :graph/lines [{:id 100} {:id 101} {:id 102} {:id 103}]
+    :labels-visible? false
+    ;:graph/labels [{:id 10000}]
+    :receiving? false
+    :graph/plumb-line {:id 10201}
+    :graph/drop-info {:id 10200}
+    :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
+    :graph/misc {:id 10400}
+    }            
+   ;:graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
+   :graph/misc {:id 10400
+                :comms nil
+                :receiving-chan nil}
    :graph/x-gas-details
    [
     {:id 10100 :name "Carbon Dioxide at 2", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
@@ -63,11 +74,6 @@
                       :visible? true
                       :x-position 10 ;; S/be done by mouse so get rid of it soon
                       :in-sticky-time? false}
-   :graph/hover-pos nil
-   :graph/last-mouse-moment nil
-   :graph/labels-visible? false
-   :graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
-   :graph/receiving? false
    :graph/lines
    [{:id     100
      :name "Methane at 1"
@@ -98,10 +104,6 @@
                {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
                {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
                {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
-   :graph/init {:height 250
-                :width 640}
-   :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
-   :graph/misc nil
    :graph/points []
    :app/tubes
    [{:id    1000

@@ -20,15 +20,20 @@
   {:value  {:keys [:graph/in-sticky-time?]}
    :action #(swap! state assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] (:graph/in-sticky-time? params))})
 
+(defn insert-translators [state translators]
+  ;(println "INS: " (-> translators :point-fn))
+  (swap! state assoc-in [:trending-graph/by-id 10300 :graph/translators] translators))
+
 (defmethod mutate 'graph/translators
   [{:keys [state]} _ {:keys [translators]}]
-  {:value  {:keys [:graph/translators]}
-   :action #(swap! state assoc :graph/translators translators)})
+  {:value  {:keys [:graph/trending-graph :graph/translators]}
+   :action #(insert-translators state translators)})
 
 (defmethod mutate 'graph/misc
-  [{:keys [state]} _ {:keys [misc]}]
+  [{:keys [state]} _ params]
   {:value  {:keys [:graph/misc]}
-   :action #(swap! state assoc :graph/misc misc)})
+   ;:action #(swap! state assoc :graph/misc misc)
+   :action #(swap! state assoc-in [:misc/by-id 10400] (merge {:id 10400} (:misc params)))})
 
 (defmethod mutate 'graph/receiving-chan
   [{:keys [state]} _ {:keys [receiving-chan]}]

@@ -49,6 +49,14 @@
     [:id :value {:tube (om/get-query gen/Location)}
      {:system-gas (om/get-query gen/SystemGas)}]))
 
+(defui Misc
+  static om/Ident
+  (ident [this props]
+    [:misc/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :comms :receiving-chan]))
+
 (defui Line
   static om/Ident
   (ident [this props]
@@ -198,13 +206,17 @@
 (def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
 (defui TrendingGraph
+  static om/Ident
+  (ident [this props]
+    [:trending-graph/by-id (:id props)])  
   static om/IQuery
   (query [this]
-    [{:graph/init [:width :height]}
+    [:width 
+     :height
      {:graph/lines (om/get-query Line)}
      :graph/hover-pos
      :graph/labels-visible?
-     {:graph/misc [:comms :receiving-chan]}
+     {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/drop-info (om/get-query DropInfo)}
      {:graph/translators [:point-fn]}])
@@ -221,12 +233,12 @@
   (render [this]
     (let [props (om/props this)
           ;_ (pprint props)
-          {:keys [graph/init 
+          {:keys [width
+                  height
                   graph/lines 
                   graph/hover-pos 
                   graph/labels-visible? 
                   graph/misc graph/plumb-line graph/drop-info graph/translators]} props
-          {:keys [height width]} init
           _ (assert (and width height) (str "No width or height in: <" props ">"))
           {:keys [point-fn]} translators
           _ (assert point-fn "Trending")

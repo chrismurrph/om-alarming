@@ -75,7 +75,7 @@
 
                   [{:type "mousemove" :x x :y y}]
                   (let [now-moment (now-time)
-                        res (reconciler/internal-query [{:graph/plumb-line [:in-sticky-time?]}])
+                        res (reconciler/internal-query [{:graph/trending-graph {:graph/plumb-line [:in-sticky-time?]}}])
                         in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
                         ]
                     (when (not in-sticky-time?)
@@ -85,7 +85,7 @@
                     (recur x y cur-x cur-y))
 
                   [{:type "mouseup" :x x :y y}]
-                  (let [res (reconciler/internal-query [{:graph/plumb-line [:in-sticky-time?]}])
+                  (let [res (reconciler/internal-query [{:graph/trending-graph {:graph/plumb-line [:in-sticky-time?]}}])
                         in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
                         _ (assert (boolean? in-sticky-time?))
                         opposite (not in-sticky-time?)
@@ -107,8 +107,8 @@
 (defn init []
   (let [ch (chan)
         proc (controller ch)
-        options-map (reconciler/top-level-query :graph/init)
-        _ (println "Created a controller, width is " (:width options-map))
+        options-map (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:width :height]}]))
+        _ (println "Created a controller, back: " options-map)
         misc (into {:comms ch} options-map)
         _ (println "S/be going into graph/misc: " misc)
         staging (:staging options-map)
@@ -119,7 +119,8 @@
         translators (staging-translators (or (:min-x staging) 0) (or (:min-y staging) 0) (or (:max-x staging) 999)
                                          (or (:max-y staging) 999) graph-width graph-height)
         ]
-    (reconciler/alteration 'graph/translators {:translators translators} :graph/translators)
+    (println "About to do mutates")
+    (reconciler/alteration 'graph/translators {:translators translators} [:graph/trending-graph :graph/translators])
     (reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
     ;; Leaving in for curiosity
     (go

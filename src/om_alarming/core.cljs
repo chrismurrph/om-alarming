@@ -32,8 +32,8 @@
 (defn halt-receiving-wrong
   "Grabs the receiving chan from state and sends it {:pause true}"
   []
-  (let [chan (reconciler/internal-query [{:graph/misc [:receiving-chan]}])]
-    (println "PAUSE: " chan)))
+  (let [chan (reconciler/internal-query [{:graph/trending-graph {:graph/misc [:receiving-chan]}}])
+        _ (println "PAUSE: " chan)]))
 
 (defn halt-receiving []
   (reconciler/alteration 'graph/stop-receive nil :graph/receiving?))
@@ -48,8 +48,8 @@
                   (str "BAD: state not fully " msg-boiler))]
     (println message)
     (when (not ok?)
-      (pprint check-result)
-      ;(pprint state)
+      ;(pprint check-result)
+      (pprint st)
       (halt-receiving))
     (db-format/show-hud check-result)))
 
@@ -65,16 +65,12 @@
      {:graph/points (om/get-query graph/Point)}
      {:graph/x-gas-details (om/get-query graph/RectTextTick)}
      {:graph/labels (om/get-query graph/Label)}
-     {:trending (om/get-query graph/TrendingGraph)}
-     ;; Have to do?:
-     {:graph/init [:width :height]}
-     ;; Had to do otherwise not filled up below
+     {:graph/trending-graph (om/get-query graph/TrendingGraph)}
+     {:debug (om/get-query debug/Debug)}
      {:graph/lines (om/get-query graph/Line)}
      {:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
-     {:debug (om/get-query debug/Debug)}
-     ;; Not sure, try to remove later:
-     {:graph/misc [:comms :receiving-chan]}
+     {:graph/misc (om/get-query graph/Misc)}
      ])
   Object
   (render [this]
@@ -115,7 +111,7 @@
         _ (println "NAMES: " line-names)
         ;; Not only are we going to get rid of names, but they might change all the time
         line-idents (reconciler/internal-query [:graph/line-idents])
-        data-values (reconciler/internal-query [{:graph/lines [:id :name]}])
+        data-values (reconciler/internal-query [{:graph/trending-graph {:graph/lines [:id :name]}}])
         finder (ident-finder (:graph/lines data-values) (:graph/line-idents line-idents))
         line-name->ident (into {} (map (fn [x y] [x y]) line-names (map finder line-names)))
         ;_ (println line-name->ident)

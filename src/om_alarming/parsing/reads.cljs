@@ -22,11 +22,11 @@
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :trending
+(defmethod read :graph/trending-graph
   [{:keys [state query]} key _]
   (let [st @state
         ;_ (println "trending RECEIVED query: " query)
-        res (om/db->tree query st st)
+        res (om/db->tree query (get st key) st)
         ;_ (println "trending query RES: " res)
         ]
     {:value res}))
@@ -52,7 +52,7 @@
 (defmethod read :graph/receiving?
   [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get st key)}))
+    {:value (get-in st [:graph/trending-graph :graph/receiving?])}))
 
 (defmethod read :graph/lines
   [{:keys [state query]} key _]
@@ -106,7 +106,7 @@
 (defmethod read :graph/line-idents
   [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get st :graph/lines)}))
+    {:value (get st [:graph/trending-graph :graph/lines])}))
 
 (defmethod read :graph/misc
   [{:keys [state query]} key _]
