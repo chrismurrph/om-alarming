@@ -81,17 +81,18 @@
                     (when (not in-sticky-time?)
                       (reconciler/alteration 'graph/mouse-change
                                              {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
-                                             :trending))
+                                             :graph/trending-graph))
                     (recur x y cur-x cur-y))
 
                   [{:type "mouseup" :x x :y y}]
-                  (let [res (reconciler/internal-query [{:graph/trending-graph {:graph/plumb-line [:in-sticky-time?]}}])
-                        in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
+                  (let [res (reconciler/internal-query [{:graph/trending-graph [{:graph/plumb-line [:in-sticky-time?]}]}])
+                        _ (println "RES: " res)
+                        in-sticky-time? (-> res :graph/trending-graph :graph/plumb-line :in-sticky-time?)
                         _ (assert (boolean? in-sticky-time?))
                         opposite (not in-sticky-time?)
                         ]
                     (reconciler/alteration 'graph/in-sticky-time?
-                                           {:graph/in-sticky-time? opposite})
+                                           {:in-sticky-time? opposite})
                     (recur x y old-x old-y))
 
                   [_]

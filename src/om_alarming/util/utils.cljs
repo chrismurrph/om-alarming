@@ -1,5 +1,4 @@
-(ns om-alarming.util.utils
-  )
+(ns om-alarming.util.utils)
 
 (defn bisect-vertical-between [[x0 y0 val0] [x1 y1 val1] x]
   (let [x-diff (- x1 x0)
@@ -26,6 +25,10 @@
         sum-of-differences (+ x-delta-squared y-delta-squared)
         now-squared (sqrt sum-of-differences)]
     (round now-squared)))
+
+(defn probe [msg obj]
+  (println (str (clojure.string/upper-case msg) ": " obj))
+  obj)
 
 (defn log [& txts]
   (.log js/console (apply str txts)))

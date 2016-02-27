@@ -49,10 +49,11 @@
   [{:keys [state _]} key _]
   (let [st @state]
     {:value (get st key)}))
-(defmethod read :graph/receiving?
+
+(defmethod read :receiving?
   [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get-in st [:graph/trending-graph :graph/receiving?])}))
+    {:value (get-in st [:trending-graph/by-id 10300 :receiving?])}))
 
 (defmethod read :graph/lines
   [{:keys [state query]} key _]
@@ -96,6 +97,12 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/trending-graph
+  [{:keys [state query]} key _]
+  (let [st @state
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :graph/points
   [{:keys [state query]} key _]
   (let [st @state
@@ -106,9 +113,16 @@
 (defmethod read :graph/line-idents
   [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get st [:graph/trending-graph :graph/lines])}))
+    {:value (get st :graph/lines)}))
 
 (defmethod read :graph/misc
+  [{:keys [state query]} key _]
+  (let [st @state
+        ;_ (println "In :graph/misc for:" query)
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :graph/current-line
   [{:keys [state query]} key _]
   (let [st @state
         ;_ (println "In :graph/misc for:" query)

@@ -107,13 +107,14 @@
     [:x-gas-details/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :proportional-y :proportional-val :name])
+    [:id {:graph/line (om/get-query Line)} :proportional-y :proportional-val])
   Object
   (render [this]
     (let [{:keys [id proportional-y proportional-val name]} (om/props this)
           {:keys [current-label x lines testing-name]} (om/get-computed this)
           _ (assert id)
-          _ (assert name (str "x-gas-info w/out a name. \nCOMPUTED:\n" (om/get-computed this) "\nPROPs:\n" (om/props this)))
+          _ (assert name (str "x-gas-info w/out a name. \nCOMPUTED:\n" (om/get-computed this) 
+                              "\nPROPs:\n" (om/props this)))
           _ (assert (pos? (count lines)))
           ;;; text ;;;
           line-doing (process/find-line lines name)
@@ -164,11 +165,10 @@
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn rect-text-ticks [drop-info]
-  (let [{:keys [x-gas-details current-label x lines testing-name]} drop-info]
+  (let [{:keys [graph/x-gas-details x graph/lines testing-name]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
-    (println "names: " (map :name x-gas-details))
-    (assert (:name current-label) (str "current-label has no name: <" current-label ">"))
-    (assert lines, "Expect lines in drop-info")
+    ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
+    (assert lines "Expect lines in drop-info")
     (dom/g nil
            (for [x-gas-info x-gas-details]
              (rect-text-tick (om/computed x-gas-info {:current-label current-label
@@ -193,16 +193,16 @@
   (query [this]
     [:id
      :x
-     {:x-gas-details (om/get-query RectTextTick)}
-     {:current-label (om/get-query Label)}
-     {:lines (om/get-query Line)}])
+     {:graph/x-gas-details (om/get-query RectTextTick)}
+     {:graph/current-line (om/get-query Line)}])
   Object
   (render [this]
-    (let [{:keys [testing-name] :as props} (om/props this)]
+    (let [{:keys [testing-name] :as props} (om/props this)
+          {:keys [graph/lines] :as computed-props} (om/get-computed this)]
       (if testing-name
         (dom/g nil
-               (rect-text-ticks props))
-        (rect-text-ticks props)))))
+               (rect-text-ticks (merge props computed-props)))
+        (rect-text-ticks (merge props computed-props))))))
 (def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
 (defui TrendingGraph
@@ -211,11 +211,15 @@
     [:trending-graph/by-id (:id props)])  
   static om/IQuery
   (query [this]
-    [:width 
+    [:id
+     :width 
      :height
+     :receiving?
+     :hover-pos
+     :last-mouse-moment
      {:graph/lines (om/get-query Line)}
      :graph/hover-pos
-     :graph/labels-visible?
+     :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/drop-info (om/get-query DropInfo)}
@@ -246,9 +250,11 @@
           _ (assert comms-channel "Need a comms channel to direct mouse movement at")
           handler #(.handler-fn this comms-channel %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
+          init {:width width :height height}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
           ;_ (println "SVG: " init-props)
           _ (println "LINEs count: " (count lines))
+          ;_ (println "for-drop-info" for-drop-info)
           ]
       (dom/div nil
                (dom/svg (clj->js init-props)
@@ -257,7 +263,7 @@
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
                         (plumb-line-component (merge plumb-line init))
-                        (drop-info-component drop-info)
+                        (drop-info-component (om/computed drop-info {:graph/lines lines}))
                         )
                (dom/div nil "Here goes timing information")))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))

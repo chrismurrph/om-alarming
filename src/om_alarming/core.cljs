@@ -36,7 +36,7 @@
         _ (println "PAUSE: " chan)]))
 
 (defn halt-receiving []
-  (reconciler/alteration 'graph/stop-receive nil :graph/receiving?))
+  (reconciler/alteration 'graph/stop-receive nil :receiving?))
 
 (defn check-default-db [st]
   (let [version db-format/version
@@ -66,11 +66,11 @@
      {:graph/x-gas-details (om/get-query graph/RectTextTick)}
      {:graph/labels (om/get-query graph/Label)}
      {:graph/trending-graph (om/get-query graph/TrendingGraph)}
-     {:debug (om/get-query debug/Debug)}
      {:graph/lines (om/get-query graph/Line)}
      {:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
      {:graph/misc (om/get-query graph/Misc)}
+     {:graph/x-gas-details (om/get-query graph/RectTextTick)}
      ])
   Object
   (render [this]
@@ -87,7 +87,7 @@
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")
                    "Logs" (dom/div nil "Nufin")
-                   "Debug" (debug/debug (om/computed (:debug app-props) {:state @my-reconciler}))
+                   "Debug" (debug/debug (om/computed (:graph/trending-graph app-props) {:state @my-reconciler}))
                    nil (dom/div nil "Nothing selected, program has crashed!")
                    ))))))
 
@@ -101,37 +101,39 @@
           ident (first (filter #(= (-> % second) id) idents))]
       ident)))
 
+(def lines-query [{:graph/lines [:id {:intersect [{:system-gas [:lowest :highest :long-name]}]}]}])
+
+(defn to-info [line-query-res]
+  (let [system-gas (-> line-query-res :intersect :system-gas)]
+    {:ref [:line/by-id (:id line-query-res)]
+     :lowest (-> system-gas :lowest)
+     :highest (-> system-gas :highest)
+     :name (-> system-gas :long-name)}))
+
 (defn ^:export run []
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
   (p/init)
-  (let [line-names (keys db/my-lines)
-        ;'("Methane at 1", "Oxygen at 4", "Carbon Dioxide at 2", "Carbon Monoxide at 3")
-        _ (println "NAMES: " line-names)
-        ;; Not only are we going to get rid of names, but they might change all the time
-        line-idents (reconciler/internal-query [:graph/line-idents])
-        data-values (reconciler/internal-query [{:graph/trending-graph {:graph/lines [:id :name]}}])
-        finder (ident-finder (:graph/lines data-values) (:graph/line-idents line-idents))
-        line-name->ident (into {} (map (fn [x y] [x y]) line-names (map finder line-names)))
-        ;_ (println line-name->ident)
+  (let [line-q-results (:graph/lines (reconciler/internal-query lines-query))
         now (t/now)
         now-millis (.getTime now)
         week-ago-millis (.getTime (t/minus now (t/weeks 1)))
-        chan (in/query-remote-server line-names week-ago-millis now-millis)
-        ; The lines are already in state so no need for this
-        ;_ (sa/create @db/lines)
-        receiving-chan (sa/show @db/lines week-ago-millis now-millis chan)
+        line-infos (map to-info line-q-results)
+        _ (println "line-infos: " line-infos)
+        chan (in/query-remote-server line-infos week-ago-millis now-millis)
+        receiving-chan (sa/show line-infos week-ago-millis now-millis chan)
         _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
         ]
     (go-loop [count 0]
-             (let [{:keys [name point]} (<! receiving-chan)
-                   paused? (not (reconciler/top-level-query :graph/receiving?))
+             (let [{:keys [info point]} (<! receiving-chan)
+                   paused? (not (:receiving? (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:receiving?]}]))))
                    x (first point)
                    y (second point)
                    val (last point)
-                   line-ident (line-name->ident name)
+                   line-ident (:ref info)
                    ;_ (println "Ident: " line-ident)
+                   _ (assert line-ident)
                    ]
                (if (and (< count 20) (not paused?))
                  (do

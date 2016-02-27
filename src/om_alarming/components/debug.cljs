@@ -31,17 +31,19 @@
 
 (defn mouse-debugging [state]
   (dom/div nil
-           (db-format/display (:graph/hover-pos state))
-           (db-format/display (:graph/last-mouse-moment state))
-           (db-format/display (-> state
-                                  (get-in [:plumb-line/by-id 10201 :x-position])))
-           (db-format/display (-> state
-                                  (get-in [:plumb-line/by-id 10201 :in-sticky-time?])))           
+           (db-format/display (get-in state (conj (get state :graph/trending-graph) :hover-pos)))
+           (db-format/display (get-in state (conj (get state :graph/trending-graph) :last-mouse-moment)))
+           (db-format/display (get-in state (conj (get state :graph/plumb-line) :x-position)))
+           (db-format/display (get-in state (conj (get state :graph/plumb-line) :in-sticky-time?)))           
            ))
 
 (defn translators-debugging 
   [state]
   (db-format/display (get-in state [:graph/translators])))
+
+(defn trending-graph-debugging
+  [state]
+  (db-format/display (remove (fn [[k _]] (= k :graph/translators)) (get-in (db-format/table-entries by-id-fn state) [:trending-graph/by-id 10300]))))
 
 (defn non-id-debugging
   [state]
@@ -57,22 +59,25 @@
   (db-format/display (get-in-ids state (some-tube state)))
   )
 
+(def lines-query [{:graph/lines [:id {:intersect [{:system-gas [:lowest :highest]}]}]}])
+
 (defui Debug
-  static om/IQuery
-  (query [_]
-    '[[:graph/receiving? _]])
+  ;static om/IQuery
+  ;(query [_]
+  ;  [{:graph/drop-info [:graph/receiving?]}])
   Object
   (render [this]
     (let [props (om/props this)
-          ;_ (println "props:" props)
-          {:keys [graph/receiving?]} props
+          ;_ (println "props:" (keys props))
+          ;_ (println "computed props:" (keys (om/get-computed this)))
+          {:keys [receiving?]} props
           {:keys [state]} (om/get-computed this)]
       (dom/div nil 
-               (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/receiving?)} "Receive toggle")
-               (str "   Whether receiving:" receiving?)
+               (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
+               (str "   Receiving?" receiving?)
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
+               ;(db-format/display (reconciler/internal-query lines-query))
                (mouse-debugging state)
-               (db-format/display (:plumb-line/by-id (db-format/table-entries by-id-fn state)))
                ))))
 (def debug (om/factory Debug))

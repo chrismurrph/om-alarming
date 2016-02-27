@@ -24,7 +24,7 @@
 ;; Whenever its out channel is not blocked it will be generating a new gas value
 ;; There is a generator for each line
 ;;
-(defn generator [start end name out-chan]
+(defn generator [start end info out-chan]
   (assert out-chan)
   (assert (> end start) "end must be greater than start")
   (let [all-times (create-n-times gas-gen-quantity start end)]
@@ -32,7 +32,7 @@
              (when (not= (count completed) (count all-times))
                (let [available (remove (into #{} completed) all-times)
                      picked-time (nth available (rand-int (count available)))]
-                 (>! out-chan {:name name :val (db/random-gas-value name) :time picked-time})
+                 (>! out-chan {:info info :val (db/random-gas-value (:name info)) :time picked-time})
                  (recur (conj completed picked-time)))))))
 
 ;;
@@ -49,13 +49,13 @@
 
 (defn query-remote-server
   "Just needs the names that are to be queried and start/end times"
-  [names start end]
+  [line-infos start end]
   (let [new-gen (partial generator start end)
         out-chan (chan)
-        gas-channels (into {} (map (fn [name] (vector name (chan))) names))
+        gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
         _ (log gas-channels)
         _ (controller out-chan (vals gas-channels))
-        _ (mapv (fn [[name chan]] (new-gen name chan)) gas-channels)
+        _ (mapv (fn [[info chan]] (new-gen info chan)) gas-channels)
         ]
     out-chan
     )

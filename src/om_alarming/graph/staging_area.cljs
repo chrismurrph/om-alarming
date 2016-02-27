@@ -21,10 +21,10 @@
 ;; (a higher threshold means that it is worse, which may mean it has a lower value)
 ;; TODO It is wrong that these are line names. But we are going to get rid of line names altogether
 ;;
-(def gas-infos [{:name "Carbon Dioxide at 2" :lowest 0.5 :highest 1.35}
-                {:name "Carbon Monoxide at 3" :lowest 30 :highest 55}
-                {:name "Oxygen at 4" :lowest 19 :highest 12}
-                {:name "Methane at 1" :lowest 0.25 :highest 1}])
+;(def gas-infos [{:name "Carbon Dioxide at 2" :lowest 0.5 :highest 1.35}
+;                {:name "Carbon Monoxide at 3" :lowest 30 :highest 55}
+;                {:name "Oxygen at 4" :lowest 19 :highest 12}
+;                {:name "Methane at 1" :lowest 0.25 :highest 1}])
 
 ;;
 ;; Given lowest and highest work out a divider so that given a change of 1 in the business
@@ -100,9 +100,9 @@
 ;; Receives raw business trend data and transforms it so it will be positioned correctly on this stage
 ;; (which is close to being positioned properly on the graph itself)
 ;;
-(defn receiver [name time->x central? out-chan in-chan]
-  (let [{:keys [lowest highest]} (first (filter (fn [info] (= name (-> info :name))) gas-infos))
-        _ (assert lowest (str "Not found match for: " name))
+(defn receiver [info time->x central? out-chan in-chan]
+  (let [{:keys [ref lowest highest]} info
+        _ (assert lowest (str "Not found match from: " info))
         _ (assert time->x)
         transitioner (stage-ify-changer lowest highest)]
     (go-loop [accumulated []
@@ -136,20 +136,20 @@
 
 (defn show
   ""
-  [lines start end in-chan]
+  [line-idents start end in-chan]
   (assert (and in-chan start end))
   (let [out-chan (chan)
-        names (map :name lines)
-        receiving-chans (into {} (map (fn [name] (vector name (chan))) names))
+        ;names (map :name lines)
+        receiving-chans (into {} (map (fn [ident] (vector ident (chan))) line-idents))
         central? (in-middle? 0.1 start end)
         x-time (calc-x-from-time start end)
         receivers (into {} (map (fn [[name chan]] (vector name (receiver name x-time central? out-chan chan))) receiving-chans))]
     (go-loop []
              (let [latest-val (<! in-chan)
-                   its-name (:name latest-val)
-                   _ (no-log "name from incoming: " its-name)
-                   receiving-chan (get receivers its-name)
-                   _ (assert receiving-chan (str "Not found receiving channel for " its-name " from " receivers))
+                   its-info (:info latest-val)
+                   ;_ (log "name from incoming: " its-info " " latest-val)
+                   receiving-chan (get receivers its-info)
+                   _ (assert receiving-chan (str "Not found receiving channel for " its-info " from " receivers))
                    _ (>! receiving-chan latest-val)])
              (recur))
     out-chan))

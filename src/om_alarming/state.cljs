@@ -15,38 +15,39 @@
    [{:id          1
      :name        "Map"
      :description "Mine plan"
-     :showing     true}
+     :showing?     true}
     {:id          2
      :name        "Trending"
      :description "Live data, Trending"
-     :showing     true}
+     :showing?     true}
     {:id          3
      :name        "Thresholds"
      :description "Alarm Thresholds"
-     :showing     true}
+     :showing?     true}
     {:id          4
      :name        "Reports"
      :description "Event Reports"
-     :showing     true}
+     :showing?     true}
     {:id          5
      :name        "Automatic"
      :description "Automatic Tube Bundle"
-     :showing     true}
+     :showing?     true}
     {:id          6
      :name        "Logs"
      :description "Warning Log"
-     :showing     true}
+     :showing?     true}
     {:id          7
      :name        "Debug"
      :description "Debug while developing"
-     :showing     true}
+     :showing?     true}
     ]
    :graph/drop-info
    {:id            10200 
     :x             50
-    :lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
-    :current-label {:id 10000}
-    :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
+    ;:graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
+    ;:current-label {:id 10000}
+    :graph/current-line {:id 100}
+    :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/trending-graph
    {:id 10300
     :width 640
@@ -59,6 +60,8 @@
     :graph/drop-info {:id 10200}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
+    :hover-pos 3
+    :last-mouse-moment 3
     }            
    ;:graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
    :graph/misc {:id 10400
@@ -66,9 +69,9 @@
                 :receiving-chan nil}
    :graph/x-gas-details
    [
-    {:id 10100 :name "Carbon Dioxide at 2", :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
-    {:id 10101 :name "Carbon Monoxide at 3", :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
-    {:id 10102 :name "Oxygen at 4", :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
+    {:id 10100 :graph/line {:id 102}, :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
+    {:id 10101 :graph/line {:id 103}, :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
+    {:id 10102 :graph/line {:id 101}, :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
     ]
    :graph/plumb-line {:id 10201
                       :visible? true
@@ -100,10 +103,14 @@
      :intersect {:id 502}
      :graph/points []}
     ]
-   :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"}
-               {:id 151 :long-name "Oxygen" :short-name "O\u2082"}
-               {:id 152 :long-name "Carbon Monoxide" :short-name "CO"}
-               {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"}]
+   :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084" 
+                :lowest 0.25 :highest 1}
+               {:id 151 :long-name "Oxygen" :short-name "O\u2082" 
+                :lowest 19 :highest 12}
+               {:id 152 :long-name "Carbon Monoxide" :short-name "CO" 
+                :lowest 30 :highest 55}
+               {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082" 
+                :lowest 0.5 :highest 1.35}]
    :graph/points []
    :app/tubes
    [{:id    1000

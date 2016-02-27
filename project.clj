@@ -9,7 +9,7 @@
                  [cljsjs/react-dom "0.14.3-1"]
                  [devcards "0.2.1-4"]
                  [org.clojure/test.check "0.9.0"]
-                 [default-db-format "0.1.0-SNAPSHOT"]
+                 [default-db-format "0.1.1-SNAPSHOT"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
                  ]
 
@@ -24,7 +24,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "question.sessions"
+                        :compiler {:main       "kanban.tree-db"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"

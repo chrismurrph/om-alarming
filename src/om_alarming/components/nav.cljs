@@ -24,16 +24,16 @@
 (def tab-button (om/factory TabButton {:keyfn :id}))
 
 (defn menu-bar [buttons selected-button]
-  (let [_ (println "items: " buttons)
-        _ (println "selected: " selected-button)
+  (let [;_ (println "items: " buttons)
+        ;_ (println "selected: " selected-button)
         selected-id (get selected-button :id)
         selected (first (filter #(= (:id %) selected-id) buttons))
-        _ (println "heading: " (:description selected))
+        ;_ (println "heading: " (:description selected))
         ]
     (dom/div nil
              (dom/h3 #js {:className "ui block center aligned top attached header"} (:description selected))
              (dom/div #js {:className "ui tabular attached menu"}
                       (for [item buttons]
-                        (when (not (= false (:showing item)))
+                        (when (not (= false (:showing? item)))
                           (tab-button (om/computed item {:selected (= selected-id (:id item))})))))
              )))

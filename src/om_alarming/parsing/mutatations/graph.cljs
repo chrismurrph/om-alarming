@@ -5,20 +5,20 @@
 (defn as-mouse-changes [orig-state params]
   (let [new-x (:graph/hover-pos params)]
     (-> orig-state
-        (merge params)
+        ;(merge params)
         (assoc-in [:plumb-line/by-id 10201 :x-position] new-x)
         (assoc-in [:drop-info/by-id 10200 :x] new-x)
         )))
 
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
-  {:value  {:keys [:graph/hover-pos :graph/last-mouse-moment :graph/labels-visible?]}
+  {:value  {:keys [:graph/trending-graph]}
    :action #(swap! state as-mouse-changes params)})
 
 (defmethod mutate 'graph/in-sticky-time?
   [{:keys [state]} _ params]
-  {:value  {:keys [:graph/in-sticky-time?]}
-   :action #(swap! state assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] (:graph/in-sticky-time? params))})
+  {:value  {:keys [:in-sticky-time?]}
+   :action #(swap! state assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] (:in-sticky-time? params))})
 
 (defn insert-translators [state translators]
   ;(println "INS: " (-> translators :point-fn))
@@ -42,10 +42,10 @@
 
 (defmethod mutate 'graph/toggle-receive
   [{:keys [state]} _ _]
-  {:value  {:keys [[:graph/receiving? _]]}
-   :action #(swap! state update-in [:graph/receiving?] not)})
+  {:value  {:keys [:receiving?]}
+   :action #(swap! state update-in [:trending-graph/by-id 10300 :receiving?] not)})
 
 (defmethod mutate 'graph/stop-receive
   [{:keys [state]} _ _]
-  {:value  {:keys [[:graph/receiving? _]]}
-   :action #(swap! state update-in [:graph/receiving?] false)})
+  {:value  {:keys [:trending-graph/by-id :receiving?]}
+   :action #(swap! state assoc-in [:graph/trending-graph 10300 :receiving?] false)})
