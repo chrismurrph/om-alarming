@@ -37,14 +37,14 @@
 ;;
 ;; current-label used to be (:current-label @state)
 ;;
-(defn- hidden? [line-id current-label]
-  (assert line-id)
-  (let [current (:name current-label)
-        _ (assert current)
-        res (not= current line-id)
-        ;_ (when res (println "Hidden b/c not equal: " current line-id))
-        ]
-    res))
+;(defn- hidden? [line-id current-label]
+;  (assert line-id)
+;  (let [current (:name current-label)
+;        _ (assert current)
+;        res (not= current line-id)
+;        ;_ (when res (println "Hidden b/c not equal: " current line-id))
+;        ]
+;    res))
 
 ;(def default-init-state {:translator nil})
 ;(def init-state (atom default-init-state))
@@ -78,10 +78,10 @@
                         res (reconciler/internal-query [{:graph/trending-graph {:graph/plumb-line [:in-sticky-time?]}}])
                         in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
                         ]
-                    (when (not in-sticky-time?)
-                      (reconciler/alteration 'graph/mouse-change
-                                             {:graph/hover-pos x :graph/last-mouse-moment now-moment :graph/labels-visible? false}
-                                             :graph/trending-graph))
+                    (reconciler/alteration 'graph/mouse-change
+                                           {:in-sticky-time?       in-sticky-time? :hover-pos x :last-mouse-moment now-moment
+                                            :graph/labels-visible? false}
+                                           :graph/trending-graph)
                     (recur x y cur-x cur-y))
 
                   [{:type "mouseup" :x x :y y}]

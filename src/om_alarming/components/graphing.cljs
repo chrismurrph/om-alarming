@@ -3,7 +3,6 @@
             [om.dom :as dom]
             [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout]]
-            [om-alarming.components.surplus :as surplus]
             [om-alarming.graph.processing :as process]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
             [om-alarming.components.general :as gen]
@@ -110,20 +109,20 @@
     [:id {:graph/line (om/get-query Line)} :proportional-y :proportional-val])
   Object
   (render [this]
-    (let [{:keys [id proportional-y proportional-val name]} (om/props this)
-          {:keys [current-label x lines testing-name]} (om/get-computed this)
+    (let [{:keys [id proportional-y proportional-val graph/line]} (om/props this)
+          {:keys [current-line x testing-name]} (om/get-computed this)
           _ (assert id)
-          _ (assert name (str "x-gas-info w/out a name. \nCOMPUTED:\n" (om/get-computed this) 
+          _ (assert line (str "x-gas-info w/out a line. \nCOMPUTED:\n" (om/get-computed this) 
                               "\nPROPs:\n" (om/props this)))
-          _ (assert (pos? (count lines)))
           ;;; text ;;;
-          line-doing (process/find-line lines name)
-          _ (assert line-doing (str "Not found a name for <" name "> from:" lines))
-          text-colour-str (-> line-doing :colour process/rgb-map-to-str)
+          _ (assert current-line (str "Not found a current-line"))
+          _ (assert line (str "Which line is this for?"))
+          text-colour-str (-> current-line :colour process/rgb-map-to-str)
           ;_ (println "colour will be " colour-str)
-          units-str (:units line-doing)
-          line-id (:name line-doing)
-          text-props {:opacity  (if (process/hidden? line-id current-label) 0.0 1.0)
+          units-str (:units current-line)
+          hidden? (not= line current-line)
+          ;_ (when (not hidden?) (println "= " (:name line) (:name current-line)))
+          text-props {:opacity  (if hidden? 0.0 1.0)
                       :x        (+ x 10)
                       :y        (+ proportional-y 4)
                       :fontSize "0.8em"
@@ -131,7 +130,7 @@
                       :strokeWidth 0.65}
           ;_ (println text-props)
           ;;; tick ;;;
-          colour-str (-> line-doing :colour process/rgb-map-to-str)
+          colour-str (-> current-line :colour process/rgb-map-to-str)
           ;_ (println (:name drop-info) " going to be " colour-str)
           drop-distance proportional-y
           _ (assert drop-distance)
@@ -140,7 +139,7 @@
                              :x1      x :y1 drop-distance
                              :x2      (+ x 6) :y2 drop-distance
                              :stroke  colour-str
-                             :opacity (if (process/hidden? (:name line-doing) current-label) 0.0 1.0)})
+                             :opacity (if hidden? 0.0 1.0)})
           ;;; rect ;;;
           height 16
           half-height (/ height 2)
@@ -149,8 +148,8 @@
           width-after-indent (- width 4)
           new-x (+ indent x)
           new-y (- proportional-y half-height)
-          opacity (if (process/hidden? name current-label) 0.0 1.0)
-          _ (when (= 0 opacity) (println "name:" name ", current-label" current-label "not being displayed"))
+          opacity (if hidden? 0.0 1.0)
+          _ (when (= 0 opacity) (println "current-label :-" current-line "not being displayed"))
           colour (if testing-name light-blue white)
           fill (process/rgb-map-to-str colour)
           rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
@@ -158,22 +157,20 @@
           ]
       (dom/g nil
              (dom/rect (clj->js rect-props))
-             (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-label) 2) proportional-val units-str))
+             (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-line) 2) proportional-val units-str))
              (dom/line (clj->js line-props))
              )
       )))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn rect-text-ticks [drop-info]
-  (let [{:keys [graph/x-gas-details x graph/lines testing-name]} drop-info]
+  (let [{:keys [graph/x-gas-details x testing-name graph/current-line]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
     ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
-    (assert lines "Expect lines in drop-info")
     (dom/g nil
            (for [x-gas-info x-gas-details]
-             (rect-text-tick (om/computed x-gas-info {:current-label current-label
+             (rect-text-tick (om/computed x-gas-info {:current-line current-line
                                                       :x x
-                                                      :lines lines
                                                       :testing-name testing-name}))))
     ))
 
@@ -197,12 +194,12 @@
      {:graph/current-line (om/get-query Line)}])
   Object
   (render [this]
-    (let [{:keys [testing-name] :as props} (om/props this)
-          {:keys [graph/lines] :as computed-props} (om/get-computed this)]
+    ;; Documentation, so remember these are all there
+    (let [{:keys [testing-name id graph/x-gas-details graph/current-line x] :as props} (om/props this)]
       (if testing-name
         (dom/g nil
-               (rect-text-ticks (merge props computed-props)))
-        (rect-text-ticks (merge props computed-props))))))
+               (rect-text-ticks props))
+        (rect-text-ticks props)))))
 (def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
 (defui TrendingGraph
@@ -215,10 +212,9 @@
      :width 
      :height
      :receiving?
-     :hover-pos
      :last-mouse-moment
      {:graph/lines (om/get-query Line)}
-     :graph/hover-pos
+     :hover-pos
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
@@ -240,7 +236,7 @@
           {:keys [width
                   height
                   graph/lines 
-                  graph/hover-pos 
+                  hover-pos 
                   graph/labels-visible? 
                   graph/misc graph/plumb-line graph/drop-info graph/translators]} props
           _ (assert (and width height) (str "No width or height in: <" props ">"))
@@ -275,13 +271,6 @@
     "line" (line-component test-props)
     "rect-text-tick" (rect-text-tick test-props)
     "many-rect-text-tick" (drop-info-component test-props)
-    ;; These may all be surplus:
-    "poly" (surplus/poly test-props)
-    "tick-lines" (surplus/tick-lines test-props)
-    "text-component" (surplus/text-component test-props)
-    "backing-rects" (surplus/backing-rects test-props)
-    "insert-texts" (surplus/insert-texts test-props)
-    "opaque-rect" (surplus/opaque-rect test-props)
     ))
 
 (defui SimpleSVGTester

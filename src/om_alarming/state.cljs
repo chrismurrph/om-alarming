@@ -46,7 +46,7 @@
     :x             50
     ;:graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
     ;:current-label {:id 10000}
-    :graph/current-line {:id 100}
+    :graph/current-line {:id 102}
     :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/trending-graph
    {:id 10300
@@ -60,8 +60,8 @@
     :graph/drop-info {:id 10200}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
-    :hover-pos 3
-    :last-mouse-moment 3
+    :hover-pos nil
+    :last-mouse-moment nil
     }            
    ;:graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
    :graph/misc {:id 10400
@@ -75,7 +75,7 @@
     ]
    :graph/plumb-line {:id 10201
                       :visible? true
-                      :x-position 10 ;; S/be done by mouse so get rid of it soon
+                      :x-position nil
                       :in-sticky-time? false}
    :graph/lines
    [{:id     100

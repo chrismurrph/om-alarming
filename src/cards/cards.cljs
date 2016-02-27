@@ -2,7 +2,6 @@
   (:require [om.next :as om]
             [om.dom :as dom :include-macros true]
             [om-alarming.components.nav :as nav]
-            [om-alarming.components.surplus :as surplus]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
             [om-alarming.graph.mock-values :as data :refer [white light-blue black]]

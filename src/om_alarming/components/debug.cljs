@@ -32,9 +32,9 @@
 (defn mouse-debugging [state]
   (dom/div nil
            (db-format/display (get-in state (conj (get state :graph/trending-graph) :hover-pos)))
-           (db-format/display (get-in state (conj (get state :graph/trending-graph) :last-mouse-moment)))
+           (db-format/display (get-in state (conj (get state :graph/plumb-line) :in-sticky-time?)))
            (db-format/display (get-in state (conj (get state :graph/plumb-line) :x-position)))
-           (db-format/display (get-in state (conj (get state :graph/plumb-line) :in-sticky-time?)))           
+           (db-format/display (get-in state (conj (get state :graph/trending-graph) :last-mouse-moment)))
            ))
 
 (defn translators-debugging 

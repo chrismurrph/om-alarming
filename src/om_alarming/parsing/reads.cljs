@@ -31,6 +31,11 @@
         ]
     {:value res}))
 
+;(defmethod read :hover-pos
+;  [{:keys [state query]} key _]
+;  (let [st @state]
+;    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :debug
   [{:keys [state query]} key _]
   (let [st @state
@@ -41,14 +46,10 @@
 ;;
 ;; For those that can be nil we can't reply on the default
 ;;
-(defmethod read :graph/hover-pos
-  [{:keys [state _]} key _]
-  (let [st @state]
-    {:value (get st key)}))
-(defmethod read :graph/labels-visible?
-  [{:keys [state _]} key _]
-  (let [st @state]
-    {:value (get st key)}))
+;(defmethod read :graph/labels-visible?
+;  [{:keys [state _]} key _]
+;  (let [st @state]
+;    {:value (get st key)}))
 
 (defmethod read :receiving?
   [{:keys [state _]} key _]

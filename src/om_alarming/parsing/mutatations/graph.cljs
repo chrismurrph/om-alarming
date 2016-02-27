@@ -3,11 +3,13 @@
             [om-alarming.reconciler :refer [mutate]]))
 
 (defn as-mouse-changes [orig-state params]
-  (let [new-x (:graph/hover-pos params)]
+  (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params]
     (-> orig-state
-        ;(merge params)
-        (assoc-in [:plumb-line/by-id 10201 :x-position] new-x)
-        (assoc-in [:drop-info/by-id 10200 :x] new-x)
+        (assoc-in [:trending-graph/by-id 10300 :last-mouse-moment] last-mouse-moment)
+        (assoc-in [:trending-graph/by-id 10300 :hover-pos] hover-pos)
+        (assoc-in [:plumb-line/by-id 10201 :x-position] hover-pos)
+        (assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] in-sticky-time?)
+        (assoc-in [:drop-info/by-id 10200 :x] hover-pos)
         )))
 
 (defmethod mutate 'graph/mouse-change
@@ -38,7 +40,7 @@
 (defmethod mutate 'graph/receiving-chan
   [{:keys [state]} _ {:keys [receiving-chan]}]
   {:value  {:keys [:graph/misc]}
-   :action #(swap! state assoc-in [:graph/misc :receiving-chan] receiving-chan)})
+   :action #(swap! state assoc-in [:misc/by-id 10400 :receiving-chan] receiving-chan)})
 
 (defmethod mutate 'graph/toggle-receive
   [{:keys [state]} _ _]
