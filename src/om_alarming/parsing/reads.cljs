@@ -142,7 +142,7 @@
   [{:keys [state _]} key _]
   (let [st @state
         _ (println "In in-sticky-time? for:" key)]
-    {:value (get-in st [:graph/plumb-line 10201 :in-sticky-time?])}))
+    {:value (get-in st [:plumb-line/by-id 10201 :in-sticky-time?])}))
 
 (defmethod read :receiving-chan
   [{:keys [state _]} key _]

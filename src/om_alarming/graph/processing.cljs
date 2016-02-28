@@ -75,8 +75,10 @@
 
                   [{:type "mousemove" :x x :y y}]
                   (let [now-moment (now-time)
-                        res (reconciler/internal-query [{:graph/trending-graph {:graph/plumb-line [:in-sticky-time?]}}])
-                        in-sticky-time? (-> res :graph/plumb-line :in-sticky-time?)
+                        res (reconciler/internal-query [{:graph/trending-graph [{:graph/plumb-line [:in-sticky-time?]}]}])
+                        ;_ (println "RES: " (-> res :graph/trending-graph :graph/plumb-line))
+                        in-sticky-time? (-> res :graph/trending-graph :graph/plumb-line :in-sticky-time?)
+                        ;_ (assert in-sticky-time? "Must have")
                         ]
                     (reconciler/alteration 'graph/mouse-change
                                            {:in-sticky-time?       in-sticky-time? :hover-pos x :last-mouse-moment now-moment

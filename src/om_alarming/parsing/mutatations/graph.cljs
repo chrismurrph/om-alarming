@@ -1,16 +1,21 @@
 (ns om-alarming.parsing.mutations.graph
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [mutate]]))
+            [om-alarming.reconciler :refer [mutate]]
+            [default-db-format.core :as db-format]))
 
 (defn as-mouse-changes [orig-state params]
-  (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params]
-    (-> orig-state
-        (assoc-in [:trending-graph/by-id 10300 :last-mouse-moment] last-mouse-moment)
-        (assoc-in [:trending-graph/by-id 10300 :hover-pos] hover-pos)
-        (assoc-in [:plumb-line/by-id 10201 :x-position] hover-pos)
-        (assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] in-sticky-time?)
-        (assoc-in [:drop-info/by-id 10200 :x] hover-pos)
-        )))
+  (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params
+        ;_ (assert (db-format/boolean? in-sticky-time?))
+        ]
+    (let [st (if (not in-sticky-time?)
+               (-> orig-state
+                   (assoc-in [:trending-graph/by-id 10300 :last-mouse-moment] last-mouse-moment)
+                   (assoc-in [:plumb-line/by-id 10201 :x-position] hover-pos))
+               orig-state)]
+      (-> st
+          (assoc-in [:trending-graph/by-id 10300 :hover-pos] hover-pos)
+          (assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] in-sticky-time?)
+          (assoc-in [:drop-info/by-id 10200 :x] hover-pos)))))
 
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
