@@ -1,6 +1,13 @@
 (ns om-alarming.util.utils)
 
 (defn bisect-vertical-between [[x0 y0 val0] [x1 y1 val1] x]
+  (assert x)
+  (assert x0)
+  (assert y0)
+  (assert val0)
+  (assert x1)
+  (assert y1)
+  (assert val1)
   (let [x-diff (- x1 x0)
         y-diff (- y1 y0)
         val-diff (- val1 val0)

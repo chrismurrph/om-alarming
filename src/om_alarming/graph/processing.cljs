@@ -10,6 +10,47 @@
                    [cljs.core.match.macros :refer [match]]))
 
 ;;
+;; Any x may have two positions, one on either side, or none. These two positions will be useful to the drop-down
+;; y-line that comes up as the user moves the mouse over the graph.
+;; In the reduce implementation we only know the previous one when we have gone past it, hence we need to keep the
+;; prior in the accumulator.
+;; Because of the use-case, when we are exactly on it we repeat it. I'm thinking the two values will have the greatest
+;; or least used. This obviates the question of there being any preference for before or after. Also when user is at
+;; the first or last point there will still be a result.
+;;
+(defn enclosed-by [translate-horizontally-fn points x]
+  (let [_ (println "points to reduce over: " points)
+        res (reduce (fn [acc ele] (if (empty? (:res acc))
+                                    (let [cur-x (translate-horizontally-fn (:x ele))]
+                                      (if (= cur-x x)
+                                        {:res [ele ele]}
+                                        (if (> cur-x x)
+                                          {:res [(:prev acc)] :prev ele} ;use the prior element
+                                          {:res [] :prev ele} ;only update prior element
+                                          )
+                                        )
+                                      )
+                                    (let [result-so-far (:res acc)]
+                                      (if (= 1 (count result-so-far))
+                                        {:res (conj result-so-far (:prev acc))}
+                                        acc)
+                                      )
+                                    ))
+                    []
+                    points)
+        ]
+    (let [result (:res res)]
+      (println "RES: " result)
+      (if (nil? (first result)) ;when are before first element
+        nil
+        (if (empty? result)
+          nil
+          (if (= 1 (count result))
+            (let [last-ele (last points)]
+              (conj result last-ele))
+            result))))))
+
+;;
 ;; Anything that originally comes from graphing that does have to do with Reagent or the state
 ;;
 
@@ -52,7 +93,11 @@
 (defn- staging-translators [min-x min-y max-x max-y graph-width graph-height]
   (let [horiz-trans-fn (fn [val] (u/scale {:min min-x :max max-x} {:min 0 :max graph-width} val))
         vert-trans-fn (fn [val] (u/scale {:min min-y :max max-y} {:min 0 :max graph-height} val))
-        trans-point-fn (fn [[x [y val]]] [(horiz-trans-fn x) (vert-trans-fn y) val])
+        trans-point-fn (fn [point]
+                         (let [_ (assert (map? point))
+                               {:keys [x y val]} point
+                               _ (assert (and x y val))]
+                           [(horiz-trans-fn x) (vert-trans-fn y) val]))
         ]
     {:horiz-fn horiz-trans-fn :vert-fn vert-trans-fn :point-fn trans-point-fn}))
 

@@ -42,41 +42,32 @@
      :description "Debug while developing"
      :showing?     true}
     ]
-   ;:graph/drop-info
-   ;{:id            10200 
-   ; :x             50
-   ; :graph/current-line {:id 102}
-   ; :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/trending-graph
    {:id 10300
     :width 640
     :height 250
     :graph/lines [{:id 100} {:id 101} {:id 102} {:id 103}]
     :labels-visible? false
-    ;:graph/labels [{:id 10000}]
     :receiving? false
     :graph/plumb-line {:id 10201}
-    ;:graph/drop-info {:id 10200}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
     :hover-pos nil
     :last-mouse-moment nil
     }            
-   ;:graph/labels [{:id 10000 :name "Carbon Monoxide at 3" :dec-places 1}]
    :graph/misc {:id 10400
                 :comms nil
                 :receiving-chan nil}
    :graph/x-gas-details
    [
-    {:id 10100 :graph/line {:id 102}, :proportional-y 146.33422462612975, :proportional-val 0.19667279430464207}
-    {:id 10101 :graph/line {:id 103}, :proportional-y 131.68775824757364, :proportional-val 11.337551649514731}
-    {:id 10102 :graph/line {:id 101}, :proportional-y 161.68775824757364, :proportional-val 10.337551649514731}
+    {:id 10100 :graph/line {:id 102}}
+    {:id 10101 :graph/line {:id 103}}
+    {:id 10102 :graph/line {:id 101}}
     ]
    :graph/plumb-line {:id 10201
                       :visible? true
                       :x-position nil
                       :in-sticky-time? false
-                      ;:x             50
                       :graph/current-line {:id 102}
                       :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}    
    :graph/lines

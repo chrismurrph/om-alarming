@@ -105,11 +105,3 @@
                                  (grid-row (om/computed tube sui-col-info-map)))))
              (dom/div #js {:className "two wide column"}
                       (graph/trending-graph (:graph/trending-graph app-props))))))
-
-;(defui TrendingPanel
-;  Object
-;  (render [this]
-;    (dom/div nil
-;             (gas-selection-grid (om/props this)))))
-;(def trending-panel (om/factory TrendingPanel {:keyfn :id}))
-

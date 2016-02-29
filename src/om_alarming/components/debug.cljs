@@ -78,6 +78,6 @@
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                ;(db-format/display (reconciler/internal-query lines-query))
-               (mouse-debugging state)
+               (points-debugging state)
                ))))
 (def debug (om/factory Debug))

@@ -4,6 +4,7 @@
             [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout]]
             [om-alarming.graph.processing :as process]
+            [om-alarming.util.utils :as u]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
             [om-alarming.components.general :as gen]
             [cljs.pprint :as pp :refer [pprint]]
@@ -23,12 +24,13 @@
     [:id :x :y :val])
   Object
   (render [this]
-    (let [{:keys [id x y val]} (om/props this)
+    (let [props (om/props this)
+          {:keys [id x y val]} props
           {:keys [rgb-map translator]} (om/get-computed this)
           ;_ (println "POINT: " id " " rgb-map " " x " " y " " translator)
           _ (assert id)
           _ (assert (and x y val))
-          [x-trans y-trans val-trans] (translator [x [y val]])
+          [x-trans y-trans val-trans] (translator props)
           circle-props    (merge process/point-defaults
                                  {:cx x-trans
                                   :cy y-trans
@@ -82,76 +84,84 @@
 (defui RectTextTick
   static om/Ident
   (ident [this props]
-    [:x-gas-details/by-id (:id props)])
+    [:x-gas-detail/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id {:graph/line (om/get-query Line)} :proportional-y :proportional-val])
+    [:id {:graph/line (om/get-query Line)}])
   Object
   (render [this]
-    (let [{:keys [id proportional-y proportional-val graph/line]} (om/props this)
-          {:keys [current-line x testing-name]} (om/get-computed this)
-          _ (assert id)
-          _ (assert line (str "x-gas-info w/out a line. \nCOMPUTED:\n" (om/get-computed this) 
-                              "\nPROPs:\n" (om/props this)))
-          ;;; text ;;;
-          _ (assert current-line (str "Not found a current-line"))
-          _ (assert line (str "Which line is this for?"))
-          text-colour-str (-> current-line :colour process/rgb-map-to-str)
-          ;_ (println "colour will be " colour-str)
-          units-str (:units current-line)
-          hidden? (not= line current-line)
-          ;_ (when (not hidden?) (println "= " (:name line) (:name current-line)))
-          text-props {:opacity  (if hidden? 0.0 1.0)
-                      :x        (+ x 10)
-                      :y        (+ proportional-y 4)
-                      :fontSize "0.8em"
-                      :stroke   text-colour-str
-                      :strokeWidth 0.65}
-          ;_ (println text-props)
-          ;;; tick ;;;
-          colour-str (-> current-line :colour process/rgb-map-to-str)
-          ;_ (println (:name drop-info) " going to be " colour-str)
-          drop-distance proportional-y
-          _ (assert drop-distance)
-          line-props (merge process/line-defaults
-                            {:id      drop-distance
-                             :x1      x :y1 drop-distance
-                             :x2      (+ x 6) :y2 drop-distance
-                             :stroke  colour-str
-                             :opacity (if hidden? 0.0 1.0)})
-          ;;; rect ;;;
-          height 16
-          half-height (/ height 2)
-          width 45 ;; later we might use how many digits there are
-          indent 8
-          width-after-indent (- width 4)
-          new-x (+ indent x)
-          new-y (- proportional-y half-height)
-          opacity (if hidden? 0.0 1.0)
-          _ (when (= 0 opacity) (println "current-label :-" current-line "not being displayed"))
-          colour (if testing-name light-blue white)
-          fill (process/rgb-map-to-str colour)
-          rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
-          ;_ (println "rect-props: " rect-props)
-          ]
-      (dom/g nil
-             (dom/rect (clj->js rect-props))
-             (dom/text (clj->js text-props)(process/format-as-str (or (:dec-places current-line) 2) proportional-val units-str))
-             (dom/line (clj->js line-props))
-             )
-      )))
+    (let [{:keys [id graph/line]} (om/props this)
+          {:keys [current-line x testing-name proportional-y proportional-val]} (om/get-computed this)]
+      (when proportional-y
+        (let [_ (assert id)
+              _ (assert line (str "x-gas-info w/out a line. \nCOMPUTED:\n" (om/get-computed this)
+                                  "\nPROPs:\n" (om/props this)))
+              ;;; text ;;;
+              _ (assert current-line (str "Not found a current-line"))
+              _ (assert line (str "Which line is this for?"))
+              text-colour-str (-> current-line :colour process/rgb-map-to-str)
+              ;_ (println "colour will be " colour-str)
+              units-str (:units current-line)
+              hidden? (not= line current-line)
+              ;_ (when (not hidden?) (println "= " (:name line) (:name current-line)))
+              text-props {:opacity     (if hidden? 0.0 1.0)
+                          :x           (+ x 10)
+                          :y           (+ proportional-y 4)
+                          :fontSize    "0.8em"
+                          :stroke      text-colour-str
+                          :strokeWidth 0.65}
+              ;_ (println text-props)
+              ;;; tick ;;;
+              colour-str (-> current-line :colour process/rgb-map-to-str)
+              ;_ (println (:name drop-info) " going to be " colour-str)
+              ;_ (assert proportional-y)
+              line-props (merge process/line-defaults
+                                {:id      proportional-y
+                                 :x1      x :y1 proportional-y
+                                 :x2      (+ x 6) :y2 proportional-y
+                                 :stroke  colour-str
+                                 :opacity (if hidden? 0.0 1.0)})
+              ;;; rect ;;;
+              height 16
+              half-height (/ height 2)
+              width 45                                      ;; later we might use how many digits there are
+              indent 8
+              width-after-indent (- width 4)
+              new-x (+ indent x)
+              new-y (- proportional-y half-height)
+              opacity (if hidden? 0.0 1.0)
+              ;_ (when (= 0 opacity) (println "current-label :-" current-line "not being displayed"))
+              colour (if testing-name light-blue white)
+              fill (process/rgb-map-to-str colour)
+              rect-props {:x new-x :y new-y :width width-after-indent :height height :opacity opacity :fill fill :rx 5 :ry 5}
+              ;_ (println "rect-props: " rect-props)
+              ]
+          (dom/g nil
+                 (dom/rect (clj->js rect-props))
+                 (dom/text (clj->js text-props) (process/format-as-str (or (:dec-places current-line) 2) proportional-val units-str))
+                 (dom/line (clj->js line-props))))))))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn rect-text-ticks [drop-info]
-  (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line]} drop-info]
-    (println "count x-gas-details: " (count x-gas-details))
-    ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
-    (dom/g nil
-           (for [x-gas-info x-gas-details]
-             (rect-text-tick (om/computed x-gas-info {:current-line current-line
-                                                      :x x-position
-                                                      :testing-name testing-name}))))
-    ))
+  (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line horiz-fn point-fn]} drop-info
+        _ (assert (and point-fn horiz-fn))
+        _ (println "x-position: " x-position)
+        points (:graph/points current-line)
+        ]
+    (when (and x-position (not-empty points))
+      (let [pair (process/enclosed-by horiz-fn points x-position)
+            _ (println "pair: " pair)
+            proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
+            _ (println "proportionals: " proportionals)]
+        (println "count x-gas-details: " (count x-gas-details))
+        ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
+        (dom/g nil
+               (for [x-gas-info x-gas-details]
+                 (rect-text-tick (om/computed x-gas-info (merge {:current-line     current-line
+                                                                 :x                x-position
+                                                                 :testing-name     testing-name
+                                                                 :proportional-val nil
+                                                                 :proportional-y   nil} proportionals)))))))))
 
 (defui PlumbLine
   static om/Ident
@@ -167,6 +177,8 @@
   (render [this]
     (let [props (om/props this)
           {:keys [id height visible? x-position in-sticky-time?]} props
+          {:keys [horiz-fn point-fn]} (om/get-computed this)
+          _ (assert horiz-fn)
           stroke-width (if in-sticky-time? 2 1)
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -176,7 +188,7 @@
                              :strokeWidth stroke-width})
           res (when visible?
                 (dom/g nil
-                       (rect-text-ticks props)
+                       (rect-text-ticks (merge props {:horiz-fn horiz-fn :point-fn point-fn}))
                        (dom/line (clj->js line-props))))]
       res)))
 (def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
@@ -206,7 +218,7 @@
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
      ;{:graph/drop-info (om/get-query DropInfo)}
-     {:graph/translators [:point-fn]}])
+     {:graph/translators [:point-fn :horiz-fn]}])
   Object
   (handler-fn [this comms-channel e]
     (assert comms-channel)
@@ -227,8 +239,9 @@
                   graph/labels-visible? 
                   graph/misc graph/plumb-line graph/translators]} props
           _ (assert (and width height) (str "No width or height in: <" props ">"))
-          {:keys [point-fn]} translators
-          _ (assert point-fn "Trending")
+          {:keys [point-fn horiz-fn]} translators
+          _ (assert point-fn)
+          _ (assert horiz-fn)
           comms-channel (:comms misc)
           _ (assert comms-channel "Need a comms channel to direct mouse movement at")
           handler #(.handler-fn this comms-channel %)
@@ -242,11 +255,8 @@
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
-                          (line-component (om/computed line {:point-fn point-fn})))
-                        ; May be necessary to wrap above in a g - for instance if no lines??
-                        ;(dom/g nil)
-                        (plumb-line-component (merge plumb-line init))
-                        ;(drop-info-component (om/computed drop-info {:graph/lines lines}))
+                          (line-component (om/computed line translators)))
+                        (plumb-line-component (om/computed (merge plumb-line init) translators))
                         )
                (dom/div nil "Here goes timing information")))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
