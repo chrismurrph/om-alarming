@@ -7,7 +7,8 @@
                      [:horiz-fn :vert-fn :point-fn]})
 (def check-config {:excluded-keys irrelevant-keys
                    :okay-value-maps okay-val-maps
-                   :by-id-kw "by-id"})
+                   :by-id-kw "by-id"
+                   :acceptable-table-value-fn? (fn [v] (= "function Date" (subs (str (type v)) 0 13)))})
 
 (def initial-state
   {:app/selected-button {:id 3}
@@ -41,13 +42,11 @@
      :description "Debug while developing"
      :showing?     true}
     ]
-   :graph/drop-info
-   {:id            10200 
-    :x             50
-    ;:graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
-    ;:current-label {:id 10000}
-    :graph/current-line {:id 102}
-    :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
+   ;:graph/drop-info
+   ;{:id            10200 
+   ; :x             50
+   ; :graph/current-line {:id 102}
+   ; :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/trending-graph
    {:id 10300
     :width 640
@@ -57,7 +56,7 @@
     ;:graph/labels [{:id 10000}]
     :receiving? false
     :graph/plumb-line {:id 10201}
-    :graph/drop-info {:id 10200}
+    ;:graph/drop-info {:id 10200}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
     :hover-pos nil
@@ -76,7 +75,10 @@
    :graph/plumb-line {:id 10201
                       :visible? true
                       :x-position nil
-                      :in-sticky-time? false}
+                      :in-sticky-time? false
+                      ;:x             50
+                      :graph/current-line {:id 102}
+                      :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}    
    :graph/lines
    [{:id     100
      :name "Methane at 1"

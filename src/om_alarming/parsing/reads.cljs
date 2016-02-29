@@ -84,12 +84,12 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :graph/drop-info
-  [{:keys [state query]} key _]
-  (let [st @state
-        ;_ (println "In :graph/drop-info for:" query)
-        ]
-    {:value (om/db->tree query (get st key) st)}))
+;(defmethod read :graph/drop-info
+;  [{:keys [state query]} key _]
+;  (let [st @state
+;        ;_ (println "In :graph/drop-info for:" query)
+;        ]
+;    {:value (om/db->tree query (get st key) st)}))
 
 (defmethod read :graph/plumb-line
   [{:keys [state query]} key _]

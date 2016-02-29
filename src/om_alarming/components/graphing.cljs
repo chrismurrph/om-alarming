@@ -79,27 +79,6 @@
                    (point-component (om/computed point {:rgb-map colour :translator point-fn})))))))
 (def line-component (om/factory Line {:keyfn :id}))
 
-(defui PlumbLine
-  static om/Ident
-  (ident [this props]
-    [:plumb-line/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    [:id :height :visible? :x-position :in-sticky-time?])
-  Object
-  (render [this]
-    (let [{:keys [id height visible? x-position in-sticky-time?]} (om/props this)
-          stroke-width (if in-sticky-time? 2 1)
-          line-props (merge process/line-defaults
-                            {:x1           x-position
-                             :y1           0
-                             :x2           x-position
-                             :y2           height
-                             :strokeWidth stroke-width})
-          res (when visible? (dom/line (clj->js line-props)))]
-      res)))
-(def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
-
 (defui RectTextTick
   static om/Ident
   (ident [this props]
@@ -164,15 +143,43 @@
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
 (defn rect-text-ticks [drop-info]
-  (let [{:keys [graph/x-gas-details x testing-name graph/current-line]} drop-info]
+  (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line]} drop-info]
     (println "count x-gas-details: " (count x-gas-details))
     ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
     (dom/g nil
            (for [x-gas-info x-gas-details]
              (rect-text-tick (om/computed x-gas-info {:current-line current-line
-                                                      :x x
+                                                      :x x-position
                                                       :testing-name testing-name}))))
     ))
+
+(defui PlumbLine
+  static om/Ident
+  (ident [this props]
+    [:plumb-line/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :height :visible? :x-position :in-sticky-time?
+     {:graph/x-gas-details (om/get-query RectTextTick)}
+     {:graph/current-line (om/get-query Line)}
+     ])
+  Object
+  (render [this]
+    (let [props (om/props this)
+          {:keys [id height visible? x-position in-sticky-time?]} props
+          stroke-width (if in-sticky-time? 2 1)
+          line-props (merge process/line-defaults
+                            {:x1           x-position
+                             :y1           0
+                             :x2           x-position
+                             :y2           height
+                             :strokeWidth stroke-width})
+          res (when visible?
+                (dom/g nil
+                       (rect-text-ticks props)
+                       (dom/line (clj->js line-props))))]
+      res)))
+(def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
 
 (defui Label
   static om/Ident
@@ -181,26 +188,6 @@
   static om/IQuery
   (query [this]
     [:id :name :dec-places]))
-
-(defui DropInfo
-  static om/Ident
-  (ident [this props]
-    [:drop-info/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    [:id
-     :x
-     {:graph/x-gas-details (om/get-query RectTextTick)}
-     {:graph/current-line (om/get-query Line)}])
-  Object
-  (render [this]
-    ;; Documentation, so remember these are all there
-    (let [{:keys [testing-name id graph/x-gas-details graph/current-line x] :as props} (om/props this)]
-      (if testing-name
-        (dom/g nil
-               (rect-text-ticks props))
-        (rect-text-ticks props)))))
-(def drop-info-component (om/factory DropInfo {:keyfn :id}))
 
 (defui TrendingGraph
   static om/Ident
@@ -218,7 +205,7 @@
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     {:graph/drop-info (om/get-query DropInfo)}
+     ;{:graph/drop-info (om/get-query DropInfo)}
      {:graph/translators [:point-fn]}])
   Object
   (handler-fn [this comms-channel e]
@@ -238,7 +225,7 @@
                   graph/lines 
                   hover-pos 
                   graph/labels-visible? 
-                  graph/misc graph/plumb-line graph/drop-info graph/translators]} props
+                  graph/misc graph/plumb-line graph/translators]} props
           _ (assert (and width height) (str "No width or height in: <" props ">"))
           {:keys [point-fn]} translators
           _ (assert point-fn "Trending")
@@ -249,7 +236,7 @@
           init {:width width :height height}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
           ;_ (println "SVG: " init-props)
-          _ (println "LINEs count: " (count lines))
+          ;_ (println "LINEs count: " (count lines))
           ;_ (println "for-drop-info" for-drop-info)
           ]
       (dom/div nil
@@ -259,7 +246,7 @@
                         ; May be necessary to wrap above in a g - for instance if no lines??
                         ;(dom/g nil)
                         (plumb-line-component (merge plumb-line init))
-                        (drop-info-component (om/computed drop-info {:graph/lines lines}))
+                        ;(drop-info-component (om/computed drop-info {:graph/lines lines}))
                         )
                (dom/div nil "Here goes timing information")))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
@@ -270,7 +257,7 @@
     "point" (point-component test-props)
     "line" (line-component test-props)
     "rect-text-tick" (rect-text-tick test-props)
-    "many-rect-text-tick" (drop-info-component test-props)
+    ;"many-rect-text-tick" (drop-info-component test-props)
     ))
 
 (defui SimpleSVGTester

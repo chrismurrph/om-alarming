@@ -67,7 +67,7 @@
      {:graph/labels (om/get-query graph/Label)}
      {:graph/trending-graph (om/get-query graph/TrendingGraph)}
      {:graph/lines (om/get-query graph/Line)}
-     {:graph/drop-info (om/get-query graph/DropInfo)}
+     ;{:graph/drop-info (om/get-query graph/DropInfo)}
      {:graph/plumb-line (om/get-query graph/PlumbLine)}
      {:graph/misc (om/get-query graph/Misc)}
      {:graph/x-gas-details (om/get-query graph/RectTextTick)}

@@ -15,7 +15,8 @@
       (-> st
           (assoc-in [:trending-graph/by-id 10300 :hover-pos] hover-pos)
           (assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] in-sticky-time?)
-          (assoc-in [:drop-info/by-id 10200 :x] hover-pos)))))
+          ;(assoc-in [:drop-info/by-id 10200 :x] hover-pos)
+          ))))
 
 (defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
