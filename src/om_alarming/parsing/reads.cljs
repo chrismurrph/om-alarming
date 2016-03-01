@@ -1,6 +1,7 @@
 (ns om-alarming.parsing.reads
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [read my-parser my-reconciler]]))
+            [om-alarming.reconciler :refer [read my-parser my-reconciler]]
+            [om-alarming.util.utils :as u]))
 
 (defmethod read :app/gases
   [{:keys [state query]} key _]
@@ -148,6 +149,22 @@
   [{:keys [state _]} key _]
   (let [st @state]
     {:value (get-in st [:graph/misc :receiving-chan])}))
+
+(defmethod read :route/data
+  [{:keys [state query]} k _]
+  (let [st @state
+        route (get st :app/route)
+        route (cond-> route
+                      (= (second route) '_) pop)]
+    ;; since the route is an `ident`, it could also
+    ;; be passed as the second argument to `db->tree`
+    ;; if our data was normalized
+    {:value (u/probe ":route/data RES:" (get-in st route))}))
+
+(defmethod read :app/route
+  [{:keys [state query]} k _]
+  (let [st @state]
+    {:value (u/probe ":app/route RES:" (get st k))}))
 
 (defmethod read :default
   [{:keys [state query]} key _]

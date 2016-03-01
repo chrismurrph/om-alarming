@@ -2,6 +2,14 @@
   (:require [om-alarming.graph.mock-values :refer [pink green blue red]]))
 
 (def irrelevant-keys #{:om.next/queries
+                       :app/debug
+                       :app/route
+                       :app/trending
+                       :app/automatic
+                       :app/thresholds
+                       :app/reports
+                       :app/logs
+                       :app/map
                        })
 (def okay-val-maps #{[:r :g :b]
                      [:horiz-fn :vert-fn :point-fn]})
@@ -11,7 +19,32 @@
                    :acceptable-table-value-fn? (fn [v] (= "function Date" (subs (str (type v)) 0 13)))})
 
 (def initial-state
-  {:app/selected-button {:id 1}
+  
+  {
+   :app/route [:app/map '_]
+   :app/map {:id 10500
+             :map/name "Map"
+             :map/description "Mine Plan"}
+   :app/trending {:id 10501
+                  :trending/name "Trending"
+                  :trending/description "Live data, Trending"}
+   :app/thresholds {:id 10502
+                    :thresholds/name "Thresholds"
+                    :thresholds/description "Alarm Thresholds"}
+   :app/reports {:id 10503
+                 :reports/name        "Reports"
+                 :reports/description "Event Reports"}
+   :app/automatic {:id 10504
+                   :automatic/name        "Automatic"
+                   :automatic/description "Automatic Tube Bundle"}
+   :app/logs {:id 10505
+              :logs/name        "Logs"
+              :logs/description "Warning Log"}
+   :app/debug {:id 10506
+               :debug/name        "Debug"
+               :debug/description "Debug while developing"}
+   
+   :app/selected-button {:id 1}
    :app/buttons
    [{:id          1
      :name        "Map"
@@ -42,6 +75,7 @@
      :description "Debug while developing"
      :showing?     true}
     ]
+   
    :graph/trending-graph
    {:id 10300
     :width 640

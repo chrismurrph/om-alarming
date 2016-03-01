@@ -53,40 +53,108 @@
       (halt-receiving))
     (db-format/show-hud check-result)))
 
+(defui Map
+  ;static om/Ident
+  ;(ident [this props]
+  ;  [:map/by-id (:id props)])  
+  static om/IQuery
+  (query [this]
+    [:id :map/name :map/description])
+  Object
+  (render [this]
+    (dom/div nil "Nufin")))
+
+(defui Thresholds
+  static om/IQuery
+  (query [this]
+    [:id :thresholds/name :thresholds/description])
+  Object
+  (render [this]
+    (dom/div nil "Nufin")))
+
+(defui Reports
+  static om/IQuery
+  (query [this]
+    [:id :reports/name :reports/description])
+  Object
+  (render [this]
+    (dom/div nil "Nufin")))
+
+(defui Automatic
+  static om/IQuery
+  (query [this]
+    [:id :automatic/name :automatic/description])
+  Object
+  (render [this]
+    (dom/div nil "Nufin")))
+
+(defui Logs
+  static om/IQuery
+  (query [this]
+    [:id :logs/name :logs/description])
+  Object
+  (render [this]
+    (dom/div nil "Nufin")))
+
 (def route->component
-  {:app/home Home
-   :app/about About})
+  {
+   :app/map Map
+   :app/trending graph/TrendingGraph
+   :app/thresholds Thresholds
+   :app/reports Reports
+   :app/automatic Automatic
+   :app/logs Logs
+   :app/debug debug/Debug
+   }
+  )
 
 (def route->factory
   (zipmap (keys route->component)
-          (map om/factory (vals route->component))))
+          (map (fn [c] (om/factory c {:keyfn :id})) (vals route->component))))
+
+(defn props->route [props]
+  (let [;_ (println "PROPs: " props)
+        res (-> props :app/route first)]
+    res))
 
 (defui App
   static om/IQuery
   (query [this]
-    [
-     {:app/gases (om/get-query gen/SystemGas)}
-     {:app/tubes (om/get-query grid/GridRow)}
-     {:tube/gases (om/get-query grid/GridDataCell)}
-     {:app/buttons (om/get-query nav/TabButton)}
-     {:app/selected-button (om/get-query nav/TabButton)}
-     {:graph/points (om/get-query graph/Point)}
-     {:graph/x-gas-details (om/get-query graph/RectTextTick)}
-     {:graph/labels (om/get-query graph/Label)}
-     {:graph/trending-graph (om/get-query graph/TrendingGraph)}
-     {:graph/lines (om/get-query graph/Line)}
-     {:graph/plumb-line (om/get-query graph/PlumbLine)}
-     {:graph/misc (om/get-query graph/Misc)}
-     {:graph/x-gas-details (om/get-query graph/RectTextTick)}
-     ])
+    (let [
+          ;subq-ref (if (om/component? this)
+          ;           (props->route (om/props this))
+          ;           :app/map)
+          ;_ (assert subq-ref)
+          ;subq-class (get route->component subq-ref)
+          ;_ (assert subq-class (str "Can't find using: <" subq-ref ">"))
+          ;_ (println "IN:" subq-ref subq-class)
+          ]
+      [
+       ;:app/route {:route/data (om/subquery this subq-ref subq-class)}
+       {:app/gases (om/get-query gen/SystemGas)}
+       {:app/tubes (om/get-query grid/GridRow)}
+       {:tube/gases (om/get-query grid/GridDataCell)}
+       {:app/buttons (om/get-query nav/TabButton)}
+       {:app/selected-button (om/get-query nav/TabButton)}
+       {:graph/points (om/get-query graph/Point)}
+       {:graph/x-gas-details (om/get-query graph/RectTextTick)}
+       {:graph/labels (om/get-query graph/Label)}
+       ;; Rid of this b/c of subquery
+       {:graph/trending-graph (om/get-query graph/TrendingGraph)}
+       {:graph/lines (om/get-query graph/Line)}
+       {:graph/plumb-line (om/get-query graph/PlumbLine)}
+       {:graph/misc (om/get-query graph/Misc)}
+       {:graph/x-gas-details (om/get-query graph/RectTextTick)}
+       ]))
   Object
   (render [this]
-    (let [app-props (om/props this)]
+    (let [app-props (om/props this)
+          {:keys [app/route route/data app/buttons app/selected-button]} app-props]
       (dom/div nil
                (check-default-db @my-reconciler)
-               (nav/menu-bar (:app/buttons app-props)
-                             (:app/selected-button app-props))
-               (let [selected (:name (:app/selected-button app-props))]
+               (nav/menu-bar buttons
+                             selected-button)
+               (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
                    "Trending" (grid/gas-query-panel app-props)
