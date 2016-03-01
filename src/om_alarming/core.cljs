@@ -53,6 +53,14 @@
       (halt-receiving))
     (db-format/show-hud check-result)))
 
+(def route->component
+  {:app/home Home
+   :app/about About})
+
+(def route->factory
+  (zipmap (keys route->component)
+          (map om/factory (vals route->component))))
+
 (defui App
   static om/IQuery
   (query [this]

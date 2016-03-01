@@ -20,8 +20,8 @@
 ;; the first or last point there will still be a result.
 ;;
 (defn enclosed-by [translate-horizontally-fn points x]
-  (let [_ (println "Num points to reduce over: " (count points))
-        _ (pprint points)
+  (let [;_ (println "Num points to reduce over: " (count points))
+        ;_ (pprint points)
         res (reduce (fn [acc ele] (if (empty? (:res acc))
                                     (let [cur-x (translate-horizontally-fn (:x ele))]
                                       (if (= cur-x x)
