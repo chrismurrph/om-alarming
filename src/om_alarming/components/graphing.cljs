@@ -145,16 +145,16 @@
 (defn rect-text-ticks [drop-info]
   (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line horiz-fn point-fn]} drop-info
         _ (assert (and point-fn horiz-fn))
-        _ (println "x-position: " x-position)
-        points (:graph/points current-line)
+        ;_ (println "x-position: " x-position)
+        points (sort-by :x (:graph/points current-line))
         ]
     (when (and x-position (not-empty points))
       (let [pair (process/enclosed-by horiz-fn points x-position)
-            _ (println "pair: " pair)
+            ;_ (println "pair: " pair)
             proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
-            _ (println "proportionals: " proportionals)]
-        (println "count x-gas-details: " (count x-gas-details))
-        ;(assert (:name current-label) (str "current-label has no name: <" current-label ">"))
+            ;_ (println "proportionals: " proportionals)
+            ]
+        ;(println "count x-gas-details: " (count x-gas-details))
         (dom/g nil
                (for [x-gas-info x-gas-details]
                  (rect-text-tick (om/computed x-gas-info (merge {:current-line     current-line

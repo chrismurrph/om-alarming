@@ -63,38 +63,40 @@
     {:id 10100 :graph/line {:id 102}}
     {:id 10101 :graph/line {:id 103}}
     {:id 10102 :graph/line {:id 101}}
+    {:id 10103 :graph/line {:id 100}}
     ]
    :graph/plumb-line {:id 10201
                       :visible? true
                       :x-position nil
                       :in-sticky-time? false
-                      :graph/current-line {:id 102}
-                      :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}    
+                      :graph/current-line {:id 100}
+                      :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102} {:id 10103}]}    
    :graph/lines
-   [{:id     100
+   [
+    {:id     100
      :name "Methane at 1"
      :units "%"
      :colour pink
      :intersect {:id 500}
      :graph/points []}
-    {:id     101
-     :name "Oxygen at 4"
-     :units "%"
-     :colour green
-     :intersect {:id 501}
-     :graph/points []}
-    {:id     102
-     :name "Carbon Dioxide at 2"
-     :units "%"
-     :colour blue
-     :intersect {:id 503}
-     :graph/points []}
-    {:id     103
-     :name "Carbon Monoxide at 3"
-     :units "ppm"
-     :colour red
-     :intersect {:id 502}
-     :graph/points []}
+    ;{:id     101
+    ; :name "Oxygen at 4"
+    ; :units "%"
+    ; :colour green
+    ; :intersect {:id 501}
+    ; :graph/points []}
+    ;{:id     102
+    ; :name "Carbon Dioxide at 2"
+    ; :units "%"
+    ; :colour blue
+    ; :intersect {:id 503}
+    ; :graph/points []}
+    ;{:id     103
+    ; :name "Carbon Monoxide at 3"
+    ; :units "ppm"
+    ; :colour red
+    ; :intersect {:id 502}
+    ; :graph/points []}
     ]
    :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084" 
                 :lowest 0.25 :highest 1}

@@ -4,6 +4,7 @@
             [om-alarming.util.utils :as u :refer [log distance bisect-vertical-between]]
             [om-alarming.graph.mock-values :refer [black]]
             [om-alarming.reconciler :as reconciler]
+            [cljs.pprint :refer [pprint]]
             [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
@@ -19,7 +20,8 @@
 ;; the first or last point there will still be a result.
 ;;
 (defn enclosed-by [translate-horizontally-fn points x]
-  (let [_ (println "points to reduce over: " points)
+  (let [_ (println "Num points to reduce over: " (count points))
+        _ (pprint points)
         res (reduce (fn [acc ele] (if (empty? (:res acc))
                                     (let [cur-x (translate-horizontally-fn (:x ele))]
                                       (if (= cur-x x)

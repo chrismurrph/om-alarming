@@ -39,6 +39,9 @@
         five-hundreth (/ spread 500)]
     five-hundreth))
 
+;;
+;; Returns function that will turn an external value into where it goes (height-wise) on the stage 
+;;
 (defn stage-ify-changer [lowest highest]
   (let [_ (assert lowest)
         _ (assert highest)
@@ -47,7 +50,7 @@
   (fn [central-y external-val]
     (let [external-over-central (- external-val central-y)
           stage-val-over-central (quot external-over-central divide-num)
-          stage-val (+ stage-val-over-central 499)]
+          stage-val (- 500 stage-val-over-central)]
       stage-val))))
 
 ;(log "Pixels position: " ((stage-ify-changer 19 12) 22 19))
