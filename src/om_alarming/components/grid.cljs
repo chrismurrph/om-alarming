@@ -95,6 +95,7 @@
         _ (assert (:app/gases app-props))
         _ (assert (:app/tubes app-props))
         _ (assert (:graph/trending-graph app-props))
+        _ (assert (:graph/navigator app-props))
         ;_ (println (:graph/trending-graph app-props))
         ]
     (dom/div #js {:className "ui three column internally celled grid container"}

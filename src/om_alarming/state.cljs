@@ -1,6 +1,9 @@
 (ns om-alarming.state
-  (:require [om-alarming.graph.mock-values :refer [pink green blue red]]))
+  (:require
+    [om-alarming.graph.mock-values :refer [pink green blue red]]
+    [cljs-time.core :as time]))
 
+;(def goog-date "function (opt_year, opt_month, opt_date, opt_hours,")
 (def irrelevant-keys #{:om.next/queries
                        :app/debug
                        :app/route
@@ -13,10 +16,11 @@
                        })
 (def okay-val-maps #{[:r :g :b]
                      [:horiz-fn :vert-fn :point-fn]})
-(def check-config {:excluded-keys irrelevant-keys
-                   :okay-value-maps okay-val-maps
-                   :by-id-kw "by-id"
-                   :acceptable-table-value-fn? (fn [v] (= "function Date" (subs (str (type v)) 0 13)))})
+(def check-config {:excluded-keys              irrelevant-keys
+                   :okay-value-maps            okay-val-maps
+                   :by-id-kw                   "by-id"
+                   ;:acceptable-table-value-fn? (fn [v] (= goog-date (subs (str (type v)) 0 (count goog-date))))
+                   })
 
 (def initial-state
   
@@ -80,6 +84,7 @@
    {:id 10300
     :width 640
     :height 250
+    :graph/navigator {:id 10600}
     :graph/lines [{:id 100} {:id 101} {:id 102} {:id 103}]
     :labels-visible? false
     :receiving? false
@@ -88,7 +93,13 @@
     :graph/misc {:id 10400}
     :hover-pos nil
     :last-mouse-moment nil
-    }            
+    }
+
+   :graph/navigator
+   {:id 10600
+    :end-time (time/now)
+    :span-seconds (* 60 60)}
+
    :graph/misc {:id 10400
                 :comms nil
                 :receiving-chan nil}

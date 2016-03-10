@@ -11,11 +11,12 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.nav :as nav]
             [om-alarming.components.graphing :as graph]
+            [om-alarming.components.navigator :as navigator]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
             [om-alarming.graph.incoming :as in]
-            [cljs-time.core :as t]
+            [cljs-time.core :as time]
             [om-alarming.graph.staging-area :as sa]
             [om-alarming.graph.mock-values :as db]
             [cljs.core.async :as async :refer [<!]]
@@ -48,8 +49,8 @@
                   (str "BAD: state not fully " msg-boiler))]
     (println message)
     (when (not ok?)
-      ;(pprint check-result)
-      (pprint st)
+      (pprint check-result)
+      ;(pprint st)
       (halt-receiving))
     (db-format/show-hud check-result)))
 
@@ -141,6 +142,7 @@
        {:graph/labels (om/get-query graph/Label)}
        ;; Rid of this b/c of subquery
        {:graph/trending-graph (om/get-query graph/TrendingGraph)}
+       {:graph/navigator (om/get-query navigator/GraphNavigator)}
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
@@ -191,9 +193,9 @@
                 (.. js/document (getElementById "main-app-area")))
   (p/init)
   (let [line-q-results (:graph/lines (reconciler/internal-query lines-query))
-        now (t/now)
+        now (time/now)
         now-millis (.getTime now)
-        week-ago-millis (.getTime (t/minus now (t/weeks 1)))
+        week-ago-millis (.getTime (time/minus now (time/weeks 1)))
         line-infos (map to-info line-q-results)
         _ (println "line-infos: " line-infos)
         chan (in/query-remote-server line-infos week-ago-millis now-millis)

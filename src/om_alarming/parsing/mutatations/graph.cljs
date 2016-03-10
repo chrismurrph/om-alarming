@@ -1,7 +1,6 @@
 (ns om-alarming.parsing.mutations.graph
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [mutate]]
-            [default-db-format.core :as db-format]))
+            [om-alarming.reconciler :refer [mutate]]))
 
 (defn as-mouse-changes [orig-state params]
   (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params

@@ -7,6 +7,7 @@
             [om-alarming.util.utils :as u]
             [om-alarming.graph.mock-values :refer [white light-blue black]]
             [om-alarming.components.general :as gen]
+            [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
             ))
 
@@ -213,11 +214,11 @@
      :receiving?
      :last-mouse-moment
      {:graph/lines (om/get-query Line)}
+     {:graph/navigator (om/get-query navigator/GraphNavigator)}
      :hover-pos
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     ;{:graph/drop-info (om/get-query DropInfo)}
      {:graph/translators [:point-fn :horiz-fn]}])
   Object
   (handler-fn [this comms-channel e]
@@ -234,7 +235,8 @@
           ;_ (pprint props)
           {:keys [width
                   height
-                  graph/lines 
+                  graph/lines
+                  graph/navigator
                   hover-pos 
                   graph/labels-visible? 
                   graph/misc graph/plumb-line graph/translators]} props
@@ -258,7 +260,7 @@
                           (line-component (om/computed line translators)))
                         (plumb-line-component (om/computed (merge plumb-line init) translators))
                         )
-               (dom/div nil "Here goes timing information")))))
+               (navigator/navigator navigator)))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]

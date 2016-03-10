@@ -4,8 +4,10 @@
             [om-alarming.components.nav :as nav]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
+            [om-alarming.components.navigator :as navigator]
             [om-alarming.graph.mock-values :as data :refer [white light-blue black]]
-            [cards.util :refer [render-cb-info update-cb-info]])
+            [cards.util :refer [render-cb-info update-cb-info]]
+            [cljs-time.core :as time])
   (:require-macros
     [devcards.core :as dc :refer [defcard]]))
 
@@ -33,43 +35,48 @@
 (defn merge-testing-name [drop-infos test-name]
   (mapv #(merge {:testing-name test-name} %) drop-infos))
 
-(defcard main-component
-         (fn [props _] (graph/trending-graph @props))
-         {:id 28
-          :text "main-component"
-          :graph/init {:width 640
-                       :height 250}
-          :graph/lines [{:id 0
-                         :colour black
-                         :graph/points [{:id 0
-                                         :x 30
-                                         :y 30}
-                                        {:id 1
-                                         :x 35
-                                         :y 35}]}
-                        {:id 1
-                         :colour light-blue
-                         :graph/points [{:id 0
-                                         :x 40
-                                         :y 40}
-                                        {:id 1
-                                         :x 45
-                                         :y 45}]}]}
+(defcard navigator
+         (fn [props _] (navigator/navigator @props))
+         {:end-time (time/now) :span-seconds (* 60 60)}
          {:inspect-data false})
 
-(defcard line
-         (fn [props _] (graph/simple-svg-tester @props))
-         {:id 28
-          :test-props {:testing-name "line"
-                       :graph/points [{:id 0
-                                       :rgb-map black
-                                       :x 30
-                                       :y 30}
-                                      {:id 1
-                                       :rgb-map light-blue
-                                       :x 35
-                                       :y 35}]}}
-         {:inspect-data false})
+;(defcard main-component
+;         (fn [props _] (graph/trending-graph @props))
+;         {:id 28
+;          :text "main-component"
+;          :graph/init {:width 640
+;                       :height 250}
+;          :graph/lines [{:id 0
+;                         :colour black
+;                         :graph/points [{:id 0
+;                                         :x 30
+;                                         :y 30}
+;                                        {:id 1
+;                                         :x 35
+;                                         :y 35}]}
+;                        {:id 1
+;                         :colour light-blue
+;                         :graph/points [{:id 0
+;                                         :x 40
+;                                         :y 40}
+;                                        {:id 1
+;                                         :x 45
+;                                         :y 45}]}]}
+;         {:inspect-data false})
+
+;(defcard line
+;         (fn [props _] (graph/simple-svg-tester @props))
+;         {:id 28
+;          :test-props {:testing-name "line"
+;                       :graph/points [{:id 0
+;                                       :rgb-map black
+;                                       :x 30
+;                                       :y 30}
+;                                      {:id 1
+;                                       :rgb-map light-blue
+;                                       :x 35
+;                                       :y 35}]}}
+;         {:inspect-data false})
 
 ;(defcard point
 ;         (fn [props _] (graph/simple-svg-tester @props))
@@ -113,15 +120,15 @@
 ;
 
 ;;; height visible? x-position in-sticky-time?
-(defcard plumb-line
-  (fn [props _] (graph/simple-svg-tester @props))
-  {:id 6
-   :test-props {:testing-name "plumb-line"
-                :height 100
-                :visible? true
-                :x-position 10
-                :in-sticky-time? true}}
-  )
+;(defcard plumb-line
+;  (fn [props _] (graph/simple-svg-tester @props))
+;  {:id 6
+;   :test-props {:testing-name "plumb-line"
+;                :height 100
+;                :visible? true
+;                :x-position 10
+;                :in-sticky-time? true}}
+;  )
 
 ;(defcard navbar-buttons
 ;  (fn [props _] (nav/menubar @props))
