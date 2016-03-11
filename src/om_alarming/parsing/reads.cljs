@@ -1,7 +1,8 @@
 (ns om-alarming.parsing.reads
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [read my-parser my-reconciler]]
-            [om-alarming.util.utils :as u]))
+            [om-alarming.util.utils :as u]
+            [default-db-format.core :as db-format]))
 
 (defmethod read :app/gases
   [{:keys [state query]} key _]
@@ -105,6 +106,12 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/navigator
+  [{:keys [state query]} key _]
+  (let [st @state
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :graph/points
   [{:keys [state query]} key _]
   (let [st @state
@@ -173,5 +180,6 @@
         res (get st key)
         _ (assert res (str "Nothing found at :default for supposed "
                            "top level key: " key))
+        _ (assert (not (db-format/ident? (db-format/by-id-kw-hof "by-id") res)) (str "Got ident: " res ", for key: " key))
         ]
     {:value res}))

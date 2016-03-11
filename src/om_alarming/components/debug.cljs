@@ -41,6 +41,9 @@
   [state]
   (db-format/display (get-in state [:graph/translators])))
 
+(defn navigator-debugging [state]
+  (db-format/display (get-in state [:navigator/by-id 10600])))
+
 (defn trending-graph-debugging
   [state]
   (db-format/display (remove (fn [[k _]] (= k :graph/translators)) (get-in (db-format/table-entries by-id-fn state) [:trending-graph/by-id 10300]))))
@@ -68,9 +71,10 @@
   Object
   (render [this]
     (let [props (om/props this)
-          ;_ (println "props:" (keys props))
+          _ (println "props:" (keys props))
           ;_ (println "computed props:" (keys (om/get-computed this)))
-          {:keys [receiving?]} props
+          {:keys [receiving? end-time]} props
+          _ (assert end-time)
           {:keys [state]} (om/get-computed this)]
       (dom/div nil 
                (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
@@ -78,6 +82,11 @@
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                ;(db-format/display (reconciler/internal-query lines-query))
-               (points-debugging state)
+               (dom/br nil)(dom/br nil)
+               (dom/div nil
+                      (dom/button #js {:onClick #(reconciler/alteration 'navigate/backwards {:seconds (* 60 60)} :graph/navigator)} "Back")
+                      ;#(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
+                      (str "   End time" end-time)
+                      (navigator-debugging state))
                ))))
 (def debug (om/factory Debug))

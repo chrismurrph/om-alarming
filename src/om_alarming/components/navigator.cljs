@@ -2,7 +2,8 @@
   (:require [om.dom :as dom]
             [om.next :as om :refer-macros [defui]]
             [cljs-time.format :as format-time]
-            [cljs-time.core :as time]))
+            [cljs-time.core :as time]
+            [om-alarming.parsing.mutations.navigator]))
 
 (def date-time-formatter (format-time/formatters :mysql))
 
@@ -34,14 +35,14 @@
                (dom/div #js {:className (sized "ui buttons")}
                         (dom/button #js {:className "ui icon button"
                                          :onClick #(om/transact! this `[(navigate/backwards {:seconds ~span-seconds})])}
-                                    (dom/i #js {:className "left arrow icon"})
-                                    )
+                                    (dom/i #js {:className "left arrow icon"}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"}
-                                    (dom/i #js {:className "right arrow icon"}))
+                                    (dom/i #js {:className "right arrow icon"
+                                                :onClick #(om/transact! this `[(navigate/forwards {:seconds ~span-seconds})])}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
-                                         :onClick #(om/transact! this `[(navigate/forwards {:seconds ~span-seconds})])}
+                                         :onClick #(om/transact! this `[(navigate/now)])}
                                     (dom/i #js {:className "sign in icon"}))
                         )
                (dom/div #js {:className "item"}

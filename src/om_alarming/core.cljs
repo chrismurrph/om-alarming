@@ -164,7 +164,9 @@
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")
                    "Logs" (dom/div nil "Nufin")
-                   "Debug" (debug/debug (om/computed (:graph/trending-graph app-props) {:state @my-reconciler}))
+                   "Debug" (debug/debug (om/computed (merge (u/probe "NAV" (:graph/navigator app-props))
+                                                            (:graph/trending-graph app-props))
+                                                     {:state @my-reconciler}))
                    nil (dom/div nil "Nothing selected, program has crashed!")
                    ))))))
 
