@@ -65,7 +65,7 @@
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :colour {:intersect (om/get-query Intersect)}
+    [:id :colour {:intersect (om/get-query Intersect)}
      {:graph/points (om/get-query Point)}
      ])
   Object

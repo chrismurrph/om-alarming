@@ -29,6 +29,19 @@
   ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
   )
 
+(defn lines-debugging [state]
+  (dom/div nil
+           (db-format/display (:graph/lines state))
+           (db-format/display (get-in state [:line/by-id 100]))
+           (db-format/display (get-in state [:line/by-id 101]))
+           (db-format/display (get-in state [:line/by-id 102]))
+           (db-format/display (get-in state [:line/by-id 103]))
+           (db-format/display (get-in state [:line/by-id 104]))
+           (db-format/display (get-in state [:line/by-id 105]))
+           (db-format/display (get-in state [:line/by-id 106]))
+           (db-format/display (get-in state [:line/by-id 107]))
+           (db-format/display (get-in state [:line/by-id 108]))))
+
 (defn mouse-debugging [state]
   (dom/div nil
            (db-format/display (get-in state (conj (get state :graph/trending-graph) :hover-pos)))
@@ -88,5 +101,7 @@
                       ;#(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
                       (str "   End time" end-time)
                       (navigator-debugging state))
+               (dom/div nil
+                        (lines-debugging state))
                ))))
 (def debug (om/factory Debug))

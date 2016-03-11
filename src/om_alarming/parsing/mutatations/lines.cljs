@@ -19,15 +19,9 @@
 (defn create-point [st params]
   (let [{:keys [line-name-ident x y val]} params
         {:keys [state point-ident]} (points/new-point st x y val)
-        ;; Do not get executed so why bother
-        ;_ (assert (db-format/ident? "by-id" line-name-ident))
-        ;_ (println "Received x y: " x y line-name-ident)
-        ;_ (assert (and state point))
-        ;_ (println "Created point: " point)
-        ] 
+        ]
     (-> state
         (update-in (conj line-name-ident :graph/points) conj point-ident)
-        ;(assoc :graph/points point)
         )
     ))
 
@@ -37,3 +31,39 @@
 (defmethod mutate 'graph/add-point
   [{:keys [state]} _ params]
   {:action #(swap! state create-point params)})
+
+(defn new-line
+  "Modifies the state in two places - so perfectly puts in a new line.
+  Caller needs to work on this state a little more to put the line in
+  an existing graph"
+  [st colour intersect-id]
+  (println "Look at" (count (get st :graph/lines)) " lines")
+  (let [id   (->> (om/db->tree [:id] (get st :graph/lines) st)
+                  (map :id)
+                  (cons 99)
+                  (reduce max)
+                  inc)
+        _ (println "In new-line, new id is " id)
+        line {:id id :intersect [:gas-at-location/by-id intersect-id] :colour colour :graph/points []}
+        ref  [:line/by-id id]]
+    {:line-ident ref
+     :state (-> st
+                (assoc-in ref line)
+                (update :graph/lines conj ref))}))
+
+;;
+;; To create a line we need to know the name of the graph that it is to go in
+;; and colour and id of its intersect.
+;;
+(defn create-line [st params]
+  (let [{:keys [graph-ident colour intersect-id]} params
+        {:keys [state line-ident]} (new-line st colour intersect-id)
+        ]
+    (-> state
+        (update-in (conj graph-ident :graph/lines) conj line-ident)
+        )
+    ))
+
+(defmethod mutate 'graph/add-line
+  [{:keys [state]} _ params]
+  {:action #(swap! state create-line params)})

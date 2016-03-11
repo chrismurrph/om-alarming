@@ -173,6 +173,10 @@
   (let [st @state]
     {:value (u/probe ":app/route RES:" (get st k))}))
 
+(def hof (db-format/by-id-kw-hof "by-id"))
+(defn ident? [v] (db-format/ident? hof v))
+(defn vec-of-idents? [v] (db-format/vec-of-idents? hof v))
+
 (defmethod read :default
   [{:keys [state query]} key _]
   (let [st @state
@@ -180,6 +184,7 @@
         res (get st key)
         _ (assert res (str "Nothing found at :default for supposed "
                            "top level key: " key))
-        _ (assert (not (db-format/ident? (db-format/by-id-kw-hof "by-id") res)) (str "Got ident: " res ", for key: " key))
+        _ (assert (not (ident? res)) (str "Got ident: " res ", for key: " key))
+        _ (assert (not (vec-of-idents? res)) (str "Got vec-of-idents: " res ", for key: " key))
         ]
     {:value res}))

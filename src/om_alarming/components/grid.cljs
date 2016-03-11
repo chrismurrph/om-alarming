@@ -3,7 +3,8 @@
             [om.dom :as dom]
             [om-alarming.util.util :refer [class-names]]
             [om-alarming.components.graphing :as graph]
-            [om-alarming.components.general :as gen]))
+            [om-alarming.components.general :as gen]
+            [om-alarming.parsing.mutations.lines]))
 
 ;;
 ;; Because there's no query or ident, everything comes in in props
@@ -16,9 +17,9 @@
           selected (or (:selected props) (:selected test-props))
           ]
       (dom/div #js {:className (str "ui" (if selected " checked " " ") "checkbox")}
-               (dom/input #js {:type "checkbox"
+               (dom/input #js {:type    "checkbox"
                                :checked (when selected " ")
-                               :onClick #(println "Hey! " (pick-colour-fn))})
+                               :onClick #(pick-colour-fn)})
                (dom/label nil "")))))
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
@@ -28,18 +29,20 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id {:system-gas (om/get-query gen/SystemGas)} {:tube (om/get-query gen/Location)}])
+    [:id
+     {:system-gas (om/get-query gen/SystemGas)}
+     {:tube (om/get-query gen/Location)}])
   Object
+  (pick-colour [this pick-fn id]
+    (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-fn)})]))
   (render [this]
-    (let [{:keys [id system-gas] :as props} (om/props this)
+    (let [{:keys [id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)
           {:keys [tube-num sui-col-info pick-colour-fn]} (om/get-computed this)
           ]
       (if system-gas
-        (let [gas-name (:short-name system-gas)
-              full-name (str "Tube " tube-num " " gas-name)]
-          (dom/div sui-col-info
-                   (checkbox (merge props {:name full-name :pick-colour-fn pick-colour-fn}))))
+        (dom/div sui-col-info
+                 (checkbox (merge props {:pick-colour-fn #(.pick-colour this pick-colour-fn id)})))
         (dom/div sui-col-info
                  (dom/label nil tube-num))))))
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
@@ -50,7 +53,9 @@
     [:tube/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :tube-num {:tube/gases (om/get-query GridDataCell)}])
+    [:id
+     :tube-num
+     {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
     (let [{:keys [id tube-num tube/gases]} (om/props this)
