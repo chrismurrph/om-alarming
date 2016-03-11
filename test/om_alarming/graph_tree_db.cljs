@@ -2,7 +2,7 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.graph.mock-values :refer [pink green blue red]]))
+            [om-alarming.util.colours :refer [pink green blue red]]))
 
 (comment
   "Idea to create an application with Om Next - start off with denormalized data and

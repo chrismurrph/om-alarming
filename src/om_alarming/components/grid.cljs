@@ -5,17 +5,21 @@
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.general :as gen]))
 
+;;
+;; Because there's no query or ident, everything comes in in props
+;;
 (defui CheckBox
   Object
   (render [this]
     (let [props (om/props this)
-          test-props (:test-props props)
+          {:keys [test-props pick-colour-fn]} props
           selected (or (:selected props) (:selected test-props))
           ]
       (dom/div #js {:className (str "ui" (if selected " checked " " ") "checkbox")}
-               (dom/input #js {:type "checkbox" :checked (when selected " ")})
+               (dom/input #js {:type "checkbox"
+                               :checked (when selected " ")
+                               :onClick #(println "Hey! " (pick-colour-fn))})
                (dom/label nil "")))))
-
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
 (defui GridDataCell
@@ -24,22 +28,20 @@
     [:gas-at-location/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :selected {:system-gas (om/get-query gen/SystemGas)} {:tube (om/get-query gen/Location)}])
+    [:id {:system-gas (om/get-query gen/SystemGas)} {:tube (om/get-query gen/Location)}])
   Object
   (render [this]
     (let [{:keys [id system-gas] :as props} (om/props this)
           ;_ (println "PROPs" props)
-          {:keys [tube-num sui-col-info]} (om/get-computed this)
-          ;sui-col-info #js {:className "two wide column center aligned"}
+          {:keys [tube-num sui-col-info pick-colour-fn]} (om/get-computed this)
           ]
       (if system-gas
         (let [gas-name (:short-name system-gas)
               full-name (str "Tube " tube-num " " gas-name)]
           (dom/div sui-col-info
-                   (checkbox (om/computed props {:full-name full-name}))))
+                   (checkbox (merge props {:name full-name :pick-colour-fn pick-colour-fn}))))
         (dom/div sui-col-info
                  (dom/label nil tube-num))))))
-
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
 
 (defui GridRow
@@ -59,7 +61,6 @@
       (dom/div #js {:className "row"}
                (for [gas hdr-and-gases]
                  (grid-data-cell (om/computed gas (merge {:tube-num tube-num} (om/get-computed this)))))))))
-
 (def grid-row (om/factory GridRow {:keyfn :id}))
 
 (defui GridHeaderLabel
@@ -72,7 +73,6 @@
           ]
       (dom/div sui-col-info
                (dom/label nil short-name)))))
-
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
 (defui GridHeaderRow
@@ -86,11 +86,11 @@
       (dom/div #js {:className "row"}
                (for [gas hdr-gases]
                  (grid-header-label (om/computed gas (om/get-computed this))))))))
-
 (def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
 
-(defn gas-query-panel [app-props]
+(defn gas-query-panel [app-props pick-colour-fn]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
+        grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn})
         sui-grid-info #js {:className "ui column grid"}
         _ (assert (:app/gases app-props))
         _ (assert (:app/tubes app-props))
@@ -103,6 +103,6 @@
                       (dom/div sui-grid-info
                                (grid-header-row (om/computed (select-keys app-props [:app/gases]) sui-col-info-map))
                                (for [tube (:app/tubes app-props)]
-                                 (grid-row (om/computed tube sui-col-info-map)))))
+                                 (grid-row (om/computed tube grid-row-computed)))))
              (dom/div #js {:className "two wide column"}
                       (graph/trending-graph (:graph/trending-graph app-props))))))

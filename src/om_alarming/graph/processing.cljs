@@ -2,7 +2,7 @@
   (:require [goog.string :as gstring]
             [goog.string.format]
             [om-alarming.util.utils :as u :refer [log distance bisect-vertical-between]]
-            [om-alarming.graph.mock-values :refer [black]]
+            [om-alarming.util.colours :refer [black]]
             [om-alarming.reconciler :as reconciler]
             [cljs.pprint :refer [pprint]]
             [cljs.core.async :as async

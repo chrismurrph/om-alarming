@@ -5,7 +5,7 @@
              :refer [<! >! chan close! put! timeout]]
             [om-alarming.graph.processing :as process]
             [om-alarming.util.utils :as u]
-            [om-alarming.graph.mock-values :refer [white light-blue black]]
+            [om-alarming.util.colours :refer [white light-blue black]]
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
@@ -65,7 +65,7 @@
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name :units :colour {:intersect (om/get-query Intersect)}
+    [:id :name :colour {:intersect (om/get-query Intersect)}
      {:graph/points (om/get-query Point)}
      ])
   Object
@@ -74,7 +74,7 @@
           {:keys [point-fn]} (om/get-computed this)
           _ (assert point-fn)
           ;_ (println "Line props:" props)
-          {:keys [name units colour intersect graph/points]} props
+          {:keys [name colour intersect graph/points]} props
           ;_ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
@@ -104,7 +104,7 @@
               ;_ (println "colour will be " colour-str)
               units-str (:units current-line)
               hidden? (not= line current-line)
-              ;_ (when (not hidden?) (println "= " (:name line) (:name current-line)))
+              _ (when (not hidden?) (println "NOT HIDDEN = " (:intersect line) (:intersect current-line)))
               text-props {:opacity     (if hidden? 0.0 1.0)
                           :x           (+ x 10)
                           :y           (+ proportional-y 4)
@@ -283,6 +283,5 @@
       (dom/div nil
                (dom/svg {:width width :height height}
                         (testing-component testing-name test-props))))))
-
 (def simple-svg-tester (om/factory SimpleSVGTester {:keyfn :id}))
 

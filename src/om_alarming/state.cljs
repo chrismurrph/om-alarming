@@ -1,6 +1,6 @@
 (ns om-alarming.state
   (:require
-    [om-alarming.graph.mock-values :refer [pink green blue red]]
+    [om-alarming.util.colours :refer [pink green blue red]]
     [cljs-time.core :as time]))
 
 ;(def goog-date "function (opt_year, opt_month, opt_date, opt_hours,")
@@ -23,7 +23,7 @@
                    })
 
 (def initial-state
-  
+
   {
    :app/route [:app/map '_]
    :app/map {:id 10500
@@ -47,7 +47,7 @@
    :app/debug {:id 10506
                :debug/name        "Debug"
                :debug/description "Debug while developing"}
-   
+
    :app/selected-button {:id 1}
    :app/buttons
    [{:id          1
@@ -79,7 +79,7 @@
      :description "Debug while developing"
      :showing?     true}
     ]
-   
+
    :graph/trending-graph
    {:id 10300
     :width 640
@@ -115,42 +115,34 @@
                       :x-position nil
                       :in-sticky-time? false
                       :graph/current-line {:id 101}
-                      :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102} {:id 10103}]}    
+                      :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102} {:id 10103}]}
    :graph/lines
    [
     {:id     100
-     :name "Methane at 1"
-     :units "%"
      :colour pink
      :intersect {:id 500}
      :graph/points []}
     {:id     101
-     :name "Oxygen at 4"
-     :units "%"
      :colour green
      :intersect {:id 501}
      :graph/points []}
     {:id     102
-     :name "Carbon Dioxide at 2"
-     :units "%"
      :colour blue
      :intersect {:id 503}
      :graph/points []}
     {:id     103
-     :name "Carbon Monoxide at 3"
-     :units "ppm"
      :colour red
      :intersect {:id 502}
      :graph/points []}
     ]
-   :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084" 
-                :lowest 0.25 :highest 1}
-               {:id 151 :long-name "Oxygen" :short-name "O\u2082" 
-                :lowest 19 :highest 12}
-               {:id 152 :long-name "Carbon Monoxide" :short-name "CO" 
-                :lowest 30 :highest 55}
-               {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082" 
-                :lowest 0.5 :highest 1.35}]
+   :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"
+                :lowest 0.25 :highest 1 :units "%"}
+               {:id 151 :long-name "Oxygen" :short-name "O\u2082"
+                :lowest 19 :highest 12 :units "%"}
+               {:id 152 :long-name "Carbon Monoxide" :short-name "CO"
+                :lowest 30 :highest 55 :units "ppm"}
+               {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"
+                :lowest 0.5 :highest 1.35 :units "%"}]
    :graph/points []
    :app/tubes
    [{:id    1000
@@ -227,8 +219,7 @@
    :tube/gases
    [{:id       500
      :system-gas {:id 150}
-     :tube {:id 1000}
-     :selected true}
+     :tube {:id 1000}}
     {:id  501
      :system-gas {:id 151}
      :tube {:id 1000}}
@@ -263,16 +254,14 @@
      :tube {:id 1002}}
     {:id       511
      :system-gas      {:id 153}
-     :tube {:id 1002}
-     :selected true}
+     :tube {:id 1002}}
 
     {:id  512
      :system-gas {:id 150}
      :tube {:id 1003}}
     {:id       513
      :system-gas      {:id 151}
-     :tube {:id 1003}
-     :selected true}
+     :tube {:id 1003}}
     {:id  514
      :system-gas {:id 152}
      :tube {:id 1003}}

@@ -6,6 +6,7 @@
             [om-alarming.reconciler :as reconciler :refer [my-reconciler]]
             [om-alarming.parsing.reads]
             [om-alarming.util.utils :as u]
+            [om-alarming.util.colours :as colours]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.debug :as debug]
             [om-alarming.components.general :as gen]
@@ -16,6 +17,7 @@
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
             [om-alarming.graph.incoming :as in]
+            [om-alarming.util.colours :as colours]
             [cljs-time.core :as time]
             [om-alarming.graph.staging-area :as sa]
             [om-alarming.graph.mock-values :as db]
@@ -149,9 +151,13 @@
        {:graph/x-gas-details (om/get-query graph/RectTextTick)}
        ]))
   Object
+  (pick-colour [this existing-colours]
+    (colours/new-random-colour existing-colours))
   (render [this]
     (let [app-props (om/props this)
-          {:keys [app/route route/data app/buttons app/selected-button]} app-props]
+          {:keys [app/route route/data app/buttons app/selected-button graph/lines]} app-props
+          existing-colours (into #{} (map :colour lines))
+          _ (println "colours: " existing-colours)]
       (dom/div nil
                (check-default-db @my-reconciler)
                (nav/menu-bar buttons
@@ -159,7 +165,7 @@
                (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel app-props)
+                   "Trending" (grid/gas-query-panel app-props #(.pick-colour this existing-colours))
                    "Thresholds" (dom/div nil "Nufin")
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")

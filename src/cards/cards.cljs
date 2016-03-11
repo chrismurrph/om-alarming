@@ -5,7 +5,8 @@
             [om-alarming.components.grid :as grid]
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.navigator :as navigator]
-            [om-alarming.graph.mock-values :as data :refer [white light-blue black]]
+            [om-alarming.util.colours :refer [white light-blue black]]
+            [om-alarming.graph.mock-values :as data]
             [cards.util :refer [render-cb-info update-cb-info]]
             [cljs-time.core :as time])
   (:require-macros
