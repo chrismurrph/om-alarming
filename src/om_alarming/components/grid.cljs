@@ -27,11 +27,15 @@
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
+  static om/IQueryParams
+  (params [this]
+    {:intersect-id nil})
   static om/IQuery
   (query [this]
     [:id
      {:system-gas (om/get-query gen/SystemGas)}
-     {:tube (om/get-query gen/Location)}])
+     {:tube (om/get-query gen/Location)}
+     '[(:trending/selected? {:intersect-id ?intersect-id})]])
   Object
   (pick-colour [this pick-fn id]
     (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-fn)})]))
@@ -40,6 +44,7 @@
           ;_ (println "PROPs" props)
           {:keys [tube-num sui-col-info pick-colour-fn]} (om/get-computed this)
           ]
+      (om/set-query! this {:params {:intersect-id id}})
       (if system-gas
         (dom/div sui-col-info
                  (checkbox (merge props {:pick-colour-fn #(.pick-colour this pick-colour-fn id)})))

@@ -148,7 +148,6 @@
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
-       {:graph/x-gas-details (om/get-query graph/RectTextTick)}
        ]))
   Object
   (pick-colour [this existing-colours]

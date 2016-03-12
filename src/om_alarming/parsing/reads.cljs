@@ -147,13 +147,13 @@
     {:value (om/db->tree query (get st key) st)}))
 
 (defmethod read :in-sticky-time?
-  [{:keys [state _]} key _]
+  [{:keys [state]} key _]
   (let [st @state
         _ (println "In in-sticky-time? for:" key)]
     {:value (get-in st [:plumb-line/by-id 10201 :in-sticky-time?])}))
 
 (defmethod read :receiving-chan
-  [{:keys [state _]} key _]
+  [{:keys [state]} key _]
   (let [st @state]
     {:value (get-in st [:graph/misc :receiving-chan])}))
 
@@ -172,6 +172,17 @@
   [{:keys [state query]} k _]
   (let [st @state]
     {:value (u/probe ":app/route RES:" (get st k))}))
+
+(defmethod read :trending/selected?
+  [{:keys [state] :as env} key {:keys [intersect-id]}]
+  (let [st @state]
+    {:value nil
+     ;;
+     ;; Was just starting when decided against this idea. Would first need to:
+     ;; (get st :graph/lines)
+     ;; filter on these idents with get-in returning only where :intersect matches intersect-id
+     ;;
+     }))
 
 (def hof (db-format/by-id-kw-hof "by-id"))
 (defn ident? [v] (db-format/ident? hof v))
