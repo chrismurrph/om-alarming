@@ -3,7 +3,9 @@
             [om.dom :as dom]
             [om-alarming.reconciler :as reconciler]
             [om-alarming.state :as state]
-            [default-db-format.core :as db-format]))
+            [default-db-format.core :as db-format]
+            [om-alarming.util.utils :as u]
+            [om-alarming.util.colours :as colours]))
 
 (defn add-point-to-line [state line-ident point-ident]
   (update-in state (conj line-ident :graph/points) conj point-ident))
@@ -31,16 +33,18 @@
 
 (defn lines-debugging [state]
   (dom/div nil
+           (dom/button #js {:onClick #(reconciler/alteration
+                                       'graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501}
+                                       ;'graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501 :colour colours/red} nil
+                                       )} "Remove line")
            (db-format/display (:graph/lines state))
-           (db-format/display (get-in state [:line/by-id 100]))
-           (db-format/display (get-in state [:line/by-id 101]))
-           (db-format/display (get-in state [:line/by-id 102]))
-           (db-format/display (get-in state [:line/by-id 103]))
-           (db-format/display (get-in state [:line/by-id 104]))
-           (db-format/display (get-in state [:line/by-id 105]))
-           (db-format/display (get-in state [:line/by-id 106]))
-           (db-format/display (get-in state [:line/by-id 107]))
-           (db-format/display (get-in state [:line/by-id 108]))))
+           (db-format/display (get state :line/by-id))
+           (dom/br nil)
+           (db-format/display (get state :graph/lines))
+           ;(db-format/display (u/remove-value (get state :graph/lines) [:line/by-id 102]))
+           ;(db-format/display (filter (fn [v] (= [:gas-at-location/by-id 500] (:intersect v))) (vals (get state :line/by-id))))
+           ;(db-format/display (:id (first (filter (fn [v] (= [:gas-at-location/by-id 500] (:intersect v))) (vals (get state :line/by-id))))))
+           ))
 
 (defn mouse-debugging [state]
   (dom/div nil
@@ -75,12 +79,12 @@
   (db-format/display (get-in-ids state (some-tube state)))
   )
 
-(def lines-query [{:graph/lines [:id {:intersect [{:system-gas [:lowest :highest]}]}]}])
+(def lines-query [{:graph/lines [:id]}])
 
 (defui Debug
-  ;static om/IQuery
-  ;(query [_]
-  ;  [{:graph/drop-info [:graph/receiving?]}])
+  static om/IQuery
+  (query [_]
+    lines-query)
   Object
   (render [this]
     (let [props (om/props this)
@@ -97,10 +101,11 @@
                ;(db-format/display (reconciler/internal-query lines-query))
                (dom/br nil)(dom/br nil)
                (dom/div nil
-                      (dom/button #js {:onClick #(reconciler/alteration 'navigate/backwards {:seconds (* 60 60)} :graph/navigator)} "Back")
-                      ;#(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
-                      (str "   End time" end-time)
-                      (navigator-debugging state))
+                        (dom/button #js {:onClick #(reconciler/alteration 'navigate/backwards {:seconds (* 60 60)} :graph/navigator)} "Back")
+                        ;#(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
+                        (str "   End time" end-time)
+                        ;(navigator-debugging state)
+                        )
                (dom/div nil
                         (lines-debugging state))
                ))))

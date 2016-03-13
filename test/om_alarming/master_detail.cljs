@@ -2,11 +2,11 @@
    (:require [om.next :as om :refer-macros [defui]]
              [om.dom :as dom]
              [cljs.pprint :as pp :refer [pprint]]
-             [om-alarming.graph.mock-values :refer [pink green blue red]]))
+             [om-alarming.util.colours :refer [pink green blue red]]))
 
 (enable-console-print!)
 
-(def initial-state
+(def norm-state
   {:graph/drop-info
    {:id            10200 ;; React can use to differentiate
     :x             50
@@ -131,8 +131,8 @@
 
 (def reconciler
   (om/reconciler {:normalize true ;; Documentation
-                  :state initial-state
-                  :parser parser}))
+                  :state     norm-state
+                  :parser    parser}))
 
 (defn show-db
   "(in-ns 'om-alarming/graph-tree-db)

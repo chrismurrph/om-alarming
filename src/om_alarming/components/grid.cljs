@@ -13,13 +13,13 @@
   Object
   (render [this]
     (let [props (om/props this)
-          {:keys [test-props pick-colour-fn]} props
-          selected (or (:selected props) (:selected test-props))
+          {:keys [test-props pick-fn]} props
+          selected? (or (:selected? props) (:selected? test-props))
           ]
-      (dom/div #js {:className (str "ui" (if selected " checked " " ") "checkbox")}
+      (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
                (dom/input #js {:type    "checkbox"
-                               :checked (when selected " ")
-                               :onClick #(pick-colour-fn)})
+                               :checked (when selected? " ")
+                               :onClick #(pick-fn)})
                (dom/label nil "")))))
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
@@ -27,30 +27,37 @@
   static om/Ident
   (ident [this props]
     [:gas-at-location/by-id (:id props)])
-  static om/IQueryParams
-  (params [this]
-    {:intersect-id nil})
   static om/IQuery
   (query [this]
     [:id
      {:system-gas (om/get-query gen/SystemGas)}
-     {:tube (om/get-query gen/Location)}
-     '[(:trending/selected? {:intersect-id ?intersect-id})]])
+     {:tube (om/get-query gen/Location)}])
   Object
-  (pick-colour [this pick-fn id]
-    (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-fn)})]))
+  (pick [this pick-colour-fn id selected?]
+    (if selected?
+      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :app/gases])
+      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})])))
   (render [this]
     (let [{:keys [id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)
-          {:keys [tube-num sui-col-info pick-colour-fn]} (om/get-computed this)
+          {:keys [tube-num sui-col-info pick-colour-fn selected?]} (om/get-computed this)
+          _ (assert pick-colour-fn)
           ]
-      (om/set-query! this {:params {:intersect-id id}})
       (if system-gas
         (dom/div sui-col-info
-                 (checkbox (merge props {:pick-colour-fn #(.pick-colour this pick-colour-fn id)})))
+                 (checkbox (merge props {:selected? selected? :pick-fn #(.pick this pick-colour-fn id selected?)})))
         (dom/div sui-col-info
                  (dom/label nil tube-num))))))
 (def grid-data-cell (om/factory GridDataCell {:keyfn :id}))
+
+(defn selected?
+  "Is the gas, which is really gas at location (intersect), one of the ones that there's a line for?"
+  [gas line-intersect-ids]
+  (let [intersect-id (:id gas) ;; a gas id is the same as an intersect id
+        res (some #{intersect-id} line-intersect-ids)
+        ;_ (println "Going thru " line-intersect-ids " looking for intersect id " intersect-id " got " res)
+        ]
+    res))
 
 (defui GridRow
   static om/Ident
@@ -64,13 +71,15 @@
   Object
   (render [this]
     (let [{:keys [id tube-num tube/gases]} (om/props this)
-          ;{:keys [sui-col-info]} (om/get-computed this)
+          {:keys [graph/lines]} (om/get-computed this)
+          lines-intersect-ids (map #(-> % :intersect :id) lines)
           ;_ (println "gases: " gases)
+          ;_ (println "lines: " lines)
           hdr-and-gases (into [{:id 0}] gases)
           ]
       (dom/div #js {:className "row"}
                (for [gas hdr-and-gases]
-                 (grid-data-cell (om/computed gas (merge {:tube-num tube-num} (om/get-computed this)))))))))
+                 (grid-data-cell (om/computed gas (merge {:tube-num tube-num} {:selected? (selected? gas lines-intersect-ids)} (om/get-computed this)))))))))
 (def grid-row (om/factory GridRow {:keyfn :id}))
 
 (defui GridHeaderLabel
@@ -100,7 +109,7 @@
 
 (defn gas-query-panel [app-props pick-colour-fn]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
-        grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn})
+        grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn} (select-keys app-props [:graph/lines]))
         sui-grid-info #js {:className "ui column grid"}
         _ (assert (:app/gases app-props))
         _ (assert (:app/tubes app-props))

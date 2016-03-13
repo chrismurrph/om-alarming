@@ -150,13 +150,12 @@
        {:graph/misc (om/get-query graph/Misc)}
        ]))
   Object
-  (pick-colour [this existing-colours]
-    (colours/new-random-colour existing-colours))
+  (pick-colour [this cols]
+    (colours/new-random-colour cols))
   (render [this]
     (let [app-props (om/props this)
           {:keys [app/route route/data app/buttons app/selected-button graph/lines]} app-props
-          existing-colours (into #{} (map :colour lines))
-          _ (println "colours: " existing-colours)]
+          existing-colours (into #{} (map :colour lines))]
       (dom/div nil
                (check-default-db @my-reconciler)
                (nav/menu-bar buttons

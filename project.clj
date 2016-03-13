@@ -24,7 +24,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "kanban.tree-db"
+                        :compiler {:main       "om-alarming.test-mutations"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"

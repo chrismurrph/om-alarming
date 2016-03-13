@@ -1,4 +1,15 @@
-(ns om-alarming.util.utils)
+(ns ^:figwheel-always om-alarming.util.utils
+  (:require [clojure.string :as str]
+            [clojure.set :as cset]))
+
+;; http://sids.github.io/nerchuko/utils-api.html
+(defn unselect-keys
+  "Opposite of select-keys: returns a map containing only those
+entries whose key is not in keys."
+  [m keyseq]
+  (select-keys m
+               (cset/difference (set (keys m))
+                                       keyseq)))
 
 (defn bisect-vertical-between [[x0 y0 val0] [x1 y1 val1] x]
   (assert x)
@@ -34,7 +45,7 @@
     (round now-squared)))
 
 (defn probe [msg obj]
-  (println (str (clojure.string/upper-case msg) ": " obj))
+  (println (str (str/upper-case msg) ": " obj))
   obj)
 
 (defn log [& txts]
@@ -42,6 +53,23 @@
 
 (defn no-log [& txts]
   ())
+
+(defn first-only [seq]
+  ;(assert (<= 1 (count seq)))
+  (assert (= nil (second seq))) ;; better perf to check this way than count way
+  (first seq))
+
+(defn remove-value
+  "If you are using this then question why vect is not a set in the first place"
+  [vect valu]
+  (assert (vector? vect))
+  (let [as-set (into #{} vect)
+        _ (assert (= (count as-set) (count vect))
+                  "Not intended for removing a value where it is not there or > 1 there")
+        res (vec (remove #{valu} as-set))
+        _ (println "Down to " (count res) " from " (count vect) " b/c removed " valu)
+        ]
+    res))
 
 (defn str-seq
   ([seq msg]

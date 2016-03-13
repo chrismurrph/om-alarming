@@ -2,7 +2,8 @@
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]
             [om-alarming.parsing.mutations.points :as points]
-            [default-db-format.core :as db-format]))
+            [default-db-format.core :as db-format]
+            [om-alarming.util.utils :as u]))
 
 (defn add-to-points [points ref]
   (println "Adding: " ref " to: " points)
@@ -37,7 +38,7 @@
   Caller needs to work on this state a little more to put the line in
   an existing graph"
   [st colour intersect-id]
-  (println "Look at" (count (get st :graph/lines)) " lines")
+  (println "Look at" (count (get st :graph/lines)) " lines, new one to be " colour)
   (let [id   (->> (om/db->tree [:id] (get st :graph/lines) st)
                   (map :id)
                   (cons 99)
@@ -64,6 +65,30 @@
         )
     ))
 
+(defn delete-line [st intersect-id]
+  (let [intersect-ident [:gas-at-location/by-id intersect-id]
+        line-id (:id (u/first-only (filter (fn [v] (= intersect-ident (:intersect v))) (vals (get st :line/by-id)))))
+        line-ident [:line/by-id line-id]
+        ]
+    {:line-ident line-ident
+     :state      (-> st
+                     (update :graph/lines u/remove-value line-ident)
+                     (update :line/by-id u/unselect-keys [line-id])
+                     )}))
+
+(defn rem-line [st params]
+  (let [{:keys [graph-ident intersect-id]} params
+        {:keys [state line-ident]} (delete-line st intersect-id)
+        ]
+    (-> state
+        (update-in (conj graph-ident :graph/lines) u/remove-value line-ident)
+        )
+    ))
+
 (defmethod mutate 'graph/add-line
   [{:keys [state]} _ params]
   {:action #(swap! state create-line params)})
+
+(defmethod mutate 'graph/remove-line
+  [{:keys [state]} _ params]
+  {:action #(swap! state rem-line params)})
