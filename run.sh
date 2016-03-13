@@ -1,1 +1,1 @@
-lein figwheel dev
+rlwrap lein figwheel dev

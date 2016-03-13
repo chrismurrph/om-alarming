@@ -15,11 +15,12 @@
     (let [props (om/props this)
           {:keys [test-props pick-fn]} props
           selected? (or (:selected? props) (:selected? test-props))
+          _ (println "cb created, selected: " selected?)
           ]
       (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
                (dom/input #js {:type    "checkbox"
                                :checked (when selected? " ")
-                               :onClick #(pick-fn)})
+                               :onClick (fn [] (pick-fn) false)})
                (dom/label nil "")))))
 (def checkbox (om/factory CheckBox {:keyfn :id}))
 
@@ -36,7 +37,7 @@
   (pick [this pick-colour-fn id selected?]
     (if selected?
       (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :app/gases])
-      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})])))
+      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :app/gases])))
   (render [this]
     (let [{:keys [id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)

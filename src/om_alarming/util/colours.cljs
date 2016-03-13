@@ -18,5 +18,6 @@
 (defn new-random-colour
   [existing-colours]
   (assert (set? existing-colours) (str "Not a set but a " (type existing-colours)))
+  (println "Existing: " existing-colours)
   (let [remaining (vec (set/difference all-line-colours existing-colours))]
-    (rand-nth remaining)))
+    (when (seq remaining) (rand-nth remaining))))

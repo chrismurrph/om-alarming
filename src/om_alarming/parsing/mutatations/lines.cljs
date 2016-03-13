@@ -57,13 +57,12 @@
 ;; and colour and id of its intersect.
 ;;
 (defn create-line [st params]
-  (let [{:keys [graph-ident colour intersect-id]} params
-        {:keys [state line-ident]} (new-line st colour intersect-id)
-        ]
-    (-> state
-        (update-in (conj graph-ident :graph/lines) conj line-ident)
-        )
-    ))
+  (let [{:keys [graph-ident colour intersect-id]} params]
+    (if colour
+      (let [{:keys [state line-ident]} (new-line st colour intersect-id)]
+        (-> state
+            (update-in (conj graph-ident :graph/lines) conj line-ident)))
+      st)))
 
 (defn delete-line [st intersect-id]
   (let [intersect-ident [:gas-at-location/by-id intersect-id]
@@ -78,12 +77,9 @@
 
 (defn rem-line [st params]
   (let [{:keys [graph-ident intersect-id]} params
-        {:keys [state line-ident]} (delete-line st intersect-id)
-        ]
+        {:keys [state line-ident]} (delete-line st intersect-id)]
     (-> state
-        (update-in (conj graph-ident :graph/lines) u/remove-value line-ident)
-        )
-    ))
+        (update-in (conj graph-ident :graph/lines) u/remove-value line-ident))))
 
 (defmethod mutate 'graph/add-line
   [{:keys [state]} _ params]

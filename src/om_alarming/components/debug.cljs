@@ -88,7 +88,7 @@
   Object
   (render [this]
     (let [props (om/props this)
-          _ (println "props:" (keys props))
+          ;_ (println "props:" (keys props))
           ;_ (println "computed props:" (keys (om/get-computed this)))
           {:keys [receiving? end-time]} props
           _ (assert end-time)
