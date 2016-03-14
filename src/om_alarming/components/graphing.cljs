@@ -45,10 +45,10 @@
 (defui Intersect
   static om/Ident
   (ident [this props]
-    [:gas-at-location/by-id (:id props)])
+    [:gas-at-location/by-id (:grid-cell/id props)])
   static om/IQuery
   (query [this]
-    [:id :value {:tube (om/get-query gen/Location)}
+    [:grid-cell/id :value {:tube (om/get-query gen/Location)}
      {:system-gas (om/get-query gen/SystemGas)}]))
 
 (defui Misc

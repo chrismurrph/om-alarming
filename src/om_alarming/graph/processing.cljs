@@ -128,7 +128,9 @@
                         ;_ (assert in-sticky-time? "Must have")
                         ]
                     (reconciler/alteration 'graph/mouse-change
-                                           {:in-sticky-time?       in-sticky-time? :hover-pos x :last-mouse-moment now-moment
+                                           {:in-sticky-time? in-sticky-time?
+                                            :hover-pos x
+                                            :last-mouse-moment now-moment
                                             :graph/labels-visible? false}
                                            :graph/trending-graph)
                     (recur x y cur-x cur-y))
