@@ -116,40 +116,6 @@
 (defn boolean? [v]
   (or (true? v) (false? v)))
 
-(defn- controller [inchan]
-  (go-loop [cur-x nil cur-y nil old-x nil old-y nil]
-           (match [(<! inchan)]
-
-                  [{:type "mousemove" :x x :y y}]
-                  (let [now-moment (now-time)
-                        res (reconciler/internal-query [{:graph/trending-graph [{:graph/plumb-line [:in-sticky-time?]}]}])
-                        ;_ (println "RES: " (-> res :graph/trending-graph :graph/plumb-line))
-                        in-sticky-time? (-> res :graph/trending-graph :graph/plumb-line :in-sticky-time?)
-                        ;_ (assert in-sticky-time? "Must have")
-                        ]
-                    (reconciler/alteration 'graph/mouse-change
-                                           {:in-sticky-time? in-sticky-time?
-                                            :hover-pos x
-                                            :last-mouse-moment now-moment
-                                            :graph/labels-visible? false}
-                                           :graph/trending-graph)
-                    (recur x y cur-x cur-y))
-
-                  [{:type "mouseup" :x x :y y}]
-                  (let [res (reconciler/internal-query [{:graph/trending-graph [{:graph/plumb-line [:in-sticky-time?]}]}])
-                        _ (println "RES: " res)
-                        in-sticky-time? (-> res :graph/trending-graph :graph/plumb-line :in-sticky-time?)
-                        _ (assert (boolean? in-sticky-time?))
-                        opposite (not in-sticky-time?)
-                        ]
-                    (reconciler/alteration 'graph/in-sticky-time?
-                                           {:in-sticky-time? opposite})
-                    (recur x y old-x old-y))
-
-                  [_]
-                  (do
-                    (recur cur-x cur-y old-x old-y)))))
-
 ;;
 ;; keyword options:
 ;; :height :width :trans-point :get-positions :get-colour
@@ -158,7 +124,7 @@
 ;;
 (defn init []
   (let [ch (chan)
-        proc (controller ch)
+        ;proc (controller ch)
         options-map (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:width :height]}]))
         _ (println "Created a controller, back: " options-map)
         misc (into {:comms ch} options-map)
@@ -176,5 +142,5 @@
     (reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
     ;; Leaving in for curiosity
     (go
-      (let [exit (<! proc)]
+      #_(let [exit (<! proc)]
         (prn :exit! exit)))))

@@ -6,6 +6,13 @@
             [om-alarming.components.general :as gen]
             [om-alarming.parsing.mutations.lines]))
 
+(comment
+  (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
+           (dom/input #js {:type    "checkbox"
+                           :checked selected?
+                           :onClick (fn [e] #_(.preventDefault e) (pick-fn))})
+           (dom/label nil "")))
+
 ;;
 ;; Because there's no query or ident, everything comes in in computed props
 ;;
@@ -16,12 +23,12 @@
           {:keys [test-props pick-fn]} comp-props
           selected? (or (:selected? comp-props) (:selected? test-props))
           ;; Unfortunately you just have to check one and it creates them all
-          ;_ (println "cb created, selected: " selected?)
+          _ (println "cb created, selected: " selected?)
           ]
       (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
                (dom/input #js {:type    "checkbox"
-                               :checked (when selected? " ")
-                               :onClick (fn [e] (.preventDefault e) (pick-fn))})
+                               :checked (boolean selected?) ;; <- Note boolean function - js needs it!
+                               :onClick (fn [_] (pick-fn))})
                (dom/label nil "")))))
 (def checkbox (om/factory CheckBox))
 

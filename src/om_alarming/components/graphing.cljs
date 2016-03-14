@@ -9,7 +9,7 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            ))
+            [om-alarming.reconciler :as reconciler]))
 
 (def careless-text-props (clj->js {:x  10 :y 20
                           :stroke      (process/rgb-map-to-str black)
@@ -178,8 +178,9 @@
   (render [this]
     (let [props (om/props this)
           {:keys [id height visible? x-position in-sticky-time?]} props
-          {:keys [horiz-fn point-fn]} (om/get-computed this)
+          {:keys [horiz-fn point-fn comms-channel]} (om/get-computed this)
           _ (assert horiz-fn)
+          _ (assert comms-channel)
           stroke-width (if in-sticky-time? 2 1)
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -201,6 +202,10 @@
   static om/IQuery
   (query [this]
     [:id :name :dec-places]))
+
+(defn- now-time [] (js/Date.))
+(defn boolean? [v]
+  (or (true? v) (false? v)))
 
 (defui TrendingGraph
   static om/Ident
@@ -226,9 +231,29 @@
     (let [bounds (. (dom/node this) getBoundingClientRect)
           y (- (.-clientY e) (.-top bounds))
           x (- (.-clientX e) (.-left bounds))
+          mouse-evt-type (.-type e)
           ;_ (println x y "in" comms-channel)
           ]
-      (put! comms-channel {:type (.-type e) :x x :y y})
+      ;(put! comms-channel {:type (.-type e) :x x :y y})
+      (case mouse-evt-type
+        "mousemove" (let [now-moment (now-time)
+                          plumb-line (:graph/plumb-line (om/props this))
+                          in-sticky-time? (:in-sticky-time? plumb-line)
+                          _ (println "in-sticky-time?, x: " in-sticky-time? x)
+                          ]
+                      (om/transact! this `[(graph/mouse-change {:in-sticky-time? ~in-sticky-time?
+                                                                :hover-pos ~x
+                                                                :last-mouse-moment ~now-moment
+                                                                :graph/labels-visible? false})
+                                           :graph/plumb-line]))
+        "mouseup" (let [plumb-line (:graph/plumb-line (om/props this))
+                        in-sticky-time? (:in-sticky-time? plumb-line)
+                        _ (assert (boolean? in-sticky-time?))
+                        opposite (not in-sticky-time?)
+                        ]
+                    (om/transact! this `[(graph/in-sticky-time? {:in-sticky-time? ~opposite})
+                                         :graph/plumb-line]))
+        "mousedown")
       nil))
   (render [this]
     (let [props (om/props this)
@@ -258,7 +283,7 @@
                (dom/svg (clj->js init-props)
                         (for [line lines]
                           (line-component (om/computed line translators)))
-                        (plumb-line-component (om/computed (merge plumb-line init) translators))
+                        (plumb-line-component (om/computed (merge plumb-line init) (merge translators {:comms-channel comms-channel})))
                         )
                (navigator/navigator navigator)))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
