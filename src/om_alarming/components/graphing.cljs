@@ -178,9 +178,9 @@
   (render [this]
     (let [props (om/props this)
           {:keys [id height visible? x-position in-sticky-time?]} props
-          {:keys [horiz-fn point-fn comms-channel]} (om/get-computed this)
+          {:keys [horiz-fn point-fn]} (om/get-computed this)
           _ (assert horiz-fn)
-          _ (assert comms-channel)
+          ;_ (assert comms-channel)
           stroke-width (if in-sticky-time? 2 1)
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -226,8 +226,8 @@
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/translators [:point-fn :horiz-fn]}])
   Object
-  (handler-fn [this comms-channel e]
-    (assert comms-channel)
+  (handler-fn [this e]
+    ;(assert comms-channel)
     (let [bounds (. (dom/node this) getBoundingClientRect)
           y (- (.-clientY e) (.-top bounds))
           x (- (.-clientX e) (.-left bounds))
@@ -269,9 +269,9 @@
           {:keys [point-fn horiz-fn]} translators
           _ (assert point-fn)
           _ (assert horiz-fn)
-          comms-channel (:comms misc)
-          _ (assert comms-channel "Need a comms channel to direct mouse movement at")
-          handler #(.handler-fn this comms-channel %)
+          ;comms-channel (:comms misc)
+          ;_ (assert comms-channel "Need a comms channel to direct mouse movement at")
+          handler #(.handler-fn this %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init {:width width :height height}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
@@ -283,7 +283,7 @@
                (dom/svg (clj->js init-props)
                         (for [line lines]
                           (line-component (om/computed line translators)))
-                        (plumb-line-component (om/computed (merge plumb-line init) (merge translators {:comms-channel comms-channel})))
+                        (plumb-line-component (om/computed (merge plumb-line init) translators))
                         )
                (navigator/navigator navigator)))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))

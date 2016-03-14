@@ -24,7 +24,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "om-alarming.test-mutations"
+                        :compiler {:main       "misc.dashboard"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"

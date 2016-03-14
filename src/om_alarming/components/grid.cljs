@@ -139,6 +139,9 @@
                  (grid-row (om/computed tube (merge {:sui-col-info sui-col-info} {:lines-intersect-ids lines-intersect-ids :pick-colour-fn pick-colour-fn}))))))))
 (def gas-query-grid (om/factory GasQueryGrid {:keyfn :id}))
 
+;;
+;; I don't see why this needs to be a component, so leaving for now
+;;
 (defn gas-query-panel [app-props pick-colour-fn]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
         _ (assert pick-colour-fn, "gas-query-panel")
