@@ -3,7 +3,8 @@
             [om.next :as om :refer-macros [defui]]
             [cljs-time.format :as format-time]
             [cljs-time.core :as time]
-            [om-alarming.parsing.mutations.navigator]))
+            [om-alarming.parsing.mutations.navigator]
+            [om-alarming.system :as system]))
 
 (def date-time-formatter (format-time/formatters :mysql))
 
@@ -30,6 +31,13 @@
   Object
   (render [this]
     (let [{:keys [end-time span-seconds] :as props} (om/props this)
+          lines (:lines (om/get-computed this))
+          _ (assert lines)
+          formatted-end-time (format-time/unparse date-time-formatter end-time)
+          begin-time (calc-begin-time end-time span-seconds)
+          formatted-begin-time (format-time/unparse date-time-formatter begin-time)
+          _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
+          _ (system/start!)
           ]
       (dom/div nil #_ #js {:className "item"}
                (dom/div #js {:className (sized "ui buttons")}
@@ -43,13 +51,12 @@
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
                                          :onClick #(om/transact! this `[(navigate/now)])}
-                                    (dom/i #js {:className "sign in icon"}))
-                        )
+                                    (dom/i #js {:className "sign in icon"})))
                (dom/div #js {:className "item"}
                         (dom/label #js {:className (sized "ui horizontal label") :style #js {:width 250}}
-                               (format-time/unparse date-time-formatter (calc-begin-time end-time span-seconds)))
+                                   formatted-begin-time)
                         (dom/label #js {:className (sized "ui horizontal label") :style #js {:width 250}}
-                               (format-time/unparse date-time-formatter end-time)))))))
+                                   formatted-end-time))))))
 
 (def navigator (om/factory GraphNavigator {:keyfn :id}))
 #_(format-time/show-formatters)

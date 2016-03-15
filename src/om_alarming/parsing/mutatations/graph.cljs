@@ -42,11 +42,6 @@
    ;:action #(swap! state assoc :graph/misc misc)
    :action #(swap! state assoc-in [:misc/by-id 10400] (merge {:id 10400} (:misc params)))})
 
-(defmethod mutate 'graph/inner-chan
-  [{:keys [state]} _ {:keys [inner-chan]}]
-  {:value  {:keys [:graph/misc]}
-   :action #(swap! state assoc-in [:misc/by-id 10400 :inner-chan] inner-chan)})
-
 (defmethod mutate 'graph/toggle-receive
   [{:keys [state]} _ _]
   {:value  {:keys [:receiving?]}

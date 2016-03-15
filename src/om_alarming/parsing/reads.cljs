@@ -157,11 +157,6 @@
         _ (println "In in-sticky-time? for:" key)]
     {:value (get-in st [:plumb-line/by-id 10201 :in-sticky-time?])}))
 
-(defmethod read :inner-chan
-  [{:keys [state]} key _]
-  (let [st @state]
-    {:value (get-in st [:graph/misc :inner-chan])}))
-
 (defmethod read :route/data
   [{:keys [state query]} k _]
   (let [st @state

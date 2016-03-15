@@ -29,15 +29,6 @@
 
 (enable-console-print!)
 
-;;
-;; When get rid of this also remove :receiving-chan from the state
-;;
-(defn halt-receiving-wrong
-  "Grabs the receiving chan from state and sends it {:pause true}"
-  []
-  (let [chan (reconciler/internal-query [{:graph/trending-graph {:graph/misc [:inner-chan]}}])
-        _ (println "PAUSE: " chan)]))
-
 (defn halt-receiving []
   (reconciler/alteration 'graph/stop-receive nil :receiving?))
 
@@ -148,7 +139,6 @@
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
-       {:graph/feeder (om/get-query graph/Feeder)}
        ]))
   Object
   (pick-colour [this cols]
@@ -207,7 +197,6 @@
         _ (println "line-infos: " line-infos)
         outer-chan (in/query-remote-server line-infos week-ago-millis now-millis)
         inner-chan (sa/show line-infos week-ago-millis now-millis outer-chan)
-        _ (reconciler/alteration 'graph/inner-chan {:inner-chan inner-chan} :graph/misc)
         ]
     (go-loop [count 0]
              (let [{:keys [info point]} (<! inner-chan)

@@ -57,7 +57,7 @@
     [:misc/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :inner-chan]))
+    [:id]))
 
 (defui Line
   static om/Ident
@@ -203,6 +203,9 @@
   (query [this]
     [:id :name :dec-places]))
 
+;;
+;; Leaving for the comments only!
+;;
 (defui Feeder
   static om/Ident
   (ident [this props]
@@ -246,8 +249,7 @@
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     {:graph/translators [:point-fn :horiz-fn]}
-     {:graph/feeder (om/get-query Feeder)}])
+     {:graph/translators [:point-fn :horiz-fn]}])
   Object
   (handler-fn [this e]
     ;(assert comms-channel)
@@ -308,7 +310,7 @@
                           (line-component (om/computed line translators)))
                         (plumb-line-component (om/computed (merge plumb-line init) translators))
                         )
-               (navigator/navigator navigator)))))
+               (navigator/navigator (om/computed navigator {:lines lines}))))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]
