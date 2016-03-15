@@ -45,9 +45,14 @@
 (defmethod mutate 'graph/toggle-receive
   [{:keys [state]} _ _]
   {:value  {:keys [:receiving?]}
-   :action #(swap! state update-in [:trending-graph/by-id 10300 :receiving?] not)})
+   :action #(swap! state update-in [:navigator/by-id 10600 :receiving?] not)})
+
+;(defmethod mutate 'graph/start-receive
+;  [{:keys [state]} _ _]
+;  {:value  {:keys [:receiving?]}
+;   :action #(swap! state update-in [:navigator/by-id 10600 :receiving?] true)})
 
 (defmethod mutate 'graph/stop-receive
   [{:keys [state]} _ _]
-  {:value  {:keys [:trending-graph/by-id :receiving?]}
-   :action #(swap! state assoc-in [:graph/trending-graph 10300 :receiving?] false)})
+  {:value  {:keys [:receiving?]}
+   :action #(swap! state assoc-in [:graph/navigator 10600 :receiving?] false)})

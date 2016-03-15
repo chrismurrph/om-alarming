@@ -200,7 +200,7 @@
         ]
     (go-loop [count 0]
              (let [{:keys [info point]} (<! inner-chan)
-                   paused? (not (:receiving? (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:receiving?]}]))))
+                   paused? (not (:receiving? (:graph/navigator (reconciler/internal-query [{:graph/navigator [:receiving?]}]))))
                    [x y val] point
                    line-ident (:ref info)
                    ;_ (println "Ident: " line-ident)

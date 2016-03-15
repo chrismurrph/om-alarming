@@ -56,7 +56,7 @@
 (defmethod read :receiving?
   [{:keys [state _]} key _]
   (let [st @state]
-    {:value (get-in st [:trending-graph/by-id 10300 :receiving?])}))
+    {:value (get-in st [:navigator/by-id 10600 :receiving?])}))
 
 (defmethod read :graph/lines
   [{:keys [state query]} key _]

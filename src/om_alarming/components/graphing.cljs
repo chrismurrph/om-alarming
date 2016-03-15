@@ -241,7 +241,6 @@
     [:id
      :width 
      :height
-     :receiving?
      :last-mouse-moment
      {:graph/lines (om/get-query Line)}
      {:graph/navigator (om/get-query navigator/GraphNavigator)}

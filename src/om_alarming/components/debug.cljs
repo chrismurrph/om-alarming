@@ -94,7 +94,7 @@
           _ (assert end-time)
           {:keys [state]} (om/get-computed this)]
       (dom/div nil 
-               (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
+               (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/navigator)} "Receive toggle")
                (str "   Receiving?" receiving?)
                (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))

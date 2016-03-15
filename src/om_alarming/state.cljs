@@ -87,7 +87,6 @@
     :graph/navigator {:id 10600}
     :graph/lines [{:id 100} {:id 101} {:id 102} {:id 103}]
     :labels-visible? false
-    :receiving? false
     :graph/plumb-line {:id 10201}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
@@ -98,7 +97,9 @@
    :graph/navigator
    {:id 10600
     :end-time (time/now)
-    :span-seconds (* 60 60)}
+    :span-seconds (* 60 60)
+    :receiving? false
+    }
 
    :graph/misc
    {:id 10400}

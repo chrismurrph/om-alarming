@@ -15,19 +15,23 @@
     (fn stop! []
       (put! poison-ch :stop))))
 
+(defonce system (atom nil))
+
 (defn make-system! []
   (println "[system] starting")
   (let [components [(make-printer-component)]]
     (fn stop! []
       (println "[system] stopping")
+      (reset! system nil)
       (doseq [component components]
         (component)))))
-
-(defonce system (atom nil))
 
 (defn stop! []
   (when-let [stop-system! @system]
     (stop-system!)))
+
+(defn going? []
+  (not= @system nil))
 
 (defn start! []
   (stop!)
