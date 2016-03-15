@@ -203,6 +203,28 @@
   (query [this]
     [:id :name :dec-places]))
 
+(defui Feeder
+  static om/Ident
+  (ident [this props]
+    [:feeder/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    ;;
+    ;; It seems you can't just go for your own query, must go for a standard query that exists
+    ;; in another component, otherwise you won't get default-db-format. Anyway from the std query
+    ;; we will have no problem doing this query, as recursive denormalization will have been done:
+    ;;
+    ;[:id {:graph/lines [:id {:intersect [{:system-gas [:lowest :highest :long-name]}]}]}]
+    ;[:id #_{:graph/lines [:id]}]
+    ;;
+    ;; If it really keeps on having lines then we are going to have to change our mutations
+    [{:graph/lines (om/get-query Line)}]
+    )
+  Object
+  (render [this]
+    (println "Feeder doesn't render anything, it just exists!")))
+(def feeder (om/factory Feeder {:keyfn :id}))
+
 (defn- now-time [] (js/Date.))
 (defn boolean? [v]
   (or (true? v) (false? v)))
@@ -224,7 +246,8 @@
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     {:graph/translators [:point-fn :horiz-fn]}])
+     {:graph/translators [:point-fn :horiz-fn]}
+     {:graph/feeder (om/get-query Feeder)}])
   Object
   (handler-fn [this e]
     ;(assert comms-channel)

@@ -91,6 +91,7 @@
     :graph/plumb-line {:id 10201}
     :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
     :graph/misc {:id 10400}
+    :graph/feeder {:id 10700}
     :hover-pos nil
     :last-mouse-moment nil
     }
@@ -100,8 +101,15 @@
     :end-time (time/now)
     :span-seconds (* 60 60)}
 
-   :graph/misc {:id 10400
-                :inner-chan nil}
+   :graph/misc
+   {:id 10400
+    :inner-chan nil}
+
+   :graph/feeder
+   {:id 10700
+    ;:graph/lines [{:id 100} {:id 101} {:id 102} {:id 103}]
+    }
+
    :graph/x-gas-details
    [
     {:id 10100 :graph/line {:id 102}}

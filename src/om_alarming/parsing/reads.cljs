@@ -131,10 +131,15 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :graph/feeder
+  [{:keys [state query]} key _]
+  (let [st @state]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :graph/current-line
   [{:keys [state query]} key _]
   (let [st @state
-        ;_ (println "In :graph/misc for:" query)
+        ;_ (println "In :graph/current-line for:" query)
         ]
     {:value (om/db->tree query (get st key) st)}))
 

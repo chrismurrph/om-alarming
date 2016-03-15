@@ -148,6 +148,7 @@
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
+       {:graph/feeder (om/get-query graph/Feeder)}
        ]))
   Object
   (pick-colour [this cols]
@@ -211,9 +212,7 @@
     (go-loop [count 0]
              (let [{:keys [info point]} (<! inner-chan)
                    paused? (not (:receiving? (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:receiving?]}]))))
-                   x (first point)
-                   y (second point)
-                   val (last point)
+                   [x y val] point
                    line-ident (:ref info)
                    ;_ (println "Ident: " line-ident)
                    _ (assert line-ident)
