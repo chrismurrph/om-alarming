@@ -103,14 +103,14 @@
 ;; Receives raw business trend data and transforms it so it will be positioned correctly on this stage
 ;; (which is close to being positioned properly on the graph itself)
 ;;
-(defn receiver [info time->x central? out-chan in-chan]
+(defn receiver [info time->x central? inner-chan receiving-chan]
   (let [{:keys [ref lowest highest]} info
         _ (assert lowest (str "Not found match from: " info))
         _ (assert time->x)
         transitioner (stage-ify-changer lowest highest)]
     (go-loop [accumulated []
               release-channel nil]
-             (let [data-in (<! in-chan)]
+             (let [data-in (<! receiving-chan)]
                (if (nil? release-channel)
                  (if (central? (:time data-in))
                    (let [central-y (:val data-in)
@@ -118,7 +118,7 @@
                          release-point-fn (release-point new-transitioner time->x)
                          new-release-transducer (map release-point-fn)
                          new-release-channel (chan 1 new-release-transducer)
-                         _ (pipe new-release-channel out-chan)]
+                         _ (pipe new-release-channel inner-chan)]
                      (onto-chan new-release-channel accumulated false)
                      (>! new-release-channel data-in)
                      (recur [] new-release-channel))
@@ -126,7 +126,7 @@
                  (do
                    (>! release-channel data-in)
                    (recur [] release-channel))))))
-  in-chan)
+  receiving-chan)
 
 ;;
 ;;
@@ -139,21 +139,21 @@
 
 (defn show
   ""
-  [line-idents start end in-chan]
-  (assert (and in-chan start end))
-  (let [out-chan (chan)
+  [line-idents start end outer-chan]
+  (assert (and outer-chan start end))
+  (let [inner-chan (chan)
         ;names (map :name lines)
         receiving-chans (into {} (map (fn [ident] (vector ident (chan))) line-idents))
         central? (in-middle? 0.1 start end)
         x-time (calc-x-from-time start end)
-        receivers (into {} (map (fn [[name chan]] (vector name (receiver name x-time central? out-chan chan))) receiving-chans))]
+        receivers (into {} (map (fn [[name rec-chan]] (vector name (receiver name x-time central? inner-chan rec-chan))) receiving-chans))]
     (go-loop []
-             (let [latest-val (<! in-chan)
+             (let [latest-val (<! outer-chan)
                    its-info (:info latest-val)
                    ;_ (log "name from incoming: " its-info " " latest-val)
                    receiving-chan (get receivers its-info)
                    _ (assert receiving-chan (str "Not found receiving channel for " its-info " from " receivers))
                    _ (>! receiving-chan latest-val)])
              (recur))
-    out-chan))
+    inner-chan))
 

@@ -35,7 +35,7 @@
 (defn halt-receiving-wrong
   "Grabs the receiving chan from state and sends it {:pause true}"
   []
-  (let [chan (reconciler/internal-query [{:graph/trending-graph {:graph/misc [:receiving-chan]}}])
+  (let [chan (reconciler/internal-query [{:graph/trending-graph {:graph/misc [:inner-chan]}}])
         _ (println "PAUSE: " chan)]))
 
 (defn halt-receiving []
@@ -204,12 +204,12 @@
         week-ago-millis (.getTime (time/minus now (time/weeks 1)))
         line-infos (map to-info line-q-results)
         _ (println "line-infos: " line-infos)
-        chan (in/query-remote-server line-infos week-ago-millis now-millis)
-        receiving-chan (sa/show line-infos week-ago-millis now-millis chan)
-        _ (reconciler/alteration 'graph/receiving-chan {:receiving-chan receiving-chan} :graph/misc)
+        outer-chan (in/query-remote-server line-infos week-ago-millis now-millis)
+        inner-chan (sa/show line-infos week-ago-millis now-millis outer-chan)
+        _ (reconciler/alteration 'graph/inner-chan {:inner-chan inner-chan} :graph/misc)
         ]
     (go-loop [count 0]
-             (let [{:keys [info point]} (<! receiving-chan)
+             (let [{:keys [info point]} (<! inner-chan)
                    paused? (not (:receiving? (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:receiving?]}]))))
                    x (first point)
                    y (second point)

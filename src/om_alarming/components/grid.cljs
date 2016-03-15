@@ -23,7 +23,8 @@
           {:keys [test-props pick-fn]} comp-props
           selected? (or (:selected? comp-props) (:selected? test-props))
           ;; Unfortunately you just have to check one and it creates them all
-          _ (println "cb created, selected: " selected?)
+          ;; TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
+          ;;_ (println "cb created, selected: " selected?)
           ]
       (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
                (dom/input #js {:type    "checkbox"

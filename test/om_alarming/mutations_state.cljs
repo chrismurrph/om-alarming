@@ -353,7 +353,7 @@
                            {:id                     10502,
                             :thresholds/name        "Thresholds",
                             :thresholds/description "Alarm Thresholds"},
-     :misc/by-id           {10400 {:id 10400, :comms nil, :receiving-chan nil}},
+     :misc/by-id           {10400 {:id 10400, :comms nil, :inner-chan nil}},
      :app/reports
                            {:id                  10503,
                             :reports/name        "Reports",

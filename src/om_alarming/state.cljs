@@ -101,8 +101,7 @@
     :span-seconds (* 60 60)}
 
    :graph/misc {:id 10400
-                :comms nil
-                :receiving-chan nil}
+                :inner-chan nil}
    :graph/x-gas-details
    [
     {:id 10100 :graph/line {:id 102}}

@@ -57,7 +57,7 @@
     [:misc/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :comms :receiving-chan]))
+    [:id :inner-chan]))
 
 (defui Line
   static om/Ident

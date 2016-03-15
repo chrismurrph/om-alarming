@@ -123,12 +123,12 @@
 ;; Note that :trans-colour does not exist - colours have to be of shape {:r :g :b}
 ;;
 (defn init []
-  (let [ch (chan)
+  (let [;ch (chan)
         ;proc (controller ch)
         options-map (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:width :height]}]))
         _ (println "Created a controller, back: " options-map)
-        misc (into {:comms ch} options-map)
-        _ (println "S/be going into graph/misc: " misc)
+        ;misc (into {:comms ch} options-map)
+        ;_ (println "S/be going into graph/misc: " misc)
         staging (:staging options-map)
         graph-width (:width options-map)
         _ (assert graph-width ":width needs to be supplied at init")
@@ -139,7 +139,7 @@
         ]
     (println "About to do mutates")
     (reconciler/alteration 'graph/translators {:translators translators} [:graph/trending-graph :graph/translators])
-    (reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
+    ;(reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
     ;; Leaving in for curiosity
     (go
       #_(let [exit (<! proc)]

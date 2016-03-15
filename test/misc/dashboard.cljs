@@ -26,7 +26,7 @@
      :title "A Post!"
      :content "Lorem ipsum dolor sit amet, quem atomorum te quo"
      :favorites 0
-     :comments [{:id 0 :text "a comment"}]}]})
+     :post/comments [{:id 0 :text "a comment"}]}]})  ;; <- To pass need `:post/comments` rather than `:comments`
 ​
 (defui Comment
   static om/Ident
@@ -61,11 +61,11 @@
 (enable-console-print!)
 
 (let [supposedly-norm (om/tree->db Dashboard union-init-data true)
-      chk-res (db-format/check supposedly-norm)
+      chk-res (db-format/check {:by-id-kw ["comment" "post"] :excluded-keys #{:om.next/tables}} supposedly-norm)
       okay? (db-format/ok? chk-res)]
   (if (not okay?)
     (do
-      (println chk-res)
+      (println chk-res) ;; <- chk-res is usually picked up by components i.e. shown in the HUD
       (pprint supposedly-norm))
     (println "All is in default db format")))
 
