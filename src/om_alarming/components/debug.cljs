@@ -80,6 +80,7 @@
   )
 
 (def lines-query [{:graph/lines [:id]}])
+;(db-format/display (reconciler/internal-query lines-query))
 
 (defui Debug
   static om/IQuery
@@ -90,23 +91,12 @@
     (let [props (om/props this)
           ;_ (println "props:" (keys props))
           ;_ (println "computed props:" (keys (om/get-computed this)))
-          {:keys [receiving? end-time]} props
-          _ (assert end-time)
+          ;{:keys [receiving? end-time]} props
+          ;_ (assert end-time)
           {:keys [state]} (om/get-computed this)]
       (dom/div nil 
-               (dom/button #js {:onClick #(reconciler/alteration 'graph/toggle-receive nil :graph/navigator)} "Receive toggle")
-               (str "   Receiving?" receiving?)
-               (dom/br nil)(dom/br nil)
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
-               ;(db-format/display (reconciler/internal-query lines-query))
                (dom/br nil)(dom/br nil)
                (dom/div nil
-                        (dom/button #js {:onClick #(reconciler/alteration 'navigate/backwards {:seconds (* 60 60)} :graph/navigator)} "Back")
-                        ;#(reconciler/alteration 'graph/toggle-receive nil :graph/trending-graph)} "Receive toggle")
-                        (str "   End time" end-time)
-                        ;(navigator-debugging state)
-                        )
-               (dom/div nil
-                        (lines-debugging state))
-               ))))
+                        (lines-debugging state))))))
 (def debug (om/factory Debug))

@@ -16,23 +16,27 @@
 ;;
 ;; Because there's no query or ident, everything comes in in computed props
 ;;
-(defui CheckBox
-  Object
-  (render [this]
-    (let [comp-props (om/get-computed this)
-          {:keys [test-props pick-fn]} comp-props
-          selected? (or (:selected? comp-props) (:selected? test-props))
-          ;; Unfortunately you just have to check one and it creates them all
-          ;; TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
-          ;;_ (println "cb created, selected: " selected?)
-          ]
-      (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
-               (dom/input #js {:type    "checkbox"
-                               :checked (boolean selected?) ;; <- Note boolean function - js needs it!
-                               :onClick (fn [_] (pick-fn))})
-               (dom/label nil "")))))
-(def checkbox (om/factory CheckBox))
+;
+;(defui CheckBox
+;  Object
+;  (render [this]
+;    (let [comp-props (om/get-computed this)
+;          {:keys [test-props pick-fn]} comp-props
+;          selected? (or (:selected? comp-props) (:selected? test-props))
+;          ;; Unfortunately you just have to check one and it creates them all
+;          ;; TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
+;          _ (println "cb created, selected: " selected?)
+;          ]
+;      (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
+;               (dom/input #js {:type    "checkbox"
+;                               :checked (boolean selected?) ;; <- Note boolean function - js needs it!
+;                               :onClick (fn [_] (pick-fn))})
+;               (dom/label nil "")))))
+;(def checkbox (om/factory CheckBox))
 
+;;
+;; Works the same, with or without use of above component
+;;
 (defui GridDataCell
   static om/Ident
   (ident [this props]
@@ -45,18 +49,26 @@
   Object
   (pick [this pick-colour-fn id selected?]
     (if selected?
-      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :grid-cell/id])
-      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :grid-cell/id])))
+      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) #_:grid-cell/id])
+      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) #_:grid-cell/id])))
   (render [this]
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)
           {:keys [tube-num sui-col-info pick-colour-fn selected?]} (om/get-computed this)
           _ (assert sui-col-info)
           _ (assert pick-colour-fn "GridDataCell")
+          ;;TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
+          _ (println "grid cell created, selected: " selected?)
           ]
       (if system-gas
         (dom/div sui-col-info
-                 (checkbox (om/computed {} (merge props {:selected? selected? :pick-fn #(.pick this pick-colour-fn id selected?)}))))
+                 #_(checkbox (om/computed {} (merge props {:selected? selected? :pick-fn #(.pick this pick-colour-fn id selected?)})))
+                 (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
+                          (dom/input #js {:type    "checkbox"
+                                          :checked (boolean selected?) ;; <- Note boolean function - js needs it!
+                                          :onClick (fn [_] (.pick this pick-colour-fn id selected?))})
+                          (dom/label nil ""))
+                 )
         (dom/div sui-col-info
                  (dom/label nil tube-num))))))
 (def grid-data-cell (om/factory GridDataCell {:keyfn :grid-cell/id}))

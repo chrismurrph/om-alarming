@@ -7,13 +7,13 @@
   Caller needs to work on this state a little more to put the point in
   an existing line"
   [st x y val]
-  (println "Look at" (count (get st :graph/points)) " points")
+  ;(println "Look at" (count (get st :graph/points)) " points")
   (let [id   (->> (om/db->tree [:id] (get st :graph/points) st)
                   (map :id)
                   (cons 1999)
                   (reduce max)
                   inc)
-        _ (println "In new-point, new id is " id) 
+        ;_ (println "In new-point, new id is " id)
         point {:id id :x x :y y :val val}
         ref  [:graph-point/by-id id]]
     {:point-ident ref

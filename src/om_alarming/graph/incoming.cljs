@@ -23,10 +23,12 @@
 ;;
 ;; Whenever its out channel is not blocked it will be generating a new gas value
 ;; There is a generator for each line
+;; Will just stop looping when it finishes, so no need for a stop function - hmm - unless the
+;; user no longer wants to see more values - hmm - not worth effort for random generating code!
 ;;
 (defn generator [start end info out-chan]
   (assert out-chan)
-  (assert (> end start) "end must be greater than start")
+  (assert (> end start) (str "end: " end ", must be greater than start: " start))
   (let [all-times (create-n-times gas-gen-quantity start end)]
     (go-loop [completed []]
              (when (not= (count completed) (count all-times))
@@ -37,15 +39,23 @@
 
 ;;
 ;; Just needs the channels it is going to get values from
+;; Will just stop recuring when the chans have run out of values
 ;;
-(defn controller [out-chan chans]
-  (log (seq chans))
-  (go-loop []
-    (<! (timeout 300))
-    (let [[next-val c] (alts! chans)
-          _ (>! out-chan next-val)]
-      (recur))
-  ))
+(defn controller-component [out-chan chans-in]
+  (println "[controller-component] starting")
+  (let [poison-ch (chan)
+        chans (conj chans-in poison-ch)
+        _ (log "CHANs:" (into [] chans))]
+    (go-loop []
+             (let [[next-val ch] (alts! chans)]
+               (if (= ch poison-ch)
+                 (println "[controller-component] stopping")
+                 (do
+                   (<! (timeout 300))
+                   (>! out-chan next-val)
+                   (recur)))))
+    (fn stop! []
+      (close! poison-ch))))
 
 (defn query-remote-server
   "Just needs the names that are to be queried and start/end times"
@@ -54,10 +64,10 @@
         out-chan (chan)
         gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
         _ (log gas-channels)
-        _ (controller out-chan (vals gas-channels))
+        stop-fn (controller-component out-chan (vals gas-channels))
         _ (mapv (fn [[info chan]] (new-gen info chan)) gas-channels)
         ]
-    out-chan
+    [stop-fn out-chan]
     )
   )
 

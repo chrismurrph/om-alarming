@@ -188,32 +188,7 @@
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
-  (p/init)
-  (let [line-q-results (:graph/lines (reconciler/internal-query lines-query))
-        now (time/now)
-        now-millis (.getTime now)
-        week-ago-millis (.getTime (time/minus now (time/weeks 1)))
-        line-infos (map to-info line-q-results)
-        _ (println "line-infos: " line-infos)
-        outer-chan (in/query-remote-server line-infos week-ago-millis now-millis)
-        inner-chan (sa/show line-infos week-ago-millis now-millis outer-chan)
-        ]
-    (go-loop [count 0]
-             (let [{:keys [info point]} (<! inner-chan)
-                   paused? (not (:receiving? (:graph/navigator (reconciler/internal-query [{:graph/navigator [:receiving?]}]))))
-                   [x y val] point
-                   line-ident (:ref info)
-                   ;_ (println "Ident: " line-ident)
-                   _ (assert line-ident)
-                   ]
-               (if (and (< count 20) (not paused?))
-                 (do
-                   (reconciler/alteration 'graph/add-point
-                                          {:line-name-ident line-ident :x x :y y :val val}
-                                          :graph/lines)
-                   ;(println "Receiving " name x y)
-                   (recur (inc count)))
-                 (recur count))))))
+  (p/init))
 (run)
 
 ;ident (line-name->ident name)]

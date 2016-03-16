@@ -1,6 +1,6 @@
 (ns om-alarming.graph.staging-area
   (:require [cljs.core.async :as async
-             :refer [<! >! chan close! put! timeout pipe onto-chan]]
+             :refer [<! >! chan close! put! timeout pipe onto-chan alts!]]
             [om-alarming.util.utils :refer [log no-log abs]]
             [om-alarming.util.colours :refer [light-blue green pink]]
             [om-alarming.util.utils :as u])
@@ -137,23 +137,27 @@
 ;  (doseq [line lines]
 ;    (g/add-line (select-keys line line-keys))))
 
-(defn show
+(defn show-component
   ""
   [line-idents start end outer-chan]
   (assert (and outer-chan start end))
+  (println "[show-component] starting")
   (let [inner-chan (chan)
         ;names (map :name lines)
         receiving-chans (into {} (map (fn [ident] (vector ident (chan))) line-idents))
         central? (in-middle? 0.1 start end)
         x-time (calc-x-from-time start end)
-        receivers (into {} (map (fn [[name rec-chan]] (vector name (receiver name x-time central? inner-chan rec-chan))) receiving-chans))]
+        receivers (into {} (map (fn [[name rec-chan]] (vector name (receiver name x-time central? inner-chan rec-chan))) receiving-chans))
+        poison-ch (chan)]
     (go-loop []
-             (let [latest-val (<! outer-chan)
-                   its-info (:info latest-val)
-                   ;_ (log "name from incoming: " its-info " " latest-val)
-                   receiving-chan (get receivers its-info)
-                   _ (assert receiving-chan (str "Not found receiving channel for " its-info " from " receivers))
-                   _ (>! receiving-chan latest-val)])
-             (recur))
-    inner-chan))
+             (let [[latest-val ch] (alts! [poison-ch outer-chan])]
+               (if (= poison-ch ch)
+                 (println "[show-component] stopping")
+                 (let [its-info (:info latest-val)
+                       _ (log "name from incoming: " its-info " " latest-val)
+                       receiving-chan (get receivers its-info)
+                       _ (assert receiving-chan (str "Not found receiving channel for " its-info " from " receivers))
+                       _ (>! receiving-chan latest-val)]
+                   (recur)))))
+    [(fn [] (close! poison-ch)) inner-chan]))
 

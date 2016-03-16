@@ -113,9 +113,6 @@
 ;;
 ;;(my-parser {:state my-reconciler} '[[:graph/in-sticky-time? _]])
 
-(defn boolean? [v]
-  (or (true? v) (false? v)))
-
 ;;
 ;; keyword options:
 ;; :height :width :trans-point :get-positions :get-colour
@@ -140,7 +137,4 @@
     (println "About to do mutates")
     (reconciler/alteration 'graph/translators {:translators translators} [:graph/trending-graph :graph/translators])
     ;(reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
-    ;; Leaving in for curiosity
-    (go
-      #_(let [exit (<! proc)]
-        (prn :exit! exit)))))
+    ))

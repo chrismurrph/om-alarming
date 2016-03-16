@@ -13,7 +13,7 @@
               [:gas-of-system/by-id (:id props)])
        static om/IQuery
        (query [this]
-              [:id :short-name]))
+              [:id :short-name :lowest :highest :long-name]))
 
 ;;
 ;; GridRow does same thing so this not needed at top

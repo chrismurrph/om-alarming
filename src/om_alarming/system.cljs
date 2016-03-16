@@ -1,25 +1,62 @@
 (ns om-alarming.system
-  (:require [cljs.core.async :as async :refer [<! timeout chan alts! put!]])
+  (:require
+    [cljs.core.async :as async :refer [<! timeout chan put! close! alts!]]
+    [om-alarming.graph.incoming :as in]
+    [om-alarming.graph.staging-area :as sa]
+    [om-alarming.reconciler :as reconciler])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (defn make-printer-component []
   (println "[printer-component] starting")
   (let [poison-ch (chan)]
     (go-loop [count 0]
-             (let [[v ch] (alts! [poison-ch (timeout 1000)])]
+             (let [[_ ch] (alts! [poison-ch (timeout 1000)])]
                (if (= ch poison-ch)
                  (println "[printer-component] stopping")
                  (do
                    (println "In timer at " count)
                    (recur (inc count))))))
     (fn stop! []
-      (put! poison-ch :stop))))
+      (close! poison-ch))))
+
+(defn make-outer-chan [line-infos start-millis end-millis]
+  (in/query-remote-server line-infos start-millis end-millis))
+
+(defn make-inner-chan [line-infos week-ago-millis now-millis outer-chan]
+  (sa/show-component line-infos week-ago-millis now-millis outer-chan))
+
+(defn point-adding-component [inner-chan]
+  (println "[point-adding-component] starting")
+  (let [poison-ch (chan)]
+    (go-loop [counted-to 0]
+             (let [[{:keys [info point]} ch] (alts! [poison-ch inner-chan])]
+               (if (= ch poison-ch)
+                 (println "[point-adding-component] stopping")
+                 (let [paused? (not (:receiving? (:graph/navigator (reconciler/internal-query [{:graph/navigator [:receiving?]}]))))
+                       [x y val] point
+                       line-ident (:ref info)
+                       ;_ (println "Ident: " line-ident)
+                       _ (assert line-ident)]
+                   (if (and (< counted-to 40) (not paused?))
+                     (do
+                       (reconciler/alteration 'graph/add-point
+                                              {:line-name-ident line-ident :x x :y y :val val}
+                                              :graph/lines)
+                       ;(println "Receiving " name x y)
+                       (recur (inc counted-to)))
+                     (recur counted-to))))))
+    (fn stop! []
+      (close! poison-ch))))
 
 (defonce system (atom nil))
 
-(defn make-system! []
+(defn make-system-container! [line-infos start-millis end-millis]
   (println "[system] starting")
-  (let [components [(make-printer-component)]]
+  (let [[stop-fn-outer outer-chan] (make-outer-chan line-infos start-millis end-millis)
+        [stop-fn-inner inner-chan] (make-inner-chan line-infos start-millis end-millis outer-chan)
+        components [(make-printer-component) stop-fn-inner stop-fn-outer (point-adding-component inner-chan)]
+        ;_ (println "Num of components in started system is " (count components))
+        ]
     (fn stop! []
       (println "[system] stopping")
       (reset! system nil)
@@ -33,6 +70,6 @@
 (defn going? []
   (not= @system nil))
 
-(defn start! []
+(defn start! [line-infos start-millis end-millis]
   (stop!)
-  (reset! system (make-system!)))
+  (reset! system (make-system-container! line-infos start-millis end-millis)))

@@ -19,12 +19,19 @@
 
 #_(dom/div #js {:className "ui divider"})
 
-(defn start-stop [want-going?]
+(defn start-stop-system [want-going? line-infos start-millis end-millis]
   (let [already-going? (system/going?)]
     (if (and want-going? (not already-going?))
-      (system/start!)
+      (system/start! line-infos start-millis end-millis)
       (when (and already-going? (not want-going?))
         (system/stop!)))))
+
+(defn to-info [line-query-res]
+  (let [system-gas (-> line-query-res :intersect :system-gas)]
+    {:ref [:line/by-id (:id line-query-res)]
+     :lowest (-> system-gas :lowest)
+     :highest (-> system-gas :highest)
+     :name (-> system-gas :long-name)}))
 
 (defui GraphNavigator
   static om/Ident
@@ -41,13 +48,15 @@
   (render [this]
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
           lines (:lines (om/get-computed this))
-          _ (assert lines)
+          ;_ (println "LINES:\n" lines "\n")
+          line-infos (map to-info lines)
+          ;_ (println "line-infos: " line-infos)
           formatted-end-time (format-time/unparse date-time-formatter end-time)
           begin-time (calc-begin-time end-time span-seconds)
           formatted-begin-time (format-time/unparse date-time-formatter begin-time)
           play-stop-css (if receiving? "stop icon" "play icon")
           _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
-          _ (start-stop receiving?)
+          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time))
           ]
       (dom/div #js {:className "item"}
                (dom/div #js {:className (sized "ui buttons")}
