@@ -98,5 +98,5 @@
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                (dom/br nil)(dom/br nil)
                (dom/div nil
-                        (lines-debugging state))))))
+                        (points-debugging state))))))
 (def debug (om/factory Debug))

@@ -41,29 +41,48 @@
         ]
     {:line-ident line-ident
      :state      (-> st
-                     (update :graph/lines u/remove-value line-ident)
+                     (update :graph/lines u/vec-remove-value line-ident)
                      (update :line/by-id u/unselect-keys [line-id])
                      )}))
 
+(def rm-line-params {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501})
 (defn rem-line [st params]
   (let [{:keys [graph-ident intersect-id]} params
         {:keys [state line-ident]} (delete-line st intersect-id)
         ]
     (-> state
-        (update-in (conj graph-ident :graph/lines) u/remove-value line-ident)
+        (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident)
         )
     ))
 
-(def rm-params {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501})
+;;
+;; Will have to reduce over every line ident with state being the accumulator
+;;
+(defn rm-all-points-from-line [st line-ident]
+  (-> st
+      (assoc-in (conj line-ident :graph/points) [])))
+
+(defn rm-all-points [st]
+  (let [all-lines-idents (:graph/lines st)]
+    (-> (reduce rm-all-points-from-line
+                st
+                all-lines-idents)
+        (assoc :graph/points []))))
 
 (defn run []
   (om/add-root! reconciler
                 Root
                 (.. js/document (getElementById "main-app-area")))
-  (pprint (:graph/lines @reconciler))
-  (pprint (:line/by-id @reconciler))
-
-  (pprint (:graph/lines (swap! st/state rem-line rm-params)))
+  ;(pprint (:graph/points @st/state))
+  ;(pprint (:graph/lines @st/state))
+  ;(pprint (get-in @st/state [:line/by-id 100]))
+  ;(pprint (assoc (get-in @st/state [:line/by-id 100]) :graph/points []))
+  ;;
+  ;(pprint (rm-all-points @st/state))
+  ;(pprint (:graph/lines (rm-all-points @st/state)))
+  ;(pprint (:line/by-id (rm-all-points-from-line @st/state [:line/by-id 100])))
+  (pprint (:line/by-id (rm-all-points @st/state)))
+  (pprint (:graph/points (rm-all-points @st/state)))
   )
 
 (run)

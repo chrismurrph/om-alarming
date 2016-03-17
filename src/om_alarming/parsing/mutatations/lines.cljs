@@ -71,7 +71,7 @@
         ]
     {:line-ident line-ident
      :state      (-> st
-                     (update :graph/lines u/remove-value line-ident)
+                     (update :graph/lines u/vec-remove-value line-ident)
                      (update :line/by-id u/unselect-keys [line-id])
                      )}))
 
@@ -79,7 +79,7 @@
   (let [{:keys [graph-ident intersect-id]} params
         {:keys [state line-ident]} (delete-line st intersect-id)]
     (-> state
-        (update-in (conj graph-ident :graph/lines) u/remove-value line-ident))))
+        (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident))))
 
 (defmethod mutate 'graph/add-line
   [{:keys [state]} _ params]

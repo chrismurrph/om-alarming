@@ -11,6 +11,7 @@
                  [org.clojure/test.check "0.9.0"]
                  [default-db-format "0.1.1-SNAPSHOT"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
+                 [binaryage/devtools "0.5.2"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]
@@ -24,7 +25,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"]
                         :figwheel true
-                        :compiler {:main       "misc.dashboard"
+                        :compiler {:main       "om-alarming.test-mutations"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"

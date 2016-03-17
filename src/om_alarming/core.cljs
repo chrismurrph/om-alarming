@@ -24,7 +24,8 @@
             [cljs.core.async :as async :refer [<!]]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.parsing.mutations.graph]
-            [om-alarming.state :as state])
+            [om-alarming.state :as state]
+            [devtools.core :as devtools])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -188,6 +189,8 @@
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
+  (devtools/enable-feature! :sanity-hints :dirac)
+  (devtools/install!)
   (p/init))
 (run)
 

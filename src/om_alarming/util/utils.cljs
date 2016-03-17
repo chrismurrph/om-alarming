@@ -59,18 +59,6 @@ entries whose key is not in keys."
   (assert (= nil (second seq))) ;; better perf to check this way than count way
   (first seq))
 
-(defn remove-value
-  "If you are using this then question why vect is not a set in the first place"
-  [vect valu]
-  (assert (vector? vect))
-  (let [as-set (into #{} vect)
-        _ (assert (= (count as-set) (count vect))
-                  "Not intended for removing a value where it is not there or > 1 there")
-        res (vec (remove #{valu} as-set))
-        _ (println "Down to " (count res) " from " (count vect) " b/c removed " valu)
-        ]
-    res))
-
 (defn str-seq
   ([seq msg]
    (letfn [(lineify-seq [items]
@@ -124,6 +112,18 @@ entries whose key is not in keys."
     (if (and (zero? result) (seq more))
       (recur more x y)
       result)))
+
+(defn vec-remove-value
+  "If you are using this then question why vect is not a set in the first place"
+  [vect valu]
+  (assert (vector? vect))
+  (let [as-set (into #{} vect)
+        _ (assert (= (count as-set) (count vect))
+                  "Not intended for removing a value where it is not there or > 1 there")
+        res (vec (remove #{valu} as-set))
+        _ (println "Down to " (count res) " from " (count vect) " b/c removed " valu)
+        ]
+    res))
 
 ;;
 ;; Removing elements from the middle of a vector isn't something vectors are necessarily good at.

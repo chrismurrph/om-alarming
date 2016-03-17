@@ -48,9 +48,13 @@
      {:tube (om/get-query gen/Location)}])
   Object
   (pick [this pick-colour-fn id selected?]
-    (if selected?
-      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) #_:grid-cell/id])
-      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) #_:grid-cell/id])))
+    (let [ident [:gas-at-location/by-id id]
+          ident-again (om/get-ident this)
+          use-others-dont-work :grid-cell/id
+          _ (println "ident will be re-queried is: " ident)]
+      (if selected?
+        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) ~use-others-dont-work])
+        (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) ~use-others-dont-work]))))
   (render [this]
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)
@@ -58,7 +62,7 @@
           _ (assert sui-col-info)
           _ (assert pick-colour-fn "GridDataCell")
           ;;TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
-          _ (println "grid cell created, selected: " selected?)
+          ;;_ (println "grid cell created, selected: " selected?)
           ]
       (if system-gas
         (dom/div sui-col-info

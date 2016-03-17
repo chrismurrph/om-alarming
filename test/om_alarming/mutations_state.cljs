@@ -1,5 +1,8 @@
 (ns om-alarming.mutations-state)
 
+;;
+;; Already normalized state
+;;
 (def state
   (atom
     {:graph/misc           [:misc/by-id 10400],
@@ -255,12 +258,26 @@
                             {:id           100,
                              :colour       {:r 255, :g 0, :b 255},
                              :intersect    [:gas-at-location/by-id 500],
-                             :graph/points []},
+                             :graph/points [[:graph-point/by-id 2000]
+                                            [:graph-point/by-id 2001]
+                                            [:graph-point/by-id 2002]
+                                            [:graph-point/by-id 2003]
+                                            [:graph-point/by-id 2004]
+                                            [:graph-point/by-id 2005]
+                                            [:graph-point/by-id 2006]
+                                            [:graph-point/by-id 2007]]},
                             101
                             {:id           101,
                              :colour       {:r 0, :g 102, :b 0},
                              :intersect    [:gas-at-location/by-id 501],
-                             :graph/points []},
+                             :graph/points [[:graph-point/by-id 2008]
+                                            [:graph-point/by-id 2009]
+                                            [:graph-point/by-id 2010]
+                                            [:graph-point/by-id 2011]
+                                            [:graph-point/by-id 2012]
+                                            [:graph-point/by-id 2013]
+                                            [:graph-point/by-id 2014]
+                                            [:graph-point/by-id 2015]]},
                             102
                             {:id           102,
                              :colour       {:r 0, :g 51, :b 102},
@@ -386,7 +403,22 @@
                              :height            250}},
      :graph/plumb-line     [:plumb-line/by-id 10201],
      :app/map              {:id 10500, :map/name "Map", :map/description "Mine Plan"},
-     :graph/points         [],
+     :graph/points         [[:graph-point/by-id 2000]
+                            [:graph-point/by-id 2001]
+                            [:graph-point/by-id 2002]
+                            [:graph-point/by-id 2003]
+                            [:graph-point/by-id 2004]
+                            [:graph-point/by-id 2005]
+                            [:graph-point/by-id 2006]
+                            [:graph-point/by-id 2007]
+                            [:graph-point/by-id 2008]
+                            [:graph-point/by-id 2009]
+                            [:graph-point/by-id 2010]
+                            [:graph-point/by-id 2011]
+                            [:graph-point/by-id 2012]
+                            [:graph-point/by-id 2013]
+                            [:graph-point/by-id 2014]
+                            [:graph-point/by-id 2015]],
      :tube/by-id
                            {1000
                             {:id       1000,

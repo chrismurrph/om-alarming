@@ -4,8 +4,7 @@
     [cljs-time.core :as time]))
 
 ;(def goog-date "function (opt_year, opt_month, opt_date, opt_hours,")
-(def irrelevant-keys #{:om.next/queries
-                       :app/debug
+(def irrelevant-keys #{:app/debug
                        :app/route
                        :app/trending
                        :app/automatic
