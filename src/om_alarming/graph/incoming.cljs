@@ -45,7 +45,8 @@
   (println "[controller-component] starting")
   (let [poison-ch (chan)
         chans (conj chans-in poison-ch)
-        _ (log "CHANs:" (into [] chans))]
+        ;_ (log "CHANs:" (into [] chans))
+        ]
     (go-loop []
              (let [[next-val ch] (alts! chans)]
                (if (= ch poison-ch)

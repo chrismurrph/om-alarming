@@ -193,9 +193,9 @@
   (let [st @state
         ;_ (println "In read to ret:" (get st key))
         res (get st key)
-        _ (assert res (str "Nothing found at :default for supposed "
+        _ (assert res (str "MY ASSERT: Nothing found at :default for supposed "
                            "top level key: " key))
-        _ (assert (not (ident? res)) (str "Got ident: " res ", for key: " key))
-        _ (assert (not (vec-of-idents? res)) (str "Got vec-of-idents: " res ", for key: " key))
+        _ (assert (not (ident? res)) (str "MY ASSERT: Got ident: " res ", for key: " key))
+        _ (assert (not (vec-of-idents? res)) (str "MY ASSERT: Got vec-of-idents: " res ", for key: " key))
         ]
     {:value res}))

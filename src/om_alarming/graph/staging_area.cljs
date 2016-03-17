@@ -154,7 +154,7 @@
                (if (= poison-ch ch)
                  (println "[show-component] stopping")
                  (let [its-info (:info latest-val)
-                       _ (log "name from incoming: " its-info " " latest-val)
+                       ;_ (log "name from incoming: " (:name its-info) " " latest-val)
                        receiving-chan (get receivers its-info)
                        _ (assert receiving-chan (str "Not found receiving channel for " its-info " from " receivers))
                        _ (>! receiving-chan latest-val)]

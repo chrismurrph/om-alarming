@@ -19,17 +19,17 @@
 (defui Point
   static om/Ident
   (ident [this props]
-    [:graph-point/by-id (:id props)])
+    [:graph-point/by-id (:point-id props)])
   static om/IQuery
   (query [this]
-    [:id :x :y :val])
+    [:point-id :x :y :val])
   Object
   (render [this]
     (let [props (om/props this)
-          {:keys [id x y val]} props
+          {:keys [point-id x y val]} props
           {:keys [rgb-map translator]} (om/get-computed this)
           ;_ (println "POINT: " id " " rgb-map " " x " " y " " translator)
-          _ (assert id)
+          _ (assert point-id)
           _ (assert (and x y val))
           [x-trans y-trans val-trans] (translator props)
           circle-props    (merge process/point-defaults
@@ -37,7 +37,7 @@
                                   :cy y-trans
                                   :fill (process/rgb-map-to-str rgb-map)})]
       (dom/circle (clj->js circle-props)))))
-(def point-component (om/factory Point {:keyfn :id}))
+(def point-component (om/factory Point {:keyfn :point-id}))
 
 ;;
 ;; GridDataCell should be taking care of this one

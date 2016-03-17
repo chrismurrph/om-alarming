@@ -3,7 +3,7 @@
             [om.next :as om :refer-macros [defui]]
             [cljs-time.format :as format-time]
             [cljs-time.core :as time]
-            [om-alarming.parsing.mutations.navigator]
+            [om-alarming.parsing.mutations.graph]
             [om-alarming.system :as system]))
 
 (def date-time-formatter (format-time/formatters :mysql))
@@ -56,6 +56,7 @@
           formatted-begin-time (format-time/unparse date-time-formatter begin-time)
           play-stop-css (if receiving? "stop icon" "play icon")
           _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
+          _ (println "RECEIVING: " receiving?)
           _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time))
           ]
       (dom/div #js {:className "item"}

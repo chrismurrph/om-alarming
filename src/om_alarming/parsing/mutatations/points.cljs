@@ -8,13 +8,13 @@
   an existing line"
   [st x y val]
   ;(println "Look at" (count (get st :graph/points)) " points")
-  (let [id   (->> (om/db->tree [:id] (get st :graph/points) st)
-                  (map :id)
+  (let [id   (->> (om/db->tree [:point-id] (get st :graph/points) st)
+                  (map :point-id)
                   (cons 1999)
                   (reduce max)
                   inc)
         ;_ (println "In new-point, new id is " id)
-        point {:id id :x x :y y :val val}
+        point {:point-id id :x x :y y :val val}
         ref  [:graph-point/by-id id]]
     {:point-ident ref
      :state (-> st

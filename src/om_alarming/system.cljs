@@ -41,7 +41,7 @@
                      (do
                        (reconciler/alteration 'graph/add-point
                                               {:line-name-ident line-ident :x x :y y :val val}
-                                              :graph/lines)
+                                              :graph/points)
                        ;(println "Receiving " name x y)
                        (recur (inc counted-to)))
                      (recur counted-to))))))
