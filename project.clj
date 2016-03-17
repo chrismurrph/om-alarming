@@ -23,9 +23,9 @@
   :source-paths ["src" "test"]
                  
   :cljsbuild {:builds [{:id "test"
-                        :source-paths ["test"]
+                        :source-paths ["src"] ;; <- usually "test" - put back later
                         :figwheel true
-                        :compiler {:main       "om-alarming.test-mutations"
+                        :compiler {:main       "om-alarming.cache"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"
