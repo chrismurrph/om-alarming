@@ -25,7 +25,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["src"] ;; <- usually "test" - put back later
                         :figwheel true
-                        :compiler {:main       "om-alarming.cache"
+                        :compiler {:main       "om-alarming.cache.cache"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"
