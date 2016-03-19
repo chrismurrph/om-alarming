@@ -1,5 +1,11 @@
 (ns om-alarming.cache.matching)
 
+(defn same-range [range1 range2]
+  (when
+    (and (= (:start range1) (:start range2))
+         (= (:end range1) (:end range2)))
+    range2))
+
 ;;
 ;; :want-b4-have -> cutoff before what already have
 ;; :want-after-have -> cutoff after what already have
@@ -28,12 +34,47 @@
         ranges (create-ranges-from-cutoffs want-date-range cutoffs)]
     ranges))
 
+(defn lesser-of [x y]
+  (if (< x y) x y))
+
+(defn greater-of [x y]
+  (if (> x y) x y))
+
 ;;
-;; We return the 2nd one so it can be used in a partial with `some`
+;; What part of the existing range can be grabbed for the new range.
+;; We return a range that can be stolen from existing-range.
+;; Another function will do the stealing
 ;;
-(defn overlap [range1 range2]
-  (let [start1 (:start range1)
-        end1 (:end range1)
-        start2 (:start range2)
-        end2 (:end range2)]
-    (when (and (> end1 start2) (< start1 end2)) range2)))
+(defn covet [want-range existing-range]
+  (let [start-want (:start want-range)
+        end-want (:end want-range)
+        start-existing (:start existing-range)
+        end-existing (:end existing-range)
+        want-ahead (and (< start-existing end-want) (> end-existing start-want))
+        existing-ahead (and (> end-existing start-want) (< start-existing end-want))
+        ;a-clipped-by-b (= start-want end-existing)
+        ;b-clipped-by-a (= start-existing end-want)
+        ]
+    (let [res (when (or want-ahead
+                        existing-ahead
+                        ;(or a-clipped-by-b b-clipped-by-a)
+                        )
+            (cond
+              (and want-ahead existing-ahead) {:start (greater-of start-want start-existing) :end (lesser-of end-want end-existing)}
+              want-ahead {:start start-want :end end-existing}
+              existing-ahead {:start start-existing :end end-want}
+              ;a-clipped-by-b {:start start-want :end end-existing}
+              ;b-clipped-by-a {:start start-existing :end end-want}
+              ))]
+      (assert (not (same-range res want-range)) "Perfect steal s/not be possible - handle when get (expect only when zooming in)")
+      res)
+    ))
+
+;;
+;; Returns what the existing range will be left with when what is coveted has been stolen
+;;
+(defn steal [coveted-range existing-range]
+  (let [start-want (:start coveted-range)
+        end-want (:end coveted-range)
+        start-existing (:start existing-range)
+        end-existing (:end existing-range)]))

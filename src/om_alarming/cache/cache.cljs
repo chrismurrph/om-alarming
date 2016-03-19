@@ -43,17 +43,10 @@
 (def pool-duration ten-mins)
 (def pools (atom (sorted-map)))
 
-#_(defn covers [repo-atom]
-  (let [st @repo-atom
-        beginning (-> st first val :start)
-        ending (-> st last val :end)]
-    {:start beginning :end ending}))
-
 (defn same-pool [pool1 pool2]
   (when
     (and (= (:id pool1) (:id pool2))
-         (= (:start pool1) (:start pool2))
-         (= (:end pool1) (:end pool2))
+         (match/same-range pool1 pool2)
          )
     pool2))
 
@@ -62,7 +55,7 @@
     (some equiv-fn (vals @pools))))
 
 (defn overlap-pool [pool]
-  (let [equiv-fn (partial match/overlap pool)]
+  (let [equiv-fn (partial match/covet pool)]
     (some equiv-fn (vals @pools))))
 
 ;;
@@ -90,13 +83,21 @@
                    :id    id
                    :start start
                    :end   end
-                   ;:cb cb ;; <- just not nice to have to print it
+                   :cb    cb ;; <- just not nice to have to print it
                    }]
      (if (nil? needs-be-filled-by-uid)
        new-pool
-       (merge new-pool {:needs-be-filled-by needs-be-filled-by-uid}))))
+       (merge new-pool {:needs-be-filled-by {:uid needs-be-filled-by-uid}}))))
   ([cb id {:keys [start end] :as range}]
     (create-pool cb id range)))
+
+(defn re-point-existing
+  "Points existing at the to-uid - my data when it comes back is needed by another pool"
+  [existing-pool to-uid]
+  (-> existing-pool
+      (merge {:kept-to-fill {:uid to-uid}})
+      (dissoc :cb))
+  )
 
 ;;
 ;; If it already exists (exactly same id and start,end) then we want to give it a new cb.
@@ -108,11 +109,13 @@
     (let [synthetic-pool {:id id :start (:start range) :end (:end range)}
           already-same-exists (existing-pool synthetic-pool)]
       (if (not already-same-exists)
-        (let [already-overlapping (overlap-pool synthetic-pool)
-              _ (println "Already overlapping from " synthetic-pool " is " already-overlapping)]
-          (let [new-pool (create-pool cb id range (:uid already-overlapping))]
+        (let [[already-overlapping _] (overlap-pool synthetic-pool)
+              new-pool (create-pool cb id range (:uid already-overlapping))]
+          (if already-overlapping
             (-> old-st
-                (assoc (:uid new-pool) new-pool))))
+                (assoc (:uid new-pool) new-pool)
+                (update (:uid already-overlapping) re-point-existing (:uid new-pool)))
+            (assoc old-st (:uid new-pool) new-pool)))
         (-> old-st
             (update (:uid already-same-exists) merge {:cb cb}))))
     old-st))
@@ -154,13 +157,16 @@
   (om/add-root! reconciler
                 Root
                 (.. js/document (getElementById "main-app-area")))
-  (let [start-time 0
+  #_(let [start-time 0
         duration (* pool-duration 10)
         bigger-dur (* pool-duration 10.5)
         smaller-dur (* pool-duration 9.5)]
     (query 1 {:start start-time :end (+ start-time duration)} (fn [res] (println "FIRST" res)))
     (query 1 {:start start-time :end (+ start-time smaller-dur)} (fn [res] (println "SECOND" res)))
-    (pprint @pools)
-    ))
+    (pprint @pools))
+  (let [want-range {:start 4 :end 8}
+        existing-range {:start 3 :end 7}]
+    (println "Wanting " want-range " and able to steal from " existing-range ", we covet: " (match/covet want-range existing-range)))
+  )
 
 (run)
