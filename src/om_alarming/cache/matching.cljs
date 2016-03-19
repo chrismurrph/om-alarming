@@ -28,9 +28,12 @@
         ranges (create-ranges-from-cutoffs want-date-range cutoffs)]
     ranges))
 
+;;
+;; We return the 2nd one so it can be used in a partial with `some`
+;;
 (defn overlap [range1 range2]
   (let [start1 (:start range1)
         end1 (:end range1)
         start2 (:start range2)
         end2 (:end range2)]
-    (and (> end1 start2) (< start1 end2))))
+    (when (and (> end1 start2) (< start1 end2)) range2)))

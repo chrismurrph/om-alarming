@@ -51,9 +51,10 @@
 
 (defn same-pool [pool1 pool2]
   (when
-    (and (= (:id pool1)) (= (:id pool2))
-         (= (:start pool1)) (= (:start pool2))
-         (= (:end pool1)) (= (:end pool2)))
+    (and (= (:id pool1) (:id pool2))
+         (= (:start pool1) (:start pool2))
+         (= (:end pool1) (:end pool2))
+         )
     pool2))
 
 (defn existing-pool [pool]
@@ -84,31 +85,36 @@
   (- end start))
 
 (defn create-pool
-  ([cb id {:keys [start end]} needs-be-filled-by]
+  ([cb id {:keys [start end]} needs-be-filled-by-uid]
    (let [new-pool {:uid   (gen-uid)
                    :id    id
                    :start start
                    :end   end
                    ;:cb cb ;; <- just not nice to have to print it
                    }]
-     (if (nil? needs-be-filled-by)
+     (if (nil? needs-be-filled-by-uid)
        new-pool
-       (merge new-pool {:needs-be-filled-by needs-be-filled-by}))))
+       (merge new-pool {:needs-be-filled-by needs-be-filled-by-uid}))))
   ([cb id {:keys [start end] :as range}]
     (create-pool cb id range)))
 
-;; new-pool (create-pool cb id range)
+;;
+;; If it already exists (exactly same id and start,end) then we want to give it a new cb.
+;; If it overlaps then there will be a fourth param to `create-pool` - the old uid
+;;
 (defn update-pool [cb id old-st range]
+  ;(println "Reduce fn for " range)
   (if (pos? (range-dur range))
     (let [synthetic-pool {:id id :start (:start range) :end (:end range)}
-          already-existing (existing-pool synthetic-pool)]
-      (if (not already-existing)
-        (let [already-overlapping (overlap-pool synthetic-pool)]
+          already-same-exists (existing-pool synthetic-pool)]
+      (if (not already-same-exists)
+        (let [already-overlapping (overlap-pool synthetic-pool)
+              _ (println "Already overlapping from " synthetic-pool " is " already-overlapping)]
           (let [new-pool (create-pool cb id range (:uid already-overlapping))]
             (-> old-st
                 (assoc (:uid new-pool) new-pool))))
         (-> old-st
-            (update (:uid already-existing) merge {:cb cb}))))
+            (update (:uid already-same-exists) merge {:cb cb}))))
     old-st))
 
 (defn update-pools [cb old-pool id ranges]
@@ -149,8 +155,11 @@
                 Root
                 (.. js/document (getElementById "main-app-area")))
   (let [start-time 0
-        duration (* pool-duration 10)]
-    (query 1 {:start start-time :end (+ start-time duration)} (fn [res] (println "ONLY" res)))
+        duration (* pool-duration 10)
+        bigger-dur (* pool-duration 10.5)
+        smaller-dur (* pool-duration 9.5)]
+    (query 1 {:start start-time :end (+ start-time duration)} (fn [res] (println "FIRST" res)))
+    (query 1 {:start start-time :end (+ start-time smaller-dur)} (fn [res] (println "SECOND" res)))
     (pprint @pools)
     ))
 
