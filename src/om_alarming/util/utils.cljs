@@ -45,7 +45,7 @@ entries whose key is not in keys."
     (round now-squared)))
 
 (defn probe [msg obj]
-  (println (str (str/upper-case msg) ": " obj))
+  (println (str (str/upper-case msg) ":\n" obj))
   obj)
 
 (defn log [& txts]
