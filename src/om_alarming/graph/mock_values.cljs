@@ -25,7 +25,7 @@
 (def oxygens [21.0 22.0 22.0 21.4 20.0 21.3 22.0 19.5 19.8 21.0 21.1 21.5])
 (def carbon-dioxides [0.05 0.08 0.07 0.09 0.10 0.20 0.21 0.23 0.27 0.13 0.18 0.19])
 (def carbon-monoxides [7 8 9 10 11 12 11 10 9 8 7 6 5])
-(def gas-values {"Methane" methanes "Oxygen" oxygens "Carbon Dioxide" carbon-dioxides "Carbon Monoxide" carbon-monoxides})
+(def gas-values {[:gas-at-location/by-id 500] methanes "Oxygen" oxygens "Carbon Dioxide" carbon-dioxides "Carbon Monoxide" carbon-monoxides})
 
 (defn random-gas-value [name]
   (let [_ (assert name)

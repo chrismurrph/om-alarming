@@ -6,7 +6,11 @@
             [om-alarming.cache.matching :as match]
             [om-alarming.cache.range :as rng]
             [cljs.pprint :as pp :refer [pprint]]
-            ))
+            [om-alarming.graph.incoming :as incoming]
+            [cljs.core.async :as async
+             :refer [<! >! chan close! put! timeout alts!]]
+            )
+  (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 ;;;;;;;;;;;;; RELOADABLE start
 (enable-console-print!)
@@ -53,9 +57,11 @@
 
 ;;
 ;; ga is for 'general area'. This is the cache! For each id there's a sorted map where key is date range
-;; [start end] and value is all the points in that range.
+;; {:start nil :end nil} and value is all the points in that range.
 ;;
 (def ga (atom (sorted-map)))
+
+(def incoming-chan (chan))
 
 ;;
 ;; Way to implement will be to grab all the points for the id. As the points will be in order there will
@@ -74,12 +80,11 @@
             {:c :a}]})
 
 (defn create-hold
-  ([cb id {:keys [start end]}]
+  ([id {:keys [start end]}]
    (let [new-hold {:uid   (gen-uid)
                    :id    id
                    :start start
                    :end   end
-                   :cb    cb ;; <- just not nice to have to print it
                    }]
      new-hold)))
 
@@ -94,18 +99,20 @@
        ;(u/probe (str "selected " id))
        (rng/sum-ranges)))
 
-(defn update-pool-of-holds-new-range [cb id old-st range]
+(defn update-pool-of-holds-new-range [id old-st {:keys [start end] :as rnge}]
     ;(println "Reduce fn for " range)
-    (if (pos? (rng/range-dur range))
-      (let [new-hold (create-hold cb id range)]
-        (assoc old-st (:uid new-hold) new-hold))
+    (if (pos? (rng/range-dur rnge))
+      (let [new-hold (create-hold id rnge)
+            gened-uid (:uid new-hold)
+            _ (incoming/batch-generator start end {:id id :uid gened-uid} incoming-chan)]
+        (assoc old-st gened-uid new-hold))
       old-st))
 
 ;;
 ;; old-pool-state is the whole of the state of the atom
 ;;
-(defn update-pool-of-holds [cb old-pool-state id ranges]
-  (let [pool-updater (partial update-pool-of-holds-new-range cb id)]
+(defn update-pool-of-holds [old-pool-state id ranges]
+  (let [pool-updater (partial update-pool-of-holds-new-range id)]
     (reduce pool-updater old-pool-state ranges)))
 
 ;;
@@ -136,8 +143,7 @@
   (swap! current-ranges current-range-updater id want-date-range cb)
   (let [ga-res (query-from-ga id want-date-range)]
     (cb ga-res)
-    (let [pool-of-holds-updater (partial update-pool-of-holds cb)
-          want-from-pool-range (some #(when (pos? (rng/range-dur %)) %) (rng/refine-need (select-keys ga-res [:start :end]) want-date-range))
+    (let [want-from-pool-range (some #(when (pos? (rng/range-dur %)) %) (rng/refine-need (select-keys ga-res [:start :end]) want-date-range))
           _ (println "WANT " want-from-pool-range)
           ;_ (assert (< (count want-ranges) 2))
           existing-pool-range (range-in-pool-of-holds id)
@@ -146,7 +152,49 @@
           _ (assert (< (count want-after-seen-pool) 2) (str "Should never see split ranges: " want-after-seen-pool ", count: " (count want-after-seen-pool)))
           _ (println "NOW WANT " want-after-seen-pool)
           ]
-      (swap! pool-of-holds pool-of-holds-updater id (mapcat segment-into-ranges want-after-seen-pool)))))
+      (swap! pool-of-holds update-pool-of-holds id (mapcat segment-into-ranges want-after-seen-pool)))))
+
+;;
+;; I haven't done any thinking about edges - that will come last
+;;
+(defn within-range [current-range start end]
+  (let [acceptable-start (:start current-range)
+        acceptable-end (:end current-range)]
+    (and (>= start acceptable-start) (<= end acceptable-end))))
+
+(defn batch-receipt [{:keys [info vals]}]
+  (let [{:keys [id uid]} info
+        hold (get @pool-of-holds uid)
+        hold-start (:start hold)
+        hold-end (:end hold)
+        current-range (get @current-ranges id)
+        user-want (select-keys current-range [:start :end])
+        cb (:cb current-range)]
+    (println "Received:" (count vals) "for" id uid)
+    (println current-range)
+    (println hold)
+    (println)
+    (if (within-range user-want hold-start hold-end)
+      (do
+        (cb vals))
+      (do
+        (println "WARNING: User's query has changed so need to go through the points and only deliver some, rest to ga")
+        (println "user-want " user-want)
+        (println "hold-start " hold-start)
+        (println "hold-end " hold-end)))))
+
+(defn make-receiver-component []
+  (println "[receiver-component] starting")
+  (let [poison-ch (chan)]
+    (go-loop []
+             (let [[v ch] (alts! [poison-ch incoming-chan])]
+               (if (= ch poison-ch)
+                 (println "[receiver-component] stopping")
+                 (do
+                   (batch-receipt v)
+                   (recur)))))
+    (fn stop! []
+      (close! poison-ch))))
 
 (defn run []
   (om/add-root! reconciler
@@ -156,9 +204,10 @@
         duration (* hold-max-duration 10)
         bigger-dur (* hold-max-duration 10.5)
         smaller-dur (* hold-max-duration 9.5)]
-    (query 1 {:start start-time :end (+ start-time smaller-dur)} (fn [res] (println "FIRST" res)))
-    (query 1 {:start start-time :end (+ start-time duration)} (fn [res] (println "SECOND" res)))
-    ;(pprint @pool-of-holds)
+    (make-receiver-component)
+    (query [:gas-at-location/by-id 500] {:start start-time :end (+ start-time smaller-dur)} (fn [res] (println "FIRST" res)))
+    (query [:gas-at-location/by-id 500] {:start start-time :end (+ start-time duration)} (fn [res] #_(println "SECOND" res)))
+    (pprint (first @pool-of-holds))
     ;(pprint @current-ranges)
     ;(println (vals @pool-of-holds))
     (println "Total range in pool of holds: " (range-in-pool-of-holds 1))

@@ -48,6 +48,9 @@
     (fn stop! []
       (close! poison-ch))))
 
+;;
+;; Dereference this to get the stopping function that will stop the system
+;;
 (defonce system (atom nil))
 
 (defn make-system-container! [line-infos start-millis end-millis]

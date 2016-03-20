@@ -38,6 +38,21 @@
                  (recur (conj completed picked-time)))))))
 
 ;;
+;; Do a query on the server - this is more realistic
+;;
+(defn batch-generator [start end info out-chan]
+  (assert out-chan)
+  (assert (> end start) (str "end: " end ", must be greater than start: " start))
+  (let [all-times (create-n-times gas-gen-quantity start end)]
+    (go-loop [completed [] batched []]
+             (if (not= (count completed) (count all-times))
+               (let [available (remove (into #{} completed) all-times)
+                     picked-time (nth available (rand-int (count available)))
+                     new-gen {:val (db/random-gas-value (:id info)) :time picked-time}]
+                 (recur (conj completed picked-time) (conj batched new-gen)))
+               (>! out-chan {:info info :vals batched})))))
+
+;;
 ;; Just needs the channels it is going to get values from
 ;; Will just stop recuring when the chans have run out of values
 ;;
