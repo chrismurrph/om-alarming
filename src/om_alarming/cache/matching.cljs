@@ -7,6 +7,27 @@
          (= (:end range1) (:end range2)))
     range2))
 
+(defn same-hold [hold1 hold2]
+  (when
+    (and (= (:id hold1) (:id hold2))
+         (same-range hold1 hold2)
+         )
+    hold2))
+
+(defn existing-hold
+  "Returns first equivalent hold from the pool"
+  [hold pool-of-holds]
+  (let [equiv-fn (partial same-hold hold)]
+    (some equiv-fn (vals pool-of-holds))))
+
+(defn re-point-existing-hold
+  "Points existing at the to-uid - my data when it comes back is needed by another pool"
+  [existing-hold to-uid]
+  (-> existing-hold
+      (merge {:kept-to-fill {:uid to-uid}})
+      (dissoc :cb))
+  )
+
 ;;
 ;; What part of the existing range can be grabbed for the new range.
 ;; We return a range that can be stolen from existing-range.
@@ -36,6 +57,12 @@
       (assert (not (same-range res want-range)) "Perfect steal s/not be possible - handle when get (expect only when zooming in)")
       res)
     ))
+
+(defn overlap-hold
+  "Returns the first overlapping hold from the pool"
+  [hold pool-of-holds]
+  (let [equiv-fn (partial covet hold)]
+    (some equiv-fn (vals pool-of-holds))))
 
 ;;
 ;; Returns what the existing range will be left with when what is coveted has been stolen

@@ -1,4 +1,5 @@
 /resources/public/js
+/resources/public/css/compiled
 .idea
 figwheel_server.log
 *.iml

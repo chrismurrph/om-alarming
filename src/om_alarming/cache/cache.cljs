@@ -51,32 +51,19 @@
 ;;
 (def current-ranges (atom {}))
 
-(defn same-hold [hold1 hold2]
-  (when
-    (and (= (:id hold1) (:id hold2))
-         (match/same-range hold1 hold2)
-         )
-    hold2))
-
-(defn existing-hold
-  "Returns first equivalent hold from the pool"
-  [hold pool-of-holds]
-  (let [equiv-fn (partial same-hold hold)]
-    (some equiv-fn (vals pool-of-holds))))
-
-(defn overlap-hold
-  "Returns the first overlapping hold from the pool"
-  [hold pool-of-holds]
-  (let [equiv-fn (partial match/covet hold)]
-    (some equiv-fn (vals pool-of-holds))))
-
 ;;
 ;; ga is for 'general area'. This is the cache! For each id there's a sorted map where key is date range
 ;; [start end] and value is all the points in that range.
 ;;
 (def ga (atom (sorted-map)))
 
-(defn from-ga
+;;
+;; Way to implement will be to grab all the points for the id. As the points will be in order there will
+;; be a more efficient way later on, but for now we will just filter those within the range.
+;; (Have a sorted set within each id and ask on SO!)
+;;
+(defn query-from-ga
+  "Returns what part of the query is already known by ga, i.e. is already satisfied by the cache"
   [id {:keys [start end]}]
   (assert (and id start end))
   {:id id
@@ -107,54 +94,12 @@
        ;(u/probe (str "selected " id))
        (rng/sum-ranges)))
 
-(defn re-point-existing-hold
-  "Points existing at the to-uid - my data when it comes back is needed by another pool"
-  [existing-hold to-uid]
-  (-> existing-hold
-      (merge {:kept-to-fill {:uid to-uid}})
-      (dissoc :cb))
-  )
-
-;;
-;; If it already exists (exactly same id and start,end) then we want to give it a new cb.
-;; If it overlaps then there will be a fourth param to `create-pool` - the old uid
-;;
-#_(defn old-update-pool [cb id old-st range]
-  ;(println "Reduce fn for " range)
-  (if (pos? (rng/range-dur range))
-    (let [synthetic-pool {:id id :start (:start range) :end (:end range)}
-          already-same-exists (existing-hold synthetic-pool @pool-of-holds)]
-      (if (not already-same-exists)
-        (let [[already-overlapping _] (overlap-hold synthetic-pool @pool-of-holds)
-              new-pool (create-hold cb id range (:uid already-overlapping))]
-          (if already-overlapping
-            (-> old-st
-                (assoc (:uid new-pool) new-pool)
-                (update (:uid already-overlapping) re-point-existing-hold (:uid new-pool)))
-            (assoc old-st (:uid new-pool) new-pool)))
-        (-> old-st
-            (update (:uid already-same-exists) merge {:cb cb}))))
-    old-st))
-
 (defn update-pool-of-holds-new-range [cb id old-st range]
     ;(println "Reduce fn for " range)
     (if (pos? (rng/range-dur range))
       (let [new-hold (create-hold cb id range)]
         (assoc old-st (:uid new-hold) new-hold))
       old-st))
-
-#_(defn old-update-hold
-  "Every range gets this function called on it. There might be
-  a hold in old-st that perfectly or partially covers it"
-  [cb id old-st range]
-  (if (pos? (rng/range-dur range))
-    (let [synthetic-hold {:id id :start (:start range) :end (:end range)}
-          already-same-exists (existing-hold synthetic-hold old-st)]
-      (if (not already-same-exists)
-        ()
-        (-> old-st
-            (update (:uid already-same-exists) merge {:cb cb}))))
-    old-st))
 
 ;;
 ;; old-pool-state is the whole of the state of the atom
@@ -189,7 +134,7 @@
   Returned values will always be in order"
   [id want-date-range cb]
   (swap! current-ranges current-range-updater id want-date-range cb)
-  (let [ga-res (from-ga id want-date-range)]
+  (let [ga-res (query-from-ga id want-date-range)]
     (cb ga-res)
     (let [pool-of-holds-updater (partial update-pool-of-holds cb)
           want-from-pool-range (some #(when (pos? (rng/range-dur %)) %) (rng/refine-need (select-keys ga-res [:start :end]) want-date-range))
