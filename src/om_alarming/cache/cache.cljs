@@ -12,6 +12,23 @@
             )
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
+(def the-id [:gas-at-location/by-id 500])
+
+;;
+;; Descriptions of what will be coming back (pending). A pool has a uid that is matched with what is returned.
+;; A pool will exist for a range of up to 10 minutes. Thus frequent data updates.
+;;
+(def pool-of-holds (atom (sorted-map)))
+
+;;
+;; ga is for 'general area'. This is the actual cache. For each id there's a sorted map where key is date range
+;; {:start nil :end nil} and value is all the points in that range.
+;;
+(defn cf [rng]
+  (:start rng))
+
+(def ga (atom {}))
+
 ;;;;;;;;;;;;; RELOADABLE start
 (enable-console-print!)
 (defmulti read om/dispatch)
@@ -23,9 +40,17 @@
   (om/reconciler {:normalize false
                   :state     st/state ;; <- any old, seemed to need sumfin
                   :parser    parser}))
+;; These s/be printed out as a whole
+;(println "holds in pool:" @pool-of-holds)
+;(println "GA:" @ga)
+;;(println (vals @pool-of-holds))
 (defui Root
        Object
-       (render [_]))
+       (render [_]
+         (dom/div nil
+                  (dom/button #js {:onClick #(pprint (keys (get @ga the-id)))} "GA")
+                  (dom/br nil)
+                  (dom/button #js {:onClick #(pprint (vals @pool-of-holds))} "Holds"))))
 ;;;;;;;;;;;;; RELOADABLE end
 
 ;;
@@ -38,15 +63,9 @@
     ;(u/log res)
     res))
 
-;;
-;; Descriptions of what will be coming back. A pool has a uid that is matched with what is returned. The other
-;; end will obviously know about this.
-;; A pool will exist for a range of up to 10 minutes. Thus frequent data updates.
-;;
 (def ten-mins (* 10 60 1000))
 (def five-mins (/ ten-mins 2))
 (def hold-max-duration ten-mins)
-(def pool-of-holds (atom (sorted-map)))
 
 ;;
 ;; Will be a map you can lookup using :id, where each has {:id nil :start nil :end nil :cb nil}. Re-created for
@@ -56,11 +75,8 @@
 (def current-ranges (atom {}))
 
 ;;
-;; ga is for 'general area'. This is the cache! For each id there's a sorted map where key is date range
-;; {:start nil :end nil} and value is all the points in that range.
+;; Request results come back into this channel
 ;;
-(def ga (atom (sorted-map)))
-
 (def incoming-chan (chan))
 
 ;;
@@ -73,11 +89,56 @@
   [id {:keys [start end]}]
   (assert (and id start end))
   {:id id
-   :start  0
-   :end    ten-mins
+   :start  nil #_start
+   :end    nil #_end
    :points [{:a :a}
             {:b :a}
-            {:c :a}]})
+            {:c :a}]}
+  #_(get-in @ga [id {:start start :end end}]))
+
+;;
+;; The id may not exist. We can't let assoc-in take care of any of this sort of thing as it will create a
+;; normal hashmap (if anything - I don't 100% know). Thus if the id is not there we put in a map entry that
+;; is [id (sorted-map-by cf)]
+#_(defn create-sorted-map-by-cf [old-map]
+  (if (nil? old-map)
+    (let [new-map (sorted-map-by cf)]
+      new-map)
+    old-map))
+
+;;
+;; If there is nothing available to steal from the existing ranges then what we want
+;; is not available, so accretion will be possible
+;;
+#_(defn accretion? [ranges start end]
+  (let [sum-ranges (rng/sum-ranges ranges)
+        want-to-steal {:start start :end end}
+        _ (println "SUM of ranges is " sum-ranges "and we want to add:" want-to-steal)
+        available (rng/covet want-to-steal sum-ranges)]
+    (rng/range-blank? available)))
+
+;;
+;; Because this is a cache then incoming ranges should always be extra information. So we
+;; check this and issue a warning.
+;;
+(defn update-ga [old-st id start end values]
+  (let [has-id-st (if (= nil (get old-st id))
+                    (assoc old-st id (sorted-map-by cf))
+                    old-st)
+        bad-problem false #_(not (accretion? (keys (get has-id-st id)) start end))]
+    ;(println has-id-st)
+    #_(-> has-id-st
+          (assoc-in id create-sorted-map-by-cf))
+    (if bad-problem
+      (do
+        (println "WARNING: Not depositing into cache because always expect to be accreting into it")
+        has-id-st)
+      (-> has-id-st
+          (assoc-in [id {:start start :end end}] values)))))
+
+(defn deposit-into-ga [start end id values]
+  ;(assert (nil? (get-in @ga [id {:start start :end end}])) (str "Don't expect the cache to already have:" start end id))
+  (swap! ga update-ga id start end values))
 
 (defn create-hold
   ([id {:keys [start end]}]
@@ -110,10 +171,12 @@
 
 ;;
 ;; old-pool-state is the whole of the state of the atom
+;; Ranges can be in any order so need to sort them.
 ;;
 (defn update-pool-of-holds [old-pool-state id ranges]
+  ;(println "Ranges: " (sort-by cf ranges))
   (let [pool-updater (partial update-pool-of-holds-new-range id)]
-    (reduce pool-updater old-pool-state ranges)))
+    (reduce pool-updater old-pool-state (sort-by cf ranges))))
 
 ;;
 ;; Take one big range and split it up into many (or none)
@@ -152,7 +215,7 @@
           _ (assert (< (count want-after-seen-pool) 2) (str "Should never see split ranges: " want-after-seen-pool ", count: " (count want-after-seen-pool)))
           _ (println "NOW WANT " want-after-seen-pool)
           ]
-      (swap! pool-of-holds update-pool-of-holds id (mapcat segment-into-ranges want-after-seen-pool)))))
+      (swap! pool-of-holds update-pool-of-holds id (remove #(rng/range-blank? %) (mapcat segment-into-ranges want-after-seen-pool))))))
 
 ;;
 ;; I haven't done any thinking about edges - that will come last
@@ -171,9 +234,10 @@
         user-want (select-keys current-range [:start :end])
         cb (:cb current-range)]
     (println "Received:" (count vals) "for" id uid)
-    (println current-range)
+    ;(println current-range)
     (println hold)
     (println)
+    (deposit-into-ga hold-start hold-end id vals)
     (if (within-range user-want hold-start hold-end)
       (do
         (cb vals))
@@ -205,11 +269,9 @@
         bigger-dur (* hold-max-duration 10.5)
         smaller-dur (* hold-max-duration 9.5)]
     (make-receiver-component)
-    (query [:gas-at-location/by-id 500] {:start start-time :end (+ start-time smaller-dur)} (fn [res] (println "FIRST" res)))
-    (query [:gas-at-location/by-id 500] {:start start-time :end (+ start-time duration)} (fn [res] #_(println "SECOND" res)))
-    (pprint (first @pool-of-holds))
-    ;(pprint @current-ranges)
-    ;(println (vals @pool-of-holds))
+    (query the-id {:start start-time :end (+ start-time smaller-dur)} (fn [res] #_(println "FIRST" res)))
+    (query the-id {:start start-time :end (+ start-time duration)} (fn [res] #_(println "SECOND" res)))
+    ;;
     (println "Total range in pool of holds: " (range-in-pool-of-holds 1))
     )
   #_(let [want-range {:start 4 :end 8}

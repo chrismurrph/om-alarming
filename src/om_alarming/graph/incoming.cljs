@@ -12,10 +12,15 @@
 ;; First will be exactly at start
 ;;
 (defn create-n-times [n start end]
+  (assert (not (nil? start)))
+  (assert (not (nil? end)))
+  (assert (> end start))
   (let [diff (- end start)
         increment (quot diff n)
         res (map (fn [idx] (+ start (* increment idx))) (range n))
-        _ (assert (empty? (filter #(= % 0) res)) "Expected a wide enough range could go across without needing fractions")]
+        ;Weird assertion - if starts at 0 will be triggered
+        ;_ (assert (empty? (filter #(= % 0) res)) (str "Expected a wide enough range could go across without needing fractions: " start " " end " " increment))
+        ]
     res))
 
 (def gas-gen-quantity 50) 

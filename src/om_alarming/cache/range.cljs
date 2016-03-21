@@ -20,6 +20,7 @@
 
 ;;
 ;; If begin is earlier replace it. If end later replace it.
+;; Does not work if there are gaps, but order does not matter
 ;;
 (defn sum-ranges [ranges]
   ;(println "SUM: " ranges)
@@ -64,3 +65,38 @@
           ranges (create-ranges-from-cutoffs want-date-range cutoffs)]
       ranges)))
 
+(defn same-range [range1 range2]
+  (when
+    (and (= (:start range1) (:start range2))
+         (= (:end range1) (:end range2)))
+    range2))
+
+;;
+;; What part of the existing range can be grabbed for the new range.
+;; We return a range that can be stolen from existing-range.
+;; Another function will do the stealing
+;;
+(defn covet [want-range existing-range]
+  (let [start-want (:start want-range)
+        end-want (:end want-range)
+        start-existing (:start existing-range)
+        end-existing (:end existing-range)
+        want-ahead (and (< start-existing end-want) (> end-existing start-want))
+        existing-ahead (and (> end-existing start-want) (< start-existing end-want))
+        ;a-clipped-by-b (= start-want end-existing)
+        ;b-clipped-by-a (= start-existing end-want)
+        ]
+    (let [res (when (or want-ahead
+                        existing-ahead
+                        ;(or a-clipped-by-b b-clipped-by-a)
+                        )
+                (cond
+                  (and want-ahead existing-ahead) {:start (greater-of start-want start-existing) :end (lesser-of end-want end-existing)}
+                  want-ahead {:start start-want :end end-existing}
+                  existing-ahead {:start start-existing :end end-want}
+                  ;a-clipped-by-b {:start start-want :end end-existing}
+                  ;b-clipped-by-a {:start start-existing :end end-want}
+                  ))]
+      ;(assert (not (same-range res want-range)) (str "Perfect steal s/not be possible: <" res want-range ">"))
+      res)
+    ))

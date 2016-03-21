@@ -1,16 +1,10 @@
 (ns om-alarming.cache.matching
   (:require [om-alarming.cache.range :as rng]))
 
-(defn same-range [range1 range2]
-  (when
-    (and (= (:start range1) (:start range2))
-         (= (:end range1) (:end range2)))
-    range2))
-
 (defn same-hold [hold1 hold2]
   (when
     (and (= (:id hold1) (:id hold2))
-         (same-range hold1 hold2)
+         (rng/same-range hold1 hold2)
          )
     hold2))
 
@@ -28,37 +22,7 @@
       (dissoc :cb))
   )
 
-;;
-;; What part of the existing range can be grabbed for the new range.
-;; We return a range that can be stolen from existing-range.
-;; Another function will do the stealing
-;;
-(defn covet [want-range existing-range]
-  (let [start-want (:start want-range)
-        end-want (:end want-range)
-        start-existing (:start existing-range)
-        end-existing (:end existing-range)
-        want-ahead (and (< start-existing end-want) (> end-existing start-want))
-        existing-ahead (and (> end-existing start-want) (< start-existing end-want))
-        ;a-clipped-by-b (= start-want end-existing)
-        ;b-clipped-by-a (= start-existing end-want)
-        ]
-    (let [res (when (or want-ahead
-                        existing-ahead
-                        ;(or a-clipped-by-b b-clipped-by-a)
-                        )
-            (cond
-              (and want-ahead existing-ahead) {:start (rng/greater-of start-want start-existing) :end (rng/lesser-of end-want end-existing)}
-              want-ahead {:start start-want :end end-existing}
-              existing-ahead {:start start-existing :end end-want}
-              ;a-clipped-by-b {:start start-want :end end-existing}
-              ;b-clipped-by-a {:start start-existing :end end-want}
-              ))]
-      (assert (not (same-range res want-range)) "Perfect steal s/not be possible - handle when get (expect only when zooming in)")
-      res)
-    ))
-
-(defn overlap-hold
+#_(defn overlap-hold
   "Returns the first overlapping hold from the pool"
   [hold pool-of-holds]
   (let [equiv-fn (partial covet hold)]
