@@ -14,6 +14,7 @@
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.navigator :as navigator]
             [om-alarming.components.d3 :as d3]
+            [om-alarming.components.no-d3-just-svg :as no-d3]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
@@ -92,6 +93,7 @@
   (render [this]
     (dom/div nil "Nufin")))
 
+;; These wrong now
 (def route->component
   {
    :app/map Map
@@ -159,6 +161,7 @@
                    "Map" (dom/div nil "Nufin")
                    "Trending" (grid/gas-query-panel app-props #(.pick-colour this existing-colours))
                    "New Trending" (d3/present-defcard)
+                   "SVG Trending" (no-d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")

@@ -63,22 +63,26 @@
      :description "D3 Trending"
      :showing?     true}
     {:id          4
+     :name        "SVG Trending"
+     :description "SVG Trending"
+     :showing?     true}
+    {:id          5
      :name        "Thresholds"
      :description "Alarm Thresholds"
      :showing?     true}
-    {:id          5
+    {:id          6
      :name        "Reports"
      :description "Event Reports"
      :showing?     true}
-    {:id          6
+    {:id          7
      :name        "Automatic"
      :description "Automatic Tube Bundle"
      :showing?     true}
-    {:id          7
+    {:id          8
      :name        "Logs"
      :description "Warning Log"
      :showing?     true}
-    {:id          8
+    {:id          9
      :name        "Debug"
      :description "Debug while developing"
      :showing?     true}

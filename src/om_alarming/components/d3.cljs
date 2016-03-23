@@ -67,7 +67,7 @@
           _ (println "received is " chan)
           _ (go-loop [ch chan]
                      (let [incoming (<! ch)]
-                       (add-square this (random-square))
+                       (add-square this incoming)
                        (render-squares this (om/get-state this) "componentDidMount's go loop")
                        (recur ch)))]
       (render-squares this initial-local-state "componentDidMount")))
@@ -89,7 +89,6 @@
   Object
   (another-square [this some-chan]
     (fn []
-      (println "Need do thru channel: " some-chan)
       (go (>! some-chan (random-square)))))
   (render [this]
     (let [props (om/props this)
