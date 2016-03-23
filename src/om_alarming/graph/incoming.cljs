@@ -33,13 +33,15 @@
 ;;
 (defn generator [start end info out-chan]
   (assert out-chan)
+  (assert (nil? (:name info)) "No longer using name")
+  (assert (:ident info) "Must have ident")
   (assert (> end start) (str "end: " end ", must be greater than start: " start))
   (let [all-times (create-n-times gas-gen-quantity start end)]
     (go-loop [completed []]
              (when (not= (count completed) (count all-times))
                (let [available (remove (into #{} completed) all-times)
                      picked-time (nth available (rand-int (count available)))]
-                 (>! out-chan {:info info :val (db/random-gas-value (:name info)) :time picked-time})
+                 (>! out-chan {:info info :val (db/random-gas-value (:ident info)) :time picked-time})
                  (recur (conj completed picked-time)))))))
 
 ;;

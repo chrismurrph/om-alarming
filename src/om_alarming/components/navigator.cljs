@@ -31,7 +31,8 @@
     {:ref [:line/by-id (:id line-query-res)]
      :lowest (-> system-gas :lowest)
      :highest (-> system-gas :highest)
-     :name (-> system-gas :long-name)}))
+     ;:name (-> system-gas :long-name)
+     :ident [:gas-at-location/by-id (-> line-query-res :intersect :grid-cell/id)]}))
 
 (defui GraphNavigator
   static om/Ident

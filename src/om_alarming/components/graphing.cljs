@@ -66,7 +66,7 @@
   static om/IQuery
   (query [this]
     [:id :colour {:intersect (om/get-query Intersect)}
-     ;{:graph/points (om/get-query Point)}
+     {:graph/points (om/get-query Point)}
      ])
   Object
   (render [this]
