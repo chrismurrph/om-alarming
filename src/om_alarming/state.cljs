@@ -12,6 +12,7 @@
                        :app/reports
                        :app/logs
                        :app/map
+                       :debug/squares
                        })
 (def okay-val-maps #{[:r :g :b]
                      [:horiz-fn :vert-fn :point-fn]})
@@ -58,27 +59,34 @@
      :description "Live data, Trending"
      :showing?     true}
     {:id          3
+     :name        "New Trending"
+     :description "D3 Trending"
+     :showing?     true}
+    {:id          4
      :name        "Thresholds"
      :description "Alarm Thresholds"
      :showing?     true}
-    {:id          4
+    {:id          5
      :name        "Reports"
      :description "Event Reports"
      :showing?     true}
-    {:id          5
+    {:id          6
      :name        "Automatic"
      :description "Automatic Tube Bundle"
      :showing?     true}
-    {:id          6
+    {:id          7
      :name        "Logs"
      :description "Warning Log"
      :showing?     true}
-    {:id          7
+    {:id          8
      :name        "Debug"
      :description "Debug while developing"
      :showing?     true}
     ]
 
+   :debug/squares [{:id 3922957, :x 119, :y 798, :size 92, :color "yellow"}
+                   {:id 8923350, :x 781, :y 47, :size 155, :color "yellow"}
+                   {:id 579612, :x 607, :y 250, :size 199, :color "blue"}]
    :graph/trending-graph
    {:id 10300
     :width 640

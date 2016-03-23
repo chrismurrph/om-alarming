@@ -12,6 +12,7 @@
                  [default-db-format "0.1.1-SNAPSHOT"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
                  [binaryage/devtools "0.5.2"]
+                 [cljsjs/d3 "3.5.7-1"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]

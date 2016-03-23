@@ -13,6 +13,7 @@
             [om-alarming.components.nav :as nav]
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.navigator :as navigator]
+            [om-alarming.components.d3 :as d3]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
@@ -140,6 +141,7 @@
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
+       [:debug/squares '_]
        ]))
   Object
   (pick-colour [this cols]
@@ -156,6 +158,7 @@
                  (case selected
                    "Map" (dom/div nil "Nufin")
                    "Trending" (grid/gas-query-panel app-props #(.pick-colour this existing-colours))
+                   "New Trending" (d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")

@@ -50,6 +50,8 @@
          (dom/div nil
                   (dom/button #js {:onClick #(pprint (keys (get @ga the-id)))} "GA")
                   (dom/br nil)
+                  (dom/button #js {:onClick #(pprint @ga)} "All GA")
+                  (dom/br nil)
                   (dom/button #js {:onClick #(pprint (vals @pool-of-holds))} "Holds"))))
 ;;;;;;;;;;;;; RELOADABLE end
 
@@ -88,7 +90,31 @@
   "Returns what part of the query is already known by ga, i.e. is already satisfied by the cache"
   [id {:keys [start end]}]
   (assert (and id start end))
-  {:id id
+  (let [ranges (keys (get @ga the-id))
+        betweens (filter (fn [rng]
+                           (let [existing-start (:start rng)
+                                 existing-end (:end rng)]
+                             (and (> existing-start start) (< existing-end end)))) ranges)
+        front-edge (some (fn [rng] (let [existing-start (:start rng)
+                                         existing-end (:end rng)]
+                                     (and (< existing-start start) (> existing-end start)))) ranges)
+        back-edge (some (fn [rng] (let [existing-start (:start rng)
+                                        existing-end (:end rng)]
+                                     (and (< existing-start end) (> existing-end end)))) ranges)
+        ;_ (println "Betweens: " betweens)
+        ;_ (println "Front edge: " front-edge)
+        ;_ (println "Back edge: " back-edge)
+        middle-range (rng/sum-ranges betweens)
+        front-range {:start start :end (:end front-edge)}
+        back-range {:start (:start back-edge) :end end}
+        ;_ (println "middle-range: " middle-range)
+        ;_ (println "front-range: " front-range)
+        ;_ (println "back-range: " back-range)
+        res (rng/sum-ranges [front-range middle-range back-range])
+        ;_ (println "INSIDE ga:" res)
+        ]
+    res)
+  #_{:id id
    :start  nil #_start
    :end    nil #_end
    :points [{:a :a}
@@ -110,7 +136,7 @@
 ;; If there is nothing available to steal from the existing ranges then what we want
 ;; is not available, so accretion will be possible
 ;;
-#_(defn accretion? [ranges start end]
+(defn accretion? [ranges start end]
   (let [sum-ranges (rng/sum-ranges ranges)
         want-to-steal {:start start :end end}
         _ (println "SUM of ranges is " sum-ranges "and we want to add:" want-to-steal)
@@ -125,7 +151,7 @@
   (let [has-id-st (if (= nil (get old-st id))
                     (assoc old-st id (sorted-map-by cf))
                     old-st)
-        bad-problem false #_(not (accretion? (keys (get has-id-st id)) start end))]
+        bad-problem (not (accretion? (keys (get has-id-st id)) start end))]
     ;(println has-id-st)
     #_(-> has-id-st
           (assoc-in id create-sorted-map-by-cf))
@@ -177,6 +203,10 @@
   ;(println "Ranges: " (sort-by cf ranges))
   (let [pool-updater (partial update-pool-of-holds-new-range id)]
     (reduce pool-updater old-pool-state (sort-by cf ranges))))
+
+(defn discard-hold [old-pool-state uid]
+  (-> old-pool-state
+      (dissoc uid)))
 
 ;;
 ;; Take one big range and split it up into many (or none)
@@ -240,7 +270,8 @@
     (deposit-into-ga hold-start hold-end id vals)
     (if (within-range user-want hold-start hold-end)
       (do
-        (cb vals))
+        (cb vals)
+        (swap! pool-of-holds discard-hold uid))
       (do
         (println "WARNING: User's query has changed so need to go through the points and only deliver some, rest to ga")
         (println "user-want " user-want)
@@ -272,11 +303,11 @@
     (query the-id {:start start-time :end (+ start-time smaller-dur)} (fn [res] #_(println "FIRST" res)))
     (query the-id {:start start-time :end (+ start-time duration)} (fn [res] #_(println "SECOND" res)))
     ;;
-    (println "Total range in pool of holds: " (range-in-pool-of-holds 1))
+    (println "Total range in pool of holds: " (range-in-pool-of-holds the-id))
     )
   #_(let [want-range {:start 4 :end 8}
         existing-range {:start 3 :end 7}]
     (println "Wanting " want-range " and able to steal from " existing-range ", we covet: " (match/covet want-range existing-range)))
   )
 
-(run)
+#_(run)

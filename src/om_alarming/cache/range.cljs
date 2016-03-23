@@ -27,9 +27,12 @@
   (reduce (fn [acc ele]
             (let [{:keys [start end] as range} ele
                   current-start (:start acc)
-                  current-end (:end acc)]
-              {:start (lesser-of start current-start)
-               :end (greater-of end current-end)}))
+                  current-end (:end acc)
+                  bad-ele? (or (nil? start) (nil? end))]
+              (if bad-ele?
+                acc
+                {:start (lesser-of start current-start)
+                 :end   (greater-of end current-end)})))
           ranges))
 
 ;;
