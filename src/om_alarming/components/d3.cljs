@@ -68,6 +68,7 @@
           _ (go-loop [ch chan]
                      (let [incoming (<! ch)]
                        (add-square this (random-square))
+                       (render-squares this (om/get-state this) "componentDidMount's go loop")
                        (recur ch)))]
       (render-squares this initial-local-state "componentDidMount")))
   (shouldComponentUpdate [this next-props next-state] false)
