@@ -112,7 +112,7 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :graph/points
+#_(defmethod read :graph/points
   [{:keys [state query]} key _]
   (let [st @state
         ;_ (println "In :graph/points for:" query)

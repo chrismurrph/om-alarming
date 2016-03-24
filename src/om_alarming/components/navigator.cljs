@@ -51,6 +51,8 @@
   Object
   (debug [this comms-chan]
     (go (>! comms-chan {:cmd :debug-rand-point})))
+  (remove-all [this comms-chan]
+    (go (>! comms-chan {:cmd :remove-all})))
   (render [this]
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
           {:keys [lines comms-chan]} (om/get-computed this)
@@ -68,15 +70,15 @@
       (dom/div #js {:className "item"}
                (dom/div #js {:className (sized "ui buttons")}
                         (dom/button #js {:className "ui icon button"
-                                         :onClick   #(om/transact! this `[(navigate/backwards {:seconds ~span-seconds})])}
+                                         :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/backwards {:seconds ~span-seconds})]))}
                                     (dom/i #js {:className "left arrow icon"}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"}
                                     (dom/i #js {:className "right arrow icon"
-                                                :onClick   #(om/transact! this `[(navigate/forwards {:seconds ~span-seconds})])}))
+                                                :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/forwards {:seconds ~span-seconds})]))}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
-                                         :onClick   #(om/transact! this `[(navigate/now)])}
+                                         :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/now)]))}
                                     (dom/i #js {:className "sign in icon"}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"

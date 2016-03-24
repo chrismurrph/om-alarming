@@ -17,7 +17,7 @@
 ;; To create a point we need to know the name of the line that it is to go in
 ;; and x and y.
 ;;
-(defn create-point [st params]
+#_(defn create-point [st params]
   (let [{:keys [line-name-ident x y val]} params
         {:keys [state point-ident]} (points/new-point st x y val)
         ]
@@ -29,7 +29,7 @@
 ;;
 ;; params need to be line Ident, x and y
 ;;
-(defmethod mutate 'graph/add-point
+#_(defmethod mutate 'graph/add-point
   [{:keys [state]} _ params]
   {:action #(swap! state create-point params)})
 
@@ -45,7 +45,7 @@
                   (reduce max)
                   inc)
         _ (println "In new-line, new id is " id)
-        line {:id id :intersect [:gas-at-location/by-id intersect-id] :colour colour :graph/points []}
+        line {:id id :intersect [:gas-at-location/by-id intersect-id] :colour colour}
         ref  [:line/by-id id]]
     {:line-ident ref
      :state (-> st

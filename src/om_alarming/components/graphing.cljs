@@ -62,7 +62,7 @@
 
 (defn random-circle []
   {
-   ;:point-id    (rand-int 10000000)
+   :point-id    (rand-int 10000000)
    :x     (rand-int 200)
    :y     (rand-int 200)
    :val   (rand-int 20)})
@@ -75,7 +75,7 @@
   (let [points (:points props)
         intersect (:intersect computed-props)
         _ (assert intersect "points have to be in a line")]
-    (println "points in " (-> intersect :system-gas :short-name) " we should render: " (count points) ": " (map #(select-keys % [:x :y :val :point-id]) points))
+    #_(println "points in " (-> intersect :system-gas :short-name) " we should render: " (count points) ": " (map #(select-keys % [:x :y :val :point-id]) points))
     (for [point points]
       (point-component (om/computed point computed-props)))))
 
@@ -108,7 +108,11 @@
                          (do
                            (println "new point: " value ", on line: " line)
                            (assert (point? value) (str "Not a point: " value))
-                           (om/update-state! this update :points conj value)))
+                           (om/update-state! this update :points conj value))
+                         :remove-all
+                         (do
+                           (println "In remove all from " (-> (om/props this) :id))
+                           (om/update-state! this dissoc :points)))
                        (recur ch)))]))
   (render [this]
     (let [props (om/props this)
@@ -334,6 +338,7 @@
                   graph/labels-visible? 
                   graph/misc graph/plumb-line graph/translators]} props
           _ (assert (and width height) (str "No width or height in: <" props ">"))
+          line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
           {:keys [point-fn horiz-fn]} translators
           _ (assert point-fn)
           _ (assert horiz-fn)
@@ -345,11 +350,25 @@
           ;_ (println "SVG: " init-props)
           ;_ (println "LINEs count: " (count lines))
           ;_ (println "for-drop-info" for-drop-info)
+          _ (go-loop [] (let [msg (<! comms-chan)
+                              line-ident (-> msg :line)
+                              _ (println "relay: " msg)
+                              chans (vals line-chans)
+                              ;_ (println "chans: " chans)
+                              _ (println "line-ident: " line-ident)
+                              _ (println "keys: " (keys line-chans))
+                              ]
+                          (if (nil? line-ident)
+                            (doseq [ch chans]
+                              (>! ch msg))
+                            (let [target-chan (some (fn [[k v]] (when (= k (second line-ident)) v)) line-chans)]
+                              (>! target-chan msg))))
+                     (recur))
           ]
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
-                          (line-component (om/computed line computed-for-line)))
+                          (line-component (om/computed line (merge computed-for-line {:comms-chan (some (fn [[k v]] (when (= k (:id line)) v)) line-chans)}))))
                         (plumb-line-component (om/computed (merge plumb-line init) computed-for-line))
                         )
                (navigator/navigator (om/computed navigator {:lines lines :comms-chan comms-chan}))))))

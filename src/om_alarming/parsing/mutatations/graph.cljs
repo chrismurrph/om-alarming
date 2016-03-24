@@ -61,11 +61,11 @@
 ;;
 ;; Will have to reduce over every line ident with state being the accumulator
 ;;
-(defn rm-all-points-from-line [st line-ident]
+#_(defn rm-all-points-from-line [st line-ident]
   (-> st
       (assoc-in (conj line-ident :graph/points) [])))
 
-(defn rm-all-points [st]
+#_(defn rm-all-points [st]
   (let [all-lines-idents (:graph/lines st)]
     (-> (reduce rm-all-points-from-line
                 st
@@ -75,13 +75,13 @@
 (defn update-end-time [st fn]
   (-> st
       (update-in [:navigator/by-id 10600 :end-time] fn)
-      (rm-all-points)
+      ;(rm-all-points)
       (assoc-in [:navigator/by-id 10600 :receiving?] false)))
 
 (defn assoc-end-time [st new-val]
   (-> st
       (assoc-in [:navigator/by-id 10600 :end-time] new-val)
-      (rm-all-points)
+      ;(rm-all-points)
       (assoc-in [:navigator/by-id 10600 :receiving?] false)))
 
 (defmethod mutate 'navigate/forwards

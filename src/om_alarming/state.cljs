@@ -132,20 +132,16 @@
    [
     {:id     100
      :colour pink
-     :intersect {:grid-cell/id 500}
-     :graph/points []}
+     :intersect {:grid-cell/id 500}}
     {:id     101
      :colour green
-     :intersect {:grid-cell/id 501}
-     :graph/points []}
+     :intersect {:grid-cell/id 501}}
     {:id     102
      :colour blue
-     :intersect {:grid-cell/id 503}
-     :graph/points []}
+     :intersect {:grid-cell/id 503}}
     {:id     103
      :colour red
-     :intersect {:grid-cell/id 502}
-     :graph/points []}
+     :intersect {:grid-cell/id 502}}
     ]
    :app/gases [{:id 150 :long-name "Methane" :short-name "CH\u2084"
                 :lowest 0.25 :highest 1 :units "%"}
@@ -155,7 +151,6 @@
                 :lowest 30 :highest 55 :units "ppm"}
                {:id 153 :long-name "Carbon Dioxide" :short-name "CO\u2082"
                 :lowest 0.5 :highest 1.35 :units "%"}]
-   :graph/points []
    :app/tubes
    [{:id    1000
      :tube-num 1

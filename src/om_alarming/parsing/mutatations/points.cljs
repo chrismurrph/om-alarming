@@ -2,7 +2,7 @@
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]))
 
-(defn new-point
+#_(defn new-point
   "Modifies the state in two places - so perfectly puts in a new point.
   Caller needs to work on this state a little more to put the point in
   an existing line"
