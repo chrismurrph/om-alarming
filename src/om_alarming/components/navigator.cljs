@@ -22,10 +22,10 @@
 
 #_(dom/div #js {:className "ui divider"})
 
-(defn start-stop-system [want-going? line-infos start-millis end-millis]
+(defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
   (let [already-going? (system/going?)]
     (if (and want-going? (not already-going?))
-      (system/start! line-infos start-millis end-millis)
+      (system/start! line-infos start-millis end-millis graph-chan)
       (when (and already-going? (not want-going?))
         (system/stop!)))))
 
@@ -50,7 +50,7 @@
      ])
   Object
   (debug [this comms-chan]
-    (go (>! comms-chan {:cmd :debug})))
+    (go (>! comms-chan {:cmd :debug-rand-point})))
   (render [this]
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
           {:keys [lines comms-chan]} (om/get-computed this)
@@ -63,7 +63,7 @@
           play-stop-css (if receiving? "stop icon" "play icon")
           _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
           _ (println "RECEIVING: " receiving?)
-          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time))
+          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
           ]
       (dom/div #js {:className "item"}
                (dom/div #js {:className (sized "ui buttons")}

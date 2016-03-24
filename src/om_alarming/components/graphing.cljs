@@ -18,18 +18,18 @@
                           :opacity     1.0}))
 
 (defui Point
-  static om/Ident
-  (ident [this props]
-    [:graph-point/by-id (:point-id props)])
-  static om/IQuery
-  (query [this]
-    [:point-id :x :y :val])
+  ;static om/Ident
+  ;(ident [this props]
+  ;  [:graph-point/by-id (:point-id props)])
+  ;static om/IQuery
+  ;(query [this]
+  ;  [:point-id :x :y :val])
   Object
   (render [this]
     (let [props (om/props this)
           {:keys [point-id x y val]} props
           {:keys [rgb-map translator]} (om/get-computed this)
-          _ (println "POINT: " point-id " " rgb-map " " x " " y)
+          _ (println "POINT: " rgb-map " " x " " y)
           _ (assert point-id)
           _ (assert (and x y val))
           [x-trans y-trans val-trans] (translator props)
@@ -62,16 +62,20 @@
 
 (defn random-circle []
   {
-   :point-id    (rand-int 10000000)
+   ;:point-id    (rand-int 10000000)
    :x     (rand-int 200)
    :y     (rand-int 200)
    :val   (rand-int 20)})
+
+(defn point? [in]
+  (let [{:keys [x y val point-id]} in]
+    (and x y val point-id)))
 
 (defn render-points [props computed-props]
   (let [points (:points props)
         intersect (:intersect computed-props)
         _ (assert intersect "points have to be in a line")]
-    (println "points in " (-> intersect :system-gas :short-name) " we should render: " (count points) ": " (map #(select-keys % [:x :y :val]) points))
+    (println "points in " (-> intersect :system-gas :short-name) " we should render: " (count points) ": " (map #(select-keys % [:x :y :val :point-id]) points))
     (for [point points]
       (point-component (om/computed point computed-props)))))
 
@@ -91,15 +95,20 @@
     (let [chan (:comms-chan (om/get-computed this))
           _ (assert chan "Must have a channel")
           _ (go-loop [ch chan]
-                     (let [{:keys [cmd value]} (<! ch)]
+                     (let [{:keys [cmd value line]} (<! ch)]
                        (case cmd
-                         :debug
+                         :debug-rand-point
                          (do
                            (let [new-point (random-circle)]
                              (println "Need create rand point, put it in local state, and render all the points")
                              (om/update-state! this update :points conj new-point)
                              ;(render-points this (om/get-state this) {} "componentDidMount's go loop")
-                             )))
+                             ))
+                         :new-point
+                         (do
+                           (println "new point: " value ", on line: " line)
+                           (assert (point? value) (str "Not a point: " value))
+                           (om/update-state! this update :points conj value)))
                        (recur ch)))]))
   (render [this]
     (let [props (om/props this)
@@ -107,7 +116,7 @@
           _ (assert point-fn)
           ;_ (println "Line props:" props)
           {:keys [colour intersect graph/points]} props
-          ;_ (assert (pos? (count points)) (str "No points found in:" props))
+          _ (assert (zero? (count points)) (str "points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
       (dom/g nil

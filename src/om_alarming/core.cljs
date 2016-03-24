@@ -134,7 +134,6 @@
        {:tube/gases (om/get-query grid/GridDataCell)}
        {:app/buttons (om/get-query nav/TabButton)}
        {:app/selected-button (om/get-query nav/TabButton)}
-       {:graph/points (om/get-query graph/Point)}
        {:graph/x-gas-details (om/get-query graph/RectTextTick)}
        {:graph/labels (om/get-query graph/Label)}
        ;; Rid of this b/c of subquery
