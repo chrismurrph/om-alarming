@@ -106,7 +106,7 @@
    }
   )
 
-(def route->factory
+#_(def route->factory
   (zipmap (keys route->component)
           (map (fn [c] (om/factory c {:keyfn :id})) (vals route->component))))
 

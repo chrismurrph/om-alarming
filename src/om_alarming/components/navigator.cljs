@@ -4,7 +4,10 @@
             [cljs-time.format :as format-time]
             [cljs-time.core :as time]
             [om-alarming.parsing.mutations.graph]
-            [om-alarming.system :as system]))
+            [om-alarming.system :as system]
+            [cljs.core.async :as async
+             :refer [<! >! chan close! put! timeout]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def date-time-formatter (format-time/formatters :mysql))
 
@@ -46,9 +49,11 @@
      :receiving?
      ])
   Object
+  (debug [this comms-chan]
+    (go (>! comms-chan {:cmd :debug})))
   (render [this]
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
-          lines (:lines (om/get-computed this))
+          {:keys [lines comms-chan]} (om/get-computed this)
           ;_ (println "LINES:\n" lines "\n")
           line-infos (map to-info lines)
           ;_ (println "line-infos: " line-infos)
@@ -76,7 +81,11 @@
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
                                          :onClick   (fn [] (om/transact! this `[(graph/toggle-receive {:receiving? ~receiving?})]))}
-                                    (dom/i #js {:className play-stop-css})))
+                                    (dom/i #js {:className play-stop-css}))
+                        (dom/div #js {:className "ui divider"})
+                        (dom/button #js {:className "ui icon button"
+                                         :onClick   (fn [] (.debug this comms-chan))}
+                                    (dom/i #js {:className "paw icon"})))
                (dom/div #js {:className "item"}
                         (dom/label #js {:className (sized "ui horizontal label") :style #js {:width 250}}
                                    formatted-begin-time)

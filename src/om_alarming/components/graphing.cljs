@@ -9,7 +9,8 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.reconciler :as reconciler]))
+            [om-alarming.reconciler :as reconciler])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def careless-text-props (clj->js {:x  10 :y 20
                           :stroke      (process/rgb-map-to-str black)
@@ -28,7 +29,7 @@
     (let [props (om/props this)
           {:keys [point-id x y val]} props
           {:keys [rgb-map translator]} (om/get-computed this)
-          ;_ (println "POINT: " id " " rgb-map " " x " " y " " translator)
+          _ (println "POINT: " point-id " " rgb-map " " x " " y)
           _ (assert point-id)
           _ (assert (and x y val))
           [x-trans y-trans val-trans] (translator props)
@@ -59,6 +60,21 @@
   (query [this]
     [:id]))
 
+(defn random-circle []
+  {
+   :point-id    (rand-int 10000000)
+   :x     (rand-int 200)
+   :y     (rand-int 200)
+   :val   (rand-int 20)})
+
+(defn render-points [props computed-props]
+  (let [points (:points props)
+        intersect (:intersect computed-props)
+        _ (assert intersect "points have to be in a line")]
+    (println "points in " (-> intersect :system-gas :short-name) " we should render: " (count points) ": " (map #(select-keys % [:x :y :val]) points))
+    (for [point points]
+      (point-component (om/computed point computed-props)))))
+
 (defui Line
   static om/Ident
   (ident [this props]
@@ -66,21 +82,39 @@
   static om/IQuery
   (query [this]
     [:id :colour {:intersect (om/get-query Intersect)}
-     {:graph/points (om/get-query Point)}
+     ;{:graph/points (om/get-query Point)}
      ])
   Object
+  (initLocalState [this]
+    {:points []})
+  (componentDidMount [this]
+    (let [chan (:comms-chan (om/get-computed this))
+          _ (assert chan "Must have a channel")
+          _ (go-loop [ch chan]
+                     (let [{:keys [cmd value]} (<! ch)]
+                       (case cmd
+                         :debug
+                         (do
+                           (let [new-point (random-circle)]
+                             (println "Need create rand point, put it in local state, and render all the points")
+                             (om/update-state! this update :points conj new-point)
+                             ;(render-points this (om/get-state this) {} "componentDidMount's go loop")
+                             )))
+                       (recur ch)))]))
   (render [this]
     (let [props (om/props this)
           {:keys [point-fn]} (om/get-computed this)
           _ (assert point-fn)
           ;_ (println "Line props:" props)
-          {:keys [name colour intersect graph/points]} props
+          {:keys [colour intersect graph/points]} props
           ;_ (assert (pos? (count points)) (str "No points found in:" props))
           ;_ (println "POINTs count: " (count points))
           ]
-      (dom/g nil (for [point points]
-                   (point-component (om/computed point {:rgb-map colour :translator point-fn})))))))
+      (dom/g nil
+             (render-points (om/get-state this) {:rgb-map colour :translator point-fn :intersect intersect})))))
 (def line-component (om/factory Line {:keyfn :id}))
+
+;(point-component (om/computed point {:rgb-map colour :translator point-fn}))
 
 (defui RectTextTick
   static om/Ident
@@ -281,6 +315,7 @@
       nil))
   (render [this]
     (let [props (om/props this)
+          comms-chan (chan)
           ;_ (pprint props)
           {:keys [width
                   height
@@ -293,8 +328,7 @@
           {:keys [point-fn horiz-fn]} translators
           _ (assert point-fn)
           _ (assert horiz-fn)
-          ;comms-channel (:comms misc)
-          ;_ (assert comms-channel "Need a comms channel to direct mouse movement at")
+          computed-for-line (merge translators {:comms-chan comms-chan})
           handler #(.handler-fn this %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init {:width width :height height}
@@ -306,10 +340,10 @@
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
-                          (line-component (om/computed line translators)))
-                        (plumb-line-component (om/computed (merge plumb-line init) translators))
+                          (line-component (om/computed line computed-for-line)))
+                        (plumb-line-component (om/computed (merge plumb-line init) computed-for-line))
                         )
-               (navigator/navigator (om/computed navigator {:lines lines}))))))
+               (navigator/navigator (om/computed navigator {:lines lines :comms-chan comms-chan}))))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]

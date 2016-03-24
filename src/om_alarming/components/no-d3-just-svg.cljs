@@ -70,11 +70,11 @@
                                   (render-circles this (om/get-state this) "componentDidMount's go loop")))
                        (recur ch)))]))
   (render [this]
-    (let [initial-local-state (om/get-state this)]
+    (let [local-state (om/get-state this)]
       (dom/svg (clj->js {:style   {:backgroundColor "rgb(240,240,240)"}
                          :width   200 :height 200
                          :viewBox "0 0 1000 1000"})
-               (render-circles this initial-local-state "SVGThing render")))))
+               (render-circles this local-state "SVGThing render")))))
 (def svg-thing (om/factory SVGThing))
 
 (defui PresentDefCard
