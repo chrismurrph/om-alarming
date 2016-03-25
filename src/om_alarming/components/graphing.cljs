@@ -217,21 +217,43 @@
     [:plumb-line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :height :visible?
-     ;:x-position
-     ;:in-sticky-time?
+    [:id
+     :visible?
      {:graph/x-gas-details (om/get-query RectTextTick)}
      {:graph/current-line (om/get-query Line)}
      ])
   Object
+  (initLocalState [this]
+    {:last-mouse-moment nil
+     :x-position 0
+     :hover-pos nil
+     :in-sticky-time? false})
+  (componentDidMount [this]
+    (let [chan (:comms-chan (om/get-computed this))
+          _ (assert chan "Must have a channel")
+          _ (go-loop [ch chan]
+                     (let [{:keys [cmd value]} (<! ch)
+                           {:keys [hover-pos last-mouse-moment]} value
+                           {:keys [in-sticky-time?]} (om/get-state this)]
+                       (case cmd
+                         :mouse-change
+                         (do
+                           (when (not in-sticky-time?)
+                             (om/update-state! this assoc :last-mouse-moment last-mouse-moment)
+                             (om/update-state! this assoc :x-position hover-pos))
+                           (om/update-state! this assoc :hover-pos hover-pos)
+                           (om/update-state! this assoc :in-sticky-time? in-sticky-time?))
+                         :sticky-change
+                         (om/update-state! this assoc :in-sticky-time? (not in-sticky-time?))
+                         )
+                       (recur ch)))]))
   (render [this]
-    (let [props (om/props this)
-          {:keys [id height visible?]} props
-          {:keys [horiz-fn point-fn x-position in-sticky-time?]} (om/get-computed this)
+    (let [app-props (om/props this)
+          {:keys [id visible?]} app-props
+          {:keys [horiz-fn point-fn height] :as computed-props} (om/get-computed this)
+          _ (assert height (str "Must have height, computed-props: " (select-keys computed-props [:height])))
           _ (assert horiz-fn)
-          _ (assert x-position "find x-position in local state of outer component")
-          _ (assert (not (nil? in-sticky-time?)) "find in-sticky-time? in local state of outer component")
-          ;_ (assert comms-channel)
+          {:keys [in-sticky-time? x-position]} (om/get-state this)
           stroke-width (if in-sticky-time? 2 1)
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -241,7 +263,7 @@
                              :strokeWidth stroke-width})
           res (when visible?
                 (dom/g nil
-                       (rect-text-ticks (merge props {:horiz-fn horiz-fn :point-fn point-fn}))
+                       (rect-text-ticks (merge app-props {:horiz-fn horiz-fn :point-fn point-fn}))
                        (dom/line (clj->js line-props))))]
       res)))
 (def plumb-line-component (om/factory PlumbLine {:keyfn :id}))
@@ -302,18 +324,15 @@
      {:graph/translators [:point-fn :horiz-fn]}])
   Object
   (initLocalState [this]
-    {:last-mouse-moment nil
-     :x-position 0
-     :hover-pos nil
-     :in-sticky-time? false})
-  (mouse-change [this in-sticky-time? hover-pos last-mouse-moment]
-    (when (not in-sticky-time?)
-      (om/update-state! this assoc :last-mouse-moment last-mouse-moment)
-      (om/update-state! this assoc :x-position hover-pos))
-    (om/update-state! this assoc :hover-pos hover-pos)
-    (om/update-state! this assoc :in-sticky-time? in-sticky-time?))
-  (sticky-change [this new-sticky]
-    (om/update-state! this assoc :in-sticky-time? new-sticky))
+    {:comms-chan (chan)})
+  (mouse-change [this hover-pos last-mouse-moment]
+    (let [controller-chan (:comms-chan (om/get-state this))
+          msg {:cmd :mouse-change :value {:hover-pos hover-pos :last-mouse-moment last-mouse-moment}}]
+      (go (>! controller-chan msg))))
+  (sticky-change [this]
+    (let [controller-chan (:comms-chan (om/get-state this))
+          msg {:cmd :sticky-change}]
+      (go (>! controller-chan msg))))
   (handler-fn [this e]
     ;(assert comms-channel)
     (let [bounds (. (dom/node this) getBoundingClientRect)
@@ -324,31 +343,16 @@
           ]
       ;(put! comms-channel {:type (.-type e) :x x :y y})
       (case mouse-evt-type
-        "mousemove" (let [now-moment (now-time)
-                          {:keys [last-mouse-moment x-position hover-pos in-sticky-time?]} (om/get-state this)
-                          plumb-line (:graph/plumb-line (om/props this))
-                          _ (println "in-sticky-time?, x: " in-sticky-time? x)
-                          ]
-                      (.mouse-change this in-sticky-time? x now-moment)
-                      #_(om/transact! this `[(graph/mouse-change {:in-sticky-time? ~in-sticky-time?
-                                                                :hover-pos ~x
-                                                                :last-mouse-moment ~now-moment
-                                                                :graph/labels-visible? false})
-                                           :graph/plumb-line]))
-        "mouseup" (let [in-sticky-time? (:in-sticky-time? (om/get-state this))
-                        _ (assert (boolean? in-sticky-time?))
-                        opposite (not in-sticky-time?)
-                        ]
-                    (.sticky-change this opposite)
-                    #_(om/transact! this `[(graph/in-sticky-time? {:in-sticky-time? ~opposite})
-                                         :graph/plumb-line]))
+        "mousemove" (let [now-moment (now-time)]
+                      (.mouse-change this x now-moment))
+        "mouseup" (let []
+                    (.sticky-change this))
         "mousedown")
       nil))
   (render [this]
     (let [app-props (om/props this)
           local-props (om/get-state this)
-          {:keys [in-sticky-time? x-position]} local-props
-          comms-chan (chan)
+          {:keys [in-sticky-time? x-position comms-chan]} local-props
           ;_ (pprint props)
           {:keys [width
                   height
@@ -358,31 +362,36 @@
                   graph/misc graph/plumb-line graph/translators]} app-props
           _ (assert (and width height) (str "No width or height in: <" app-props ">"))
           line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
+          plumb-chan (chan)
           {:keys [point-fn horiz-fn]} translators
           _ (assert point-fn)
           _ (assert horiz-fn)
+          _ (assert plumb-line)
           computed-for-line (merge translators {:comms-chan comms-chan})
-          computed-for-plumb (merge translators {:x-position x-position :in-sticky-time? in-sticky-time?})
+          computed-for-plumb (merge translators {:comms-chan plumb-chan})
           handler #(.handler-fn this %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init {:width width :height height}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
           _ (go-loop [] (let [msg (<! comms-chan)
+                              cmd (:cmd msg)
                               line-ident (-> msg :line)
                               ]
-                          (if (nil? line-ident)
-                            (doseq [ch (vals line-chans)]
-                              (>! ch msg))
-                            (if-let [target-chan (some (fn [[k v]] (when (= k (second line-ident)) v)) line-chans)]
-                              (>! target-chan msg)
-                              (println "Sumfin not thought of yet!"))))
+                          (if (or (= cmd :mouse-change) (= cmd :sticky-change))
+                            (>! plumb-chan msg)
+                            (if (nil? line-ident)
+                              (doseq [ch (vals line-chans)]
+                                (>! ch msg))
+                              (if-let [target-chan (some (fn [[k v]] (when (= k (second line-ident)) v)) line-chans)]
+                                (>! target-chan msg)
+                                (println "Sumfin not thought of yet!")))))
                      (recur))
           ]
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
                           (line-component (om/computed line (merge computed-for-line {:comms-chan (some (fn [[k v]] (when (= k (:id line)) v)) line-chans)}))))
-                        (plumb-line-component (om/computed (merge plumb-line init) computed-for-plumb))
+                        (plumb-line-component (om/computed plumb-line (merge computed-for-plumb init)))
                         )
                (navigator/navigator (om/computed navigator {:lines lines :comms-chan comms-chan}))))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
