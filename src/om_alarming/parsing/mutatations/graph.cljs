@@ -3,7 +3,7 @@
             [om-alarming.reconciler :refer [mutate]]
             [cljs-time.core :as time]))
 
-(defn as-mouse-changes [orig-state params]
+#_(defn as-mouse-changes [orig-state params]
   (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params
         ;_ (assert (db-format/boolean? in-sticky-time?))
         ]
@@ -18,12 +18,12 @@
           ;(assoc-in [:drop-info/by-id 10200 :x] hover-pos)
           ))))
 
-(defmethod mutate 'graph/mouse-change
+#_(defmethod mutate 'graph/mouse-change
   [{:keys [state]} _ params]
   {:value  {:keys [:graph/trending-graph]}
    :action #(swap! state as-mouse-changes params)})
 
-(defmethod mutate 'graph/in-sticky-time?
+#_(defmethod mutate 'graph/in-sticky-time?
   [{:keys [state]} _ params]
   {:value  {:keys [:in-sticky-time?]}
    :action #(swap! state assoc-in [:plumb-line/by-id 10201 :in-sticky-time?] (:in-sticky-time? params))})
