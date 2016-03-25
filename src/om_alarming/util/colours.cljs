@@ -3,6 +3,7 @@
             [om-alarming.util.utils :as u]))
 
 (def black {:r 0 :g 0 :b 0})
+(def brown {:r 165 :g 96 :b 57})
 (def white {:r 255 :g 255 :b 255})
 (def blue {:r 0 :g 51 :b 102})
 (def light-blue {:r 0 :g 204 :b 255})

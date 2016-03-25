@@ -86,7 +86,7 @@
   (let [new-gen (partial generator start end)
         out-chan (chan)
         gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
-        _ (log gas-channels)
+        ;_ (log gas-channels)
         stop-fn (controller-component out-chan (vals gas-channels))
         _ (mapv (fn [[info chan]] (new-gen info chan)) gas-channels)
         ]

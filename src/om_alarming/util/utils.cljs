@@ -1,6 +1,9 @@
 (ns ^:figwheel-always om-alarming.util.utils
   (:require [clojure.string :as str]
-            [clojure.set :as cset]))
+            [clojure.set :as cset]
+            [cljs.core.async :as async
+             :refer [chan close! put! timeout <!]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 ;; http://sids.github.io/nerchuko/utils-api.html
 (defn unselect-keys
@@ -48,8 +51,20 @@ entries whose key is not in keys."
   (println (str (str/upper-case msg) ":\n" obj))
   obj)
 
-(defn log [& txts]
-  (.log js/console (apply str txts)))
+;;
+;; Just a println would be fine in a javascript environ. But this way can code exactly
+;; same in both environments, and port the code across easily.
+;;
+
+(def log-chan (chan))
+
+(go-loop []
+  (when-let [v (<! log-chan)]
+    (println v)
+    (recur)))
+
+(defn log [debug msg]
+  (when debug (go (>! log-chan msg))))
 
 (defn no-log [& txts]
   ())
