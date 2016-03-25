@@ -107,11 +107,11 @@
                          (do
                            (u/log true (str "In remove all from " (-> (om/props this) :id)))
                            (om/update-state! this dissoc :points))
-                         :request-points
+                         :request-y-at-x
                          (do
                            (u/log true (str "Got request points, where reply chan is" reply-chan))
                            (assert reply-chan)
-                           (go (>! reply-chan {:cmd :points-response :points []}))))
+                           (go (>! reply-chan {:cmd :y-at-x-response :y-val nil}))))
                        (recur)))]))
   (render [this]
     (let [props (om/props this)
@@ -189,18 +189,22 @@
                  (dom/line (clj->js line-props))))))))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
+(defn calc-proportionals [horiz-fn point-fn points x-position]
+  (let [pair (process/enclosed-by horiz-fn points x-position)
+        ;_ (println "pair: " pair)
+        proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
+        ;_ (println "proportionals: " proportionals)
+        ]
+    proportionals))
+
 (defn rect-text-ticks [drop-info]
   (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line horiz-fn point-fn]} drop-info
         _ (assert (and point-fn horiz-fn x-gas-details x-position current-line))
-        _ (println "x-position: " x-position)
+        ;_ (println "x-position: " x-position)
         points (sort-by :x (:graph/points current-line))
         ]
     (when (and x-position (not-empty points))
-      (let [pair (process/enclosed-by horiz-fn points x-position)
-            ;_ (println "pair: " pair)
-            proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
-            ;_ (println "proportionals: " proportionals)
-            ]
+      (let [proportionals (calc-proportionals horiz-fn point-fn points x-position)]
         ;(println "count x-gas-details: " (count x-gas-details))
         (dom/g nil
                (for [x-gas-info x-gas-details]
@@ -252,9 +256,8 @@
   (render [this]
     (let [app-props (om/props this)
           {:keys [id visible?]} app-props
-          {:keys [horiz-fn point-fn height] :as computed-props} (om/get-computed this)
+          {:keys [height] :as computed-props} (om/get-computed this)
           _ (assert height (str "Must have height, computed-props: " (select-keys computed-props [:height])))
-          _ (assert horiz-fn)
           {:keys [in-sticky-time? x-position] :as local-state} (om/get-state this)
           stroke (if in-sticky-time? (process/rgb-map-to-str black) (process/rgb-map-to-str brown))
           line-props (merge process/line-defaults
@@ -316,10 +319,8 @@
     [:id
      :width 
      :height
-     ;:last-mouse-moment
      {:graph/lines (om/get-query Line)}
      {:graph/navigator (om/get-query navigator/GraphNavigator)}
-     ;:hover-pos
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
@@ -337,15 +338,13 @@
       (async/put! controller-chan msg)))
   (sticky-change [this]
     (let [local-state (om/get-state this)
-          controller-chan (:comms-chan local-state)
-          just-stopped-it? (not (:stuck? local-state))
-          msg1 {:cmd :sticky-change}
-          msg2 {:cmd :request-points :reply-chan controller-chan}]
+          ch (:comms-chan local-state)
+          just-stopped-it? (not (:stuck? local-state))]
       (om/update-state! this update :stuck? not)
-      (async/put! controller-chan msg1)
+      (async/put! ch {:cmd :sticky-change})
       (when just-stopped-it?
         (u/log true "Going to run thru, as user just stopped")
-        (async/put! controller-chan msg2))))
+        (async/put! ch {:cmd :request-y-at-x :reply-chan ch}))))
   (handler-fn [this e]
     ;(assert comms-channel)
     (let [bounds (. (dom/node this) getBoundingClientRect)
@@ -392,7 +391,7 @@
                               cmd (:cmd msg)
                               line-ident (-> msg :line)
                               ]
-                          (if (= cmd :points-response)
+                          (if (= cmd :y-at-x-response)
                             (u/log true "Whew!")
                             (if (or (= cmd :mouse-change) (= cmd :sticky-change))
                               (>! plumb-chan msg)
