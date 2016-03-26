@@ -7,7 +7,8 @@
             [om-alarming.util.utils :as u]
             [om-alarming.util.colours :refer [white light-blue black]]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.util.colours :as colours])
+            [om-alarming.util.colours :as colours]
+            [om-alarming.components.log-debug :as ld])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def point-defaults
@@ -70,6 +71,7 @@
                                   (render-circles this (om/get-state this) "componentDidMount's go loop")))
                        (recur ch)))]))
   (render [this]
+    (ld/log-render "SVGThing" this)
     (let [local-state (om/get-state this)]
       (dom/svg (clj->js {:style   {:backgroundColor "rgb(240,240,240)"}
                          :width   200 :height 200
@@ -86,6 +88,7 @@
     (fn []
       (go (>! some-chan {:cmd :clear :value nil}))))
   (render [this]
+    (ld/log-render "PresentDefCard" this)
     (let [props (om/props this)
           some-chan (chan)]
       (dom/div nil

@@ -6,7 +6,9 @@
             [om-alarming.parsing.mutations.graph]
             [om-alarming.system :as system]
             [cljs.core.async :as async
-             :refer [<! >! chan close! put! timeout]])
+             :refer [<! >! chan close! put! timeout]]
+            [om-alarming.components.log-debug :as ld]
+            )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def date-time-formatter (format-time/formatters :mysql))
@@ -54,6 +56,7 @@
   (remove-all [this comms-chan]
     (go (>! comms-chan {:cmd :remove-all})))
   (render [this]
+    (ld/log-render "GraphNavigator" this)
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
           {:keys [lines comms-chan]} (om/get-computed this)
           ;_ (println "LINES:\n" lines "\n")

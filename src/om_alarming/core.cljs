@@ -15,6 +15,7 @@
             [om-alarming.components.navigator :as navigator]
             [om-alarming.components.d3 :as d3]
             [om-alarming.components.no-d3-just-svg :as no-d3]
+            [om-alarming.components.log-debug :as ld]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
@@ -59,6 +60,7 @@
     [:id :map/name :map/description])
   Object
   (render [this]
+    (ld/log-render "Map" this)
     (dom/div nil "Nufin")))
 
 (defui Thresholds
@@ -67,6 +69,7 @@
     [:id :thresholds/name :thresholds/description])
   Object
   (render [this]
+    (ld/log-render "Thresholds" this)
     (dom/div nil "Nufin")))
 
 (defui Reports
@@ -75,6 +78,7 @@
     [:id :reports/name :reports/description])
   Object
   (render [this]
+    (ld/log-render "Reports" this)
     (dom/div nil "Nufin")))
 
 (defui Automatic
@@ -83,6 +87,7 @@
     [:id :automatic/name :automatic/description])
   Object
   (render [this]
+    (ld/log-render "Automatic" this)
     (dom/div nil "Nufin")))
 
 (defui Logs
@@ -91,6 +96,7 @@
     [:id :logs/name :logs/description])
   Object
   (render [this]
+    (ld/log-render "Logs" this)
     (dom/div nil "Nufin")))
 
 ;; These wrong now
@@ -148,6 +154,7 @@
   (pick-colour [this cols]
     (colours/new-random-colour cols))
   (render [this]
+    (ld/log-render "App" this)
     (let [app-props (om/props this)
           {:keys [app/route route/data app/buttons app/selected-button graph/lines]} app-props
           existing-colours (into #{} (map :colour lines))]

@@ -2,8 +2,43 @@
   (:require [clojure.string :as str]
             [clojure.set :as cset]
             [cljs.core.async :as async
-             :refer [chan close! put! timeout <!]])
+             :refer [chan close! put! timeout <! >! alts!]]
+            [om.next :as om])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
+
+;;
+;; A question about the `om/computed` and `om/get-computed` mechanism: if you want to pass down to grandchildren or
+;; deeper, at each level you need to take apart the computed bundle and reassemble it for further down-passing, right?
+;; There is no mechanism for having scope that is global to all descendants of a certain component? I agree that the
+;; latter would be a less functional way, but the `computed` / `get-computed` dance in intermediate components feels
+;; tedious.
+;;
+;; Usage: `(let [f (forward-computed-factory this (om/factory OtherComponent))] (f props {:other-computed ...}))`
+;;
+(defn forward-computed-factory
+  [this f]
+  (let [c (om/get-computed this)]
+    (fn [props & [computes]]
+      (f (om/computed props
+                      (cond-> c
+                              computes
+                              (merge computes)))))))
+
+;;
+;; To use you will still put messages onto the in channel. But grab them out from the channel that is
+;; returned here. So you need to have a go block that is always taking from this returned channel.
+;;
+;; http://stackoverflow.com/questions/35663415/throttle-functions-with-core-async/35663515#35663515
+(defn debounce [in ms]
+  (let [out (chan)]
+    (go-loop [last-val nil]
+             (let [val (if (nil? last-val) (<! in) last-val)
+                   timer (timeout ms)
+                   [new-val ch] (alts! [in timer])]
+               (condp = ch
+                 timer (do (>! out val) (recur nil))
+                 in (recur new-val))))
+    out))
 
 ;; http://sids.github.io/nerchuko/utils-api.html
 (defn unselect-keys
@@ -22,11 +57,13 @@ entries whose key is not in keys."
   (assert x1)
   (assert y1)
   (assert val1)
+  ;; This problem has come about because earlier we rounded mouse to an int
+  ;(assert (not= x0 x1) (str "Divide by zero as equal: " x0 " " x1))
   (let [x-diff (- x1 x0)
         y-diff (- y1 y0)
         val-diff (- val1 val0)
-        y-ratio (/ y-diff x-diff)
-        val-ratio (/ val-diff x-diff)
+        y-ratio (/ y-diff (if (not= 0 x-diff) x-diff 1))
+        val-ratio (/ val-diff (if (not= 0 x-diff) x-diff 1))
         x-from-start (- x x0)
         y-res (+ y0 (* x-from-start y-ratio))
         val-res (+ val0 (* x-from-start val-ratio))]

@@ -42,7 +42,7 @@
                     points)
         ]
     (let [result (:res res)]
-      (println "RES: " result)
+      ;(println "enclosed-by RES: " result "when looked thru:" (count points) "points")
       (if (nil? (first result)) ;when are before first element
         nil
         (if (empty? result)

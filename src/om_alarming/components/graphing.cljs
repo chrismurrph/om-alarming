@@ -9,7 +9,9 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.reconciler :as reconciler])
+            [om-alarming.reconciler :as reconciler]
+            [om-alarming.components.log-debug :as ld]
+            )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def careless-text-props (clj->js {:x  10 :y 20
@@ -26,6 +28,7 @@
   ;  [:point-id :x :y :val])
   Object
   (render [this]
+    (ld/log-render "Point" this)
     (let [props (om/props this)
           {:keys [point-id x y val]} props
           {:keys [rgb-map translator]} (om/get-computed this)
@@ -79,6 +82,17 @@
     (for [point points]
       (point-component (om/computed point computed-props)))))
 
+(defn calc-proportionals [horiz-fn point-fn points x-position]
+  (assert (and horiz-fn point-fn))
+  (assert x-position)
+  (when (seq points)
+    (let [pair (process/enclosed-by horiz-fn points x-position)
+          ;_ (println "pair: " pair)
+          proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
+          ;_ (println "proportionals: " proportionals)
+          ]
+      proportionals)))
+
 (defui Line
   static om/Ident
   (ident [this props]
@@ -90,11 +104,14 @@
   (initLocalState [this]
     {:points []})
   (componentDidMount [this]
-    (let [chan (:comms-chan (om/get-computed this))
-          _ (assert chan "Must have a channel")
+    (let [{:keys [comms-chan horiz-fn point-fn]} (om/get-computed this)
+          {:keys [id]} (om/props this)
+          _ (assert (and point-fn horiz-fn))
+          _ (assert comms-chan "Must have a channel")
           _ (go-loop []
-                     (let [{:keys [cmd value reply-chan] :as msg} (<! chan)
-                           _ (u/log true (str "msg is" msg))]
+                     (let [{:keys [cmd value reply-chan x-position] :as msg} (<! comms-chan)
+                           ;_ (u/log (not= cmd :new-point) (str "msg is " (u/unselect-keys msg [:reply-chan]) " in " id))
+                           ]
                        (case cmd
                          :debug-rand-point
                          (let [new-point (random-circle)]
@@ -109,14 +126,17 @@
                            (om/update-state! this dissoc :points))
                          :request-y-at-x
                          (do
-                           (u/log true (str "Got request points, where reply chan is" reply-chan))
+                           ;(u/log true (str "Got request points, where reply chan is: " reply-chan ", and at: " x-position))
                            (assert reply-chan)
-                           (go (>! reply-chan {:cmd :y-at-x-response :y-val nil}))))
+                           (let [points (om/get-state this :points)
+                                 answer (calc-proportionals horiz-fn point-fn (sort-by :x points) x-position)]
+                             (async/put! reply-chan {:cmd :y-at-x-response :y-proportionals (merge answer {:line-id id :points-count (count points)})})))
+                         )
                        (recur)))]))
   (render [this]
+    (ld/log-render "Line" this)
     (let [props (om/props this)
           {:keys [point-fn]} (om/get-computed this)
-          _ (assert point-fn)
           ;_ (println "Line props:" props)
           {:keys [colour intersect graph/points]} props
           _ (assert (zero? (count points)) (str "points found in:" props))
@@ -137,10 +157,12 @@
     [:id {:graph/line (om/get-query Line)}])
   Object
   (render [this]
+    (ld/log-render "RectTextTick" this)
     (let [{:keys [id graph/line]} (om/props this)
           {:keys [current-line x testing-name proportional-y proportional-val]} (om/get-computed this)]
       (when proportional-y
-        (let [_ (assert id)
+        (let [;_ (println "proportional-y: " proportional-y)
+              _ (assert id)
               _ (assert line (str "x-gas-info w/out a line. \nCOMPUTED:\n" (om/get-computed this)
                                   "\nPROPs:\n" (om/props this)))
               ;;; text ;;;
@@ -150,7 +172,7 @@
               ;_ (println "colour will be " colour-str)
               units-str (:units current-line)
               hidden? (not= line current-line)
-              _ (when (not hidden?) (println "NOT HIDDEN = " (:intersect line) (:intersect current-line)))
+              ;_ (when (not hidden?) (println "NOT HIDDEN = " (:intersect line) (:intersect current-line)))
               text-props {:opacity     (if hidden? 0.0 1.0)
                           :x           (+ x 10)
                           :y           (+ proportional-y 4)
@@ -161,11 +183,12 @@
               ;;; tick ;;;
               colour-str (-> current-line :colour process/rgb-map-to-str)
               ;_ (println (:name drop-info) " going to be " colour-str)
-              ;_ (assert proportional-y)
               line-props (merge process/line-defaults
                                 {:id      proportional-y
-                                 :x1      x :y1 proportional-y
-                                 :x2      (+ x 6) :y2 proportional-y
+                                 :x1      x
+                                 :y1      proportional-y
+                                 :x2      (+ x 6)
+                                 :y2      proportional-y
                                  :stroke  colour-str
                                  :opacity (if hidden? 0.0 1.0)})
               ;;; rect ;;;
@@ -189,31 +212,27 @@
                  (dom/line (clj->js line-props))))))))
 (def rect-text-tick (om/factory RectTextTick {:keyfn :id}))
 
-(defn calc-proportionals [horiz-fn point-fn points x-position]
-  (let [pair (process/enclosed-by horiz-fn points x-position)
-        ;_ (println "pair: " pair)
-        proportionals (when pair (u/bisect-vertical-between (point-fn (first pair)) (point-fn (second pair)) x-position))
-        ;_ (println "proportionals: " proportionals)
-        ]
-    proportionals))
-
 (defn rect-text-ticks [drop-info]
-  (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line horiz-fn point-fn]} drop-info
-        _ (assert (and point-fn horiz-fn x-gas-details x-position current-line))
-        ;_ (println "x-position: " x-position)
-        points (sort-by :x (:graph/points current-line))
+  (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line proportionals]} drop-info
+        points-count (:points-count proportionals)
+        _ (assert (and x-gas-details x-position current-line proportionals))
+        ;_ (println "x-position: " x-position "points: " points-count)
         ]
-    (when (and x-position (not-empty points))
-      (let [proportionals (calc-proportionals horiz-fn point-fn points x-position)]
-        ;(println "count x-gas-details: " (count x-gas-details))
-        (dom/g nil
-               (for [x-gas-info x-gas-details]
-                 (rect-text-tick (om/computed x-gas-info (merge {:current-line     current-line
-                                                                 :x                x-position
-                                                                 :testing-name     testing-name
-                                                                 :proportional-val nil
-                                                                 :proportional-y   nil} proportionals)))))))))
+    (when (and x-position (pos? points-count))
+      (dom/g nil
+             (for [x-gas-info x-gas-details]
+               (rect-text-tick (om/computed x-gas-info (merge {:current-line     current-line
+                                                               :x                x-position
+                                                               :testing-name     testing-name
+                                                               :proportional-val nil
+                                                               :proportional-y   nil} proportionals))))))))
 
+;;
+;; proportionals is for the current line. Makes sense as when the current line changes we will have
+;; a new PlumbLine anyway.
+;; What is a bit 'wrong' is that we do say 4 rect tick texts, yet 3 of them will be invisible, only one
+;; of them using the proportionals
+;;
 (defui PlumbLine
   static om/Ident
   (ident [this props]
@@ -230,35 +249,42 @@
     {:last-mouse-moment nil
      :x-position 0
      :hover-pos nil
-     :in-sticky-time? false})
+     :in-sticky-time? false
+     :proportionals {:proportional-y nil :proportional-val nil} ;;-> for documentation, will be overwritten
+     })
   (componentDidMount [this]
     (let [{:keys [comms-chan]} (om/get-computed this)
           _ (assert comms-chan "Must have a channel")
-          local-chan (go-loop []
-                              (let [{:keys [cmd value]} (<! comms-chan)
-                                    {:keys [hover-pos last-mouse-moment]} value
-                                    {:keys [in-sticky-time?]} (om/get-state this)]
-                                (case cmd
-                                  :mouse-change
-                                  (do
-                                    (when (not in-sticky-time?)
-                                      (om/update-state! this assoc :last-mouse-moment last-mouse-moment)
-                                      (om/update-state! this assoc :x-position hover-pos))
-                                    (om/update-state! this assoc :hover-pos hover-pos)
-                                    (om/update-state! this assoc :in-sticky-time? in-sticky-time?))
-                                  :sticky-change
-                                  (let [become-sticky? (not in-sticky-time?)]
-                                    (when become-sticky?
-                                      (u/log true "(In Plumbline) We should show the ticks"))
-                                    (om/update-state! this assoc :in-sticky-time? become-sticky?))
-                                  )
-                                (recur)))]))
+          _ (go-loop []
+                     (let [{:keys [cmd value]} (<! comms-chan)
+                           {:keys [hover-pos last-mouse-moment ys-at-x]} value
+                           {:keys [in-sticky-time?]} (om/get-state this)]
+                       (case cmd
+                         :mouse-change
+                         (do
+                           (when (not in-sticky-time?)
+                             (om/update-state! this assoc :last-mouse-moment last-mouse-moment)
+                             (om/update-state! this assoc :x-position hover-pos))
+                           (om/update-state! this assoc :hover-pos hover-pos))
+                         :sticky-change
+                         (let [opposite-to-current (not in-sticky-time?)]
+                           (om/update-state! this assoc :in-sticky-time? opposite-to-current))
+                         :ys-at-x-response
+                         (let [current-id (-> (om/props this) :graph/current-line :id)
+                               for-current-line (some #(when (= current-id (:line-id %)) %) ys-at-x)]
+                           (u/log false (str "A one: " for-current-line))
+                           (u/log false (str "A few: " ys-at-x ", when current id: " (-> (om/props this) :graph/current-line :id)))
+                           (om/update-state! this assoc :proportionals for-current-line))
+                         )
+                       (recur)))]))
   (render [this]
+    (ld/log-render "PlumbLine" this)
     (let [app-props (om/props this)
           {:keys [id visible?]} app-props
           {:keys [height] :as computed-props} (om/get-computed this)
           _ (assert height (str "Must have height, computed-props: " (select-keys computed-props [:height])))
-          {:keys [in-sticky-time? x-position] :as local-state} (om/get-state this)
+          {:keys [in-sticky-time? x-position proportionals] :as local-state} (om/get-state this)
+          _ (assert proportionals)
           stroke (if in-sticky-time? (process/rgb-map-to-str black) (process/rgb-map-to-str brown))
           line-props (merge process/line-defaults
                             {:x1           x-position
@@ -303,6 +329,7 @@
     )
   Object
   (render [this]
+    (ld/log-render "Feeder" this)
     (println "Feeder doesn't render anything, it just exists!")))
 (def feeder (om/factory Feeder {:keyfn :id}))
 
@@ -328,23 +355,28 @@
   Object
   (initLocalState [this]
     (println "In initLocalState for TrendingGraph")
-    {:comms-chan (chan)
-     :stuck? false})
+    (let [comms (chan)
+          debounce-ch (u/debounce comms 20)]
+      ;;
+      ;; If you want a message not to be debounced/slowed then put it into the post debounce chan
+      ;;
+      {:lag-chan comms
+       :post-debounce-chan debounce-ch}))
   (componentDidMount [this]
     (println "In componentDidMount for TrendingGraph"))
   (mouse-change [this hover-pos last-mouse-moment]
-    (let [controller-chan (:comms-chan (om/get-state this))
-          msg {:cmd :mouse-change :value {:hover-pos hover-pos :last-mouse-moment last-mouse-moment}}]
-      (async/put! controller-chan msg)))
-  (sticky-change [this]
+    (let [{:keys [lag-chan post-debounce-chan]} (om/get-state this)
+          msg1 {:cmd :mouse-change :value {:hover-pos hover-pos :last-mouse-moment last-mouse-moment}}
+          msg2 {:cmd :request-y-at-x :x-position hover-pos :reply-chan post-debounce-chan}
+          ]
+      (async/put! post-debounce-chan msg1)
+      ;We are going to want to do this, but debounced:
+      ;Which is re-routed to all the lines
+      (async/put! lag-chan msg2)))
+  (sticky-change [this x-position]
     (let [local-state (om/get-state this)
-          ch (:comms-chan local-state)
-          just-stopped-it? (not (:stuck? local-state))]
-      (om/update-state! this update :stuck? not)
-      (async/put! ch {:cmd :sticky-change})
-      (when just-stopped-it?
-        (u/log true "Going to run thru, as user just stopped")
-        (async/put! ch {:cmd :request-y-at-x :reply-chan ch}))))
+          ch (:post-debounce-chan local-state)]
+      (async/put! ch {:cmd :sticky-change})))
   (handler-fn [this e]
     ;(assert comms-channel)
     (let [bounds (. (dom/node this) getBoundingClientRect)
@@ -358,13 +390,14 @@
         "mousemove" (let [now-moment (now-time)]
                       (.mouse-change this (int x) now-moment))
         "mouseup" (let []
-                    (.sticky-change this))
+                    (.sticky-change this (int x)))
         "mousedown")
       nil))
   (render [this]
+    (ld/log-render "TrendingGraph" this)
     (let [app-props (om/props this)
           local-props (om/get-state this)
-          {:keys [in-sticky-time? x-position comms-chan]} local-props
+          {:keys [lag-chan post-debounce-chan]} local-props
           ;_ (pprint props)
           {:keys [width
                   height
@@ -381,35 +414,65 @@
           _ (assert point-fn)
           _ (assert horiz-fn)
           _ (assert plumb-line)
-          computed-for-line (merge translators {:comms-chan comms-chan})
+          ;computed-for-line (merge translators {:comms-chan post-debounce-chan})
           computed-for-plumb (merge translators {:comms-chan plumb-chan})
           handler #(.handler-fn this %)
           handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
           init {:width width :height height}
           init-props (merge {:style {:border "thin solid black"}} init handlers)
-          _ (go-loop [] (let [msg (<! comms-chan)
-                              cmd (:cmd msg)
-                              line-ident (-> msg :line)
-                              ]
-                          (if (= cmd :y-at-x-response)
-                            (u/log true "Whew!")
-                            (if (or (= cmd :mouse-change) (= cmd :sticky-change))
-                              (>! plumb-chan msg)
-                              (if (nil? line-ident)
-                                (doseq [ch (vals line-chans)]
-                                  (>! ch msg))
-                                (if-let [target-chan (some (fn [[k v]] (when (= k (second line-ident)) v)) line-chans)]
-                                  (>! target-chan msg)
-                                  (u/log true (str "Sumfin not thought of yet: " msg)))))))
-                     (recur))
-          ]
+          _ (go-loop [proportionals [] in-sticky? false]
+                     (let [msg (<! post-debounce-chan)
+                           cmd (:cmd msg)
+                           line-ident (-> msg :line)]
+                       (cond
+                         (= cmd :y-at-x-response)
+                         (let [received (-> msg :y-proportionals)
+                               collected (conj proportionals received)
+                               ;_ (u/log true (str ":y-at-x-response. Collected: " (count collected) ", where num chans: " (count line-chans)))
+                               ]
+                           (if (= (count line-chans) (count collected))
+                             (do
+                               ;(u/log true (str "Whew, now got all:" collected))
+                               (>! plumb-chan {:cmd :ys-at-x-response :value {:ys-at-x collected}})
+                               (recur [] in-sticky?))
+                             (recur collected in-sticky?)))
+
+                         (= cmd :mouse-change)
+                         (do
+                           (>! plumb-chan msg)
+                           (recur proportionals in-sticky?))
+
+                         (= cmd :sticky-change)
+                         (do
+                           (>! plumb-chan msg)
+                           (recur proportionals (not in-sticky?)))
+
+                         ;;
+                         ;; Only information we get from each line is to do the calculation of the proportionals.
+                         ;; Only the line has the points. When stuck we don't want to get any points.
+                         ;;
+                         (nil? line-ident)
+                         (do
+                           (when (not in-sticky?)
+                             (doseq [ch (vals line-chans)]
+                               (>! ch msg)))
+                           (recur proportionals in-sticky?))
+
+                         :else
+                         (if-let [target-line-chan (some (fn [[k v]] (when (= k (second line-ident)) v)) line-chans)]
+                           (do
+                             (>! target-line-chan msg)
+                             (recur proportionals in-sticky?))
+                           (do
+                             (println "Not thought of this yet!")
+                             (recur proportionals in-sticky?))))))]
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]
-                          (line-component (om/computed line (merge computed-for-line {:comms-chan (some (fn [[k v]] (when (= k (:id line)) v)) line-chans)}))))
+                          (line-component (om/computed line (merge translators {:comms-chan (some (fn [[k v]] (when (= k (:id line)) v)) line-chans)}))))
                         (plumb-line-component (om/computed plumb-line (merge computed-for-plumb init)))
                         )
-               (navigator/navigator (om/computed navigator {:lines lines :comms-chan comms-chan}))))))
+               (navigator/navigator (om/computed navigator {:lines lines :comms-chan post-debounce-chan}))))))
 (def trending-graph (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]

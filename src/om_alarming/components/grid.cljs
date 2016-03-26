@@ -4,7 +4,9 @@
             [om-alarming.util.util :refer [class-names]]
             [om-alarming.components.graphing :as graph]
             [om-alarming.components.general :as gen]
-            [om-alarming.parsing.mutations.lines]))
+            [om-alarming.parsing.mutations.lines]
+            [om-alarming.components.log-debug :as ld]
+            ))
 
 (comment
   (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
@@ -31,6 +33,7 @@
         (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :grid-cell/id])
         (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :grid-cell/id]))))
   (render [this]
+    (ld/log-render "GridDataCell" this)
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)
           ;_ (println "PROPs" props)
           {:keys [tube-num sui-col-info pick-colour-fn selected?]} (om/get-computed this)
@@ -72,6 +75,7 @@
      {:tube/gases (om/get-query GridDataCell)}])
   Object
   (render [this]
+    (ld/log-render "GridRow" this)
     (let [{:keys [id tube-num tube/gases]} (om/props this)
           computed-props (om/get-computed this)
           {:keys [lines-intersect-ids pick-colour-fn sui-col-info]} computed-props
@@ -95,6 +99,7 @@
 (defui GridHeaderLabel
   Object
   (render [this]
+    (ld/log-render "GridHeaderLabel" this)
     (let [props (om/props this)
           {:keys [short-name]} props
           {:keys [sui-col-info]} (om/get-computed this)
@@ -110,6 +115,7 @@
   ;  [:id :app/gases])
   Object
   (render [this]
+    (ld/log-render "GridHeaderRow" this)
     (let [{:keys [app/gases]} (om/props this)
           hdr-gases (into [{:id 0 :short-name "Tube"}] gases)]
       (dom/div #js {:className "row"}
@@ -120,6 +126,7 @@
 (defui GasQueryGrid
   Object
   (render [this]
+    (ld/log-render "GasQueryGrid" this)
     (let [{:keys [app/gases app/tubes graph/lines]} (om/props this)
           lines-intersect-ids (map #(-> % :intersect :grid-cell/id) lines)
           {:keys [sui-col-info pick-colour-fn]} (om/get-computed this)

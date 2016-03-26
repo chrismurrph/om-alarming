@@ -3,7 +3,9 @@
             [om.dom :as dom]
             [om-alarming.parsing.mutations.app]
             [om-alarming.reconciler :refer [my-reconciler]]
-            [om-alarming.util.util :refer [class-names]]))
+            [om-alarming.util.util :refer [class-names]]
+            [om-alarming.components.log-debug :as ld]
+            ))
 
 (defui TabButton
   static om/Ident
@@ -14,6 +16,7 @@
     '[:id :name :description])
   Object
   (render [this]
+    (ld/log-render "TabButton" this)
     (let [{:keys [id name]} (om/props this)
           {:keys [selected]} (om/get-computed this)]
       (dom/a #js {:key id

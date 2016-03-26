@@ -1,7 +1,8 @@
 (ns om-alarming.parsing.mutations.graph
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]
-            [cljs-time.core :as time]))
+            [cljs-time.core :as time]
+            [om-alarming.components.log-debug :as ld]))
 
 #_(defn as-mouse-changes [orig-state params]
   (let [{:keys [hover-pos last-mouse-moment in-sticky-time?]} params
@@ -33,18 +34,21 @@
   (swap! state assoc-in [:trending-graph/by-id 10300 :graph/translators] translators))
 
 (defmethod mutate 'graph/translators
-  [{:keys [state]} _ {:keys [translators]}]
+  [{:keys [state]} k {:keys [translators]}]
+  (ld/log-mutation k)
   {:value  {:keys [:graph/trending-graph :graph/translators]}
    :action #(insert-translators state translators)})
 
 (defmethod mutate 'graph/misc
-  [{:keys [state]} _ params]
+  [{:keys [state]} k params]
+  (ld/log-mutation k)
   {:value  {:keys [:graph/misc]}
    ;:action #(swap! state assoc :graph/misc misc)
    :action #(swap! state assoc-in [:misc/by-id 10400] (merge {:id 10400} (:misc params)))})
 
 (defmethod mutate 'graph/toggle-receive
-  [{:keys [state]} _ _]
+  [{:keys [state]} k _]
+  (ld/log-mutation k)
   {:value  {:keys [:receiving?]}
    :action #(swap! state update-in [:navigator/by-id 10600 :receiving?] not)})
 
@@ -85,13 +89,16 @@
       (assoc-in [:navigator/by-id 10600 :receiving?] false)))
 
 (defmethod mutate 'navigate/forwards
-  [{:keys [state]} _ {:keys [seconds]}]
+  [{:keys [state]} k {:keys [seconds]}]
+  (ld/log-mutation k)
   {:action #(swap! state update-end-time (fn [end-time] (time/plus end-time (time/seconds seconds))))})
 
 (defmethod mutate 'navigate/backwards
-  [{:keys [state]} _ {:keys [seconds]}]
+  [{:keys [state]} k {:keys [seconds]}]
+  (ld/log-mutation k)
   {:action #(swap! state update-end-time (fn [end-time] (time/minus end-time (time/seconds seconds))))})
 
 (defmethod mutate 'navigate/now
-  [{:keys [state]} _ _]
+  [{:keys [state]} k _]
+  (ld/log-mutation k)
   {:action #(swap! state assoc-end-time (time/now))})

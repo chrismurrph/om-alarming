@@ -3,7 +3,8 @@
             [om-alarming.reconciler :refer [mutate]]
             [om-alarming.parsing.mutations.points :as points]
             [default-db-format.core :as db-format]
-            [om-alarming.util.utils :as u]))
+            [om-alarming.util.utils :as u]
+            [om-alarming.components.log-debug :as ld]))
 
 (defn add-to-points [points ref]
   (println "Adding: " ref " to: " points)
@@ -82,9 +83,11 @@
         (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident))))
 
 (defmethod mutate 'graph/add-line
-  [{:keys [state]} _ params]
+  [{:keys [state]} k params]
+  (ld/log-mutation k)
   {:action #(swap! state create-line params)})
 
 (defmethod mutate 'graph/remove-line
-  [{:keys [state]} _ params]
+  [{:keys [state]} k params]
+  (ld/log-mutation k)
   {:action #(swap! state rem-line params)})
