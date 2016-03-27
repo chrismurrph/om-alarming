@@ -31,12 +31,12 @@
                  [:gas-at-location/by-id 502] carbon-monoxides})
 
 (defn random-gas-value [ident]
-  (let [_ (assert ident)
+  (let [_ (assert ident (str "Not been given an Ident, instead: <" ident ">"))
         vec-of (get gas-values ident)
         its-size (count vec-of)
         idx (rand-int its-size)
         val (nth vec-of idx)
-        _ (assert val (str "No random gas value found for: " ident))
+        _ (assert val (str "No random gas value found for: <" ident ">"))
         ;_ (u/log "name: " name ", value: " val)
         ]
     val))

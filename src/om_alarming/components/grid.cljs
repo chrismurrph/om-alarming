@@ -6,7 +6,7 @@
             [om-alarming.components.general :as gen]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.components.log-debug :as ld]
-            ))
+            [om-alarming.util.utils :as u]))
 
 (comment
   (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
@@ -26,12 +26,12 @@
      {:tube (om/get-query gen/Location)}])
   Object
   (pick [this pick-colour-fn id selected?]
-    (let [ident [:gas-at-location/by-id id]
+    (let [ident '[:gas-at-location/by-id id]
           ident-again (om/get-ident this)
           _ (println "ident will be re-queried is: " ident)]
       (if selected?
-        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :grid-cell/id])
-        (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :grid-cell/id]))))
+        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) ident-again])
+        (om/transact! this `[(graph/do-nothing {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) ident-again]))))
   (render [this]
     (ld/log-render "GridDataCell" this)
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)

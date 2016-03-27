@@ -82,12 +82,17 @@
     (-> state
         (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident))))
 
+(defmethod mutate 'graph/do-nothing
+  [{:keys [state]} k params]
+  (ld/log-mutation k params)
+  {:action nil})
+
 (defmethod mutate 'graph/add-line
   [{:keys [state]} k params]
-  (ld/log-mutation k)
+  (ld/log-mutation k params)
   {:action #(swap! state create-line params)})
 
 (defmethod mutate 'graph/remove-line
   [{:keys [state]} k params]
-  (ld/log-mutation k)
+  (ld/log-mutation k params)
   {:action #(swap! state rem-line params)})

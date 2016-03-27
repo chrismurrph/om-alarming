@@ -55,7 +55,7 @@
              (if (not= (count completed) (count all-times))
                (let [available (remove (into #{} completed) all-times)
                      picked-time (nth available (rand-int (count available)))
-                     new-gen {:val (db/random-gas-value (:id info)) :time picked-time}]
+                     new-gen {:val (db/random-gas-value (:ident info)) :time picked-time}]
                  (recur (conj completed picked-time) (conj batched new-gen)))
                (>! out-chan {:info info :vals batched})))))
 
@@ -83,7 +83,7 @@
 (defn query-remote-server
   "Just needs the names that are to be queried and start/end times"
   [line-infos start end]
-  (let [new-gen (partial generator start end)
+  (let [new-gen (partial batch-generator start end)
         out-chan (chan)
         gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
         ;_ (log gas-channels)

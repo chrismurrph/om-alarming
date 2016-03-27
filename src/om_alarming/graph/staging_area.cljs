@@ -104,6 +104,19 @@
     (fn [x]
       (and (>= x start-middle) (<= x end-middle)))))
 
+(defn unbatch [receiving-chan]
+  (let [out-chan (chan)]
+    (go-loop []
+             (let [batch-in (<! receiving-chan)
+                   {:keys [vals info]} batch-in
+                   info-info {:info (u/unselect-keys info [:lowest :highest])}]
+               (doseq [value vals]
+                 (let [point value
+                       ;_ (u/log true (str "info is " info ", point is " point))
+                       ]
+                   (>! out-chan (into point [info-info]))))))
+    out-chan))
+
 ;;
 ;; Receives raw business trend data and transforms it so it will be positioned correctly on this stage
 ;; (which is close to being positioned properly on the graph itself)
@@ -112,10 +125,12 @@
   (let [{:keys [ref lowest highest]} info
         _ (assert lowest (str "Not found match from: " info))
         _ (assert time->x)
-        transitioner (stage-ify-changer lowest highest)]
+        transitioner (stage-ify-changer lowest highest)
+        one-by-one-receiver (unbatch receiving-chan)]
     (go-loop [accumulated []
               release-channel nil]
-             (let [data-in (<! receiving-chan)]
+             (let [data-in (<! one-by-one-receiver)
+                   _ (u/log false (str "Receiving: " data-in))]
                (if (nil? release-channel)
                  (if (central? (:time data-in))
                    (let [central-y (:val data-in)

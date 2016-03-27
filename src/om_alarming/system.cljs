@@ -41,11 +41,11 @@
                  (let [paused? (not (:receiving? (:graph/navigator (reconciler/internal-query [{:graph/navigator [:receiving?]}]))))
                        [x y val] point
                        line-ident (:ref info)
-                       ;_ (println "Ident: " line-ident)
+                       _ (println "Ident: " line-ident)
                        _ (assert line-ident)]
-                   (if (and (< counted-to 40) (not paused?))
+                   (if (and (< counted-to 1000) (not paused?))
                      (do
-                       (go (>! graph-chan {:cmd :new-point :value {:x x :y y :val val :point-id (gen-uid)} :line line-ident}))
+                       (async/put! graph-chan {:cmd :new-point :value {:x x :y y :val val :point-id (gen-uid)} :line line-ident})
                        #_(reconciler/alteration 'graph/add-point
                                               {:line-name-ident line-ident :x x :y y :val val}
                                               :graph/points)
