@@ -74,7 +74,7 @@
                (if (= ch poison-ch)
                  (println "[controller-component] stopping")
                  (do
-                   (<! (timeout 300))
+                   (<! (timeout 50))
                    (>! out-chan next-val)
                    (recur)))))
     (fn stop! []

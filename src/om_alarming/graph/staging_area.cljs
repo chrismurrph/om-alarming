@@ -46,7 +46,12 @@
   (let [_ (assert lowest)
         _ (assert highest)
         divide-num (transition-divide-by lowest highest)
-        _ (assert (not= 0 divide-num) (str "lowest: " lowest ", hightest: " highest))]
+        _ (assert (not= 0 divide-num) (str "lowest: " lowest ", hightest: " highest))
+        ;; I once saw lower values for O2 be higher, but it seemed to 'fix itself'. So we may have a strange
+        ;; intermittent bug
+        ;other-slope (neg? (- highest lowest))
+        ;opn (if other-slope + -)
+        ]
   (fn [central-y external-val]
     (let [external-over-central (- external-val central-y)
           stage-val-over-central (quot external-over-central divide-num)

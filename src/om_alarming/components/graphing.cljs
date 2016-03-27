@@ -285,13 +285,15 @@
           _ (assert height (str "Must have height, computed-props: " (select-keys computed-props [:height])))
           {:keys [in-sticky-time? x-position proportionals] :as local-state} (om/get-state this)
           _ (assert proportionals)
-          stroke (if in-sticky-time? (process/rgb-map-to-str black) (process/rgb-map-to-str brown))
+          stroke (process/rgb-map-to-str brown)
+          opacity (if in-sticky-time? 0 1) ;; <- experimenting with not seeing the line when it is nil
           line-props (merge process/line-defaults
                             {:x1           x-position
                              :y1           0
                              :x2           x-position
                              :y2           height
-                             :stroke       stroke})
+                             :stroke       stroke
+                             :opacity      opacity})
           res (when visible?
                 (dom/g nil
                        (rect-text-ticks (merge app-props local-state computed-props))

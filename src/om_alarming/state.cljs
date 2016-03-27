@@ -124,7 +124,7 @@
     ]
    :graph/plumb-line {:id 10201
                       :visible? true
-                      :graph/current-line {:id 101}
+                      :graph/current-line {:id 100}
                       :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102} {:id 10103}]}
    :graph/lines
    [

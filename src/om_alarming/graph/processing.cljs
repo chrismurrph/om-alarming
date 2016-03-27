@@ -67,7 +67,8 @@
 
 (def line-defaults
   {:stroke (rgb-map-to-str black)
-   :strokeWidth 1})
+   :strokeWidth 1
+   :opacity 1})
 
 (def point-defaults
   {;:stroke (rgb-map-to-str black)
