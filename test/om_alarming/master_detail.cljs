@@ -6,11 +6,11 @@
 
 (enable-console-print!)
 
-(def norm-state
+(def init-state
   {:graph/drop-info
    {:id            10200 ;; React can use to differentiate
     :x             50
-    :graph/lines      [{:id 100} {:id 101} {:id 102} {:id 103}]
+    :graph/lines   [{:id 100} {:id 101} {:id 102} {:id 103}]
     :x-gas-details [{:id 10100} {:id 10101} {:id 10102}]}
    :graph/lines
    [{:id     100
@@ -131,7 +131,7 @@
 
 (def reconciler
   (om/reconciler {:normalize true ;; Documentation
-                  :state     norm-state
+                  :state     init-state
                   :parser    parser}))
 
 (defn show-db
