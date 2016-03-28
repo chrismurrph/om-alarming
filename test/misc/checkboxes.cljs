@@ -38,6 +38,18 @@
       (pprint st)
       (db-format/show-hud check-result))))
 
+(defui FakeGraph
+  static om/IQuery
+  (query [this]
+    [:id :name])
+  Object
+  (render [this]
+    (println "Rendering the FakeGraph")
+    (let [props (om/props this)
+          selected-names (map :name props)]
+      (dom/label nil (apply str "Graph for these: " (interpose ", " selected-names))))))
+(def fake-graph (om/factory FakeGraph))
+
 (defui Checkbox
   static om/Ident
   (ident [this props]
@@ -98,7 +110,7 @@
   [_ _ _])
 
 (def my-reconciler
-  (om/reconciler {:normalize true                           ;; -> documentation
+  (om/reconciler {:normalize true ;; -> documentation
                   :state     init-state
                   :parser    parser}))
 
@@ -123,6 +135,9 @@
                (for [line lines
                      :let [selected? (boolean (some #{line} selected-lines))]]
                  (checkbox (om/computed line {:selected? selected?})))
+               (fake-graph selected-lines)
+               (dom/br nil)
+               (dom/br nil)
                (any-action {:text "Show State" :action #(pprint @my-reconciler)})
                (any-action {:text "Refresh" :action #(om/transact! this `[(app/root-refresh) :graph/lines :graph/selected-lines])})
                (dom/br nil)
