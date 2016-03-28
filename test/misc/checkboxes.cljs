@@ -3,22 +3,23 @@
             [om.dom :as dom]
             [default-db-format.core :as db-format]
             [cljs.pprint :refer [pprint]]
-            [om-alarming.util.utils :as u]))
+            [om-alarming.util.utils :as u]
+            [om-alarming.misc.help :as help]))
 
 (enable-console-print!)
 
 (def init-state
   {:graph/selected-lines
-   [{:id     100}
-    {:id     101}]
+   [{:id 100}
+    {:id 101}]
    :graph/lines
-   [{:id     100
+   [{:id   100
      :name "Methane"}
-    {:id     101
+    {:id   101
      :name "Oxygen"}
-    {:id     102
+    {:id   102
      :name "Carbon Dioxide"}
-    {:id     103
+    {:id   103
      :name "Carbon Monoxide"}
     ]
    }
@@ -33,10 +34,9 @@
                   (str "GOOD: state fully " msg-boiler)
                   (str "BAD: state not fully " msg-boiler))]
     (println message)
-    (pprint st)
     (when (not ok?)
       (pprint st)
-    (db-format/show-hud check-result))))
+      (db-format/show-hud check-result))))
 
 (defui Checkbox
   static om/Ident
@@ -51,19 +51,19 @@
           {:keys [selected?]} (om/get-computed this)
           _ (println "Rendering cb:" id "when selected is:" selected?)]
       (dom/div #js {:className "switch demo3"}
-               (dom/input #js{:type     "checkbox"
-                              :checked  selected?
-                              :onChange (fn [e]
-                                          (let [action (.. e -target -checked)]
-                                            ;(println "Pressed so attempting to set to:" action)
-                                            (om/transact! this `[(graph/select-line {:selected? ~action :id ~id}) :graph/lines])))})
+               (dom/input #js{:type    "checkbox"
+                              :checked selected?
+                              :onClick (fn [e]
+                                         (let [action (.. e -target -checked)]
+                                           (println "Pressed so attempting to set to:" action)
+                                           (om/transact! this `[(graph/select-line {:want-to-select? ~action :id ~id}) :graph/lines])))})
                (dom/label nil (dom/i nil))))))
 (def checkbox (om/factory Checkbox {:keyfn :id}))
 
 (defmulti read om/dispatch)
 (defmulti mutate om/dispatch)
 (def parser
-  (om/parser {:read read
+  (om/parser {:read   read
               :mutate mutate}))
 
 (defmethod read :graph/lines
@@ -76,23 +76,38 @@
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
 
+#_(defmethod read :line/by-id
+    [{:keys [state query]} key {:keys [id]}]
+    (let [st @state]
+      {:value (get-in st [:line/by-id id])}))
+
 ;;
 ;; "Only need to add or remove from graph/selected-lines"
 ;; If selected we add...
 ;; (pprint (get @state :graph/selected-lines))
 ;;
 (defmethod mutate 'graph/select-line
-  [{:keys [state]} k {:keys [id selected?]}]
-  {:action (fn []
-             (when selected?
-               (swap! state update :graph/selected-lines conj [:line/by-id id])
-               (swap! state update :graph/selected-lines (fn [lines] (remove #{[:line/by-id id]} lines))))
-             (pprint (get @state :graph/selected-lines)))})
+  [{:keys [state]} _ {:keys [want-to-select? id]}]
+  {:action #(let [ident [:line/by-id id]]
+             (if want-to-select?
+               (swap! state update :graph/selected-lines (fn [st] (-> st
+                                                                      (conj ident))))
+               (swap! state update :graph/selected-lines (fn [lines] (vec (remove #{ident} lines))))))})
+
+(defmethod mutate 'app/root-refresh
+  [_ _ _])
 
 (def my-reconciler
-  (om/reconciler {:normalize true ;; Documentation
+  (om/reconciler {:normalize true                           ;; -> documentation
                   :state     init-state
                   :parser    parser}))
+
+(defui AnyAction
+  Object
+  (render [this]
+    (let [{:keys [text action]} (om/props this)]
+      (dom/button #js{:onClick action} text))))
+(def any-action (om/factory AnyAction))
 
 (defui Root
   static om/IQuery
@@ -101,12 +116,18 @@
      {:graph/selected-lines (om/get-query Checkbox)}])
   Object
   (render [this]
+    (println "Rendering from Root")
     (let [{:keys [graph/lines graph/selected-lines]} (om/props this)]
       (dom/div nil
                (check-default-db @my-reconciler)
                (for [line lines
                      :let [selected? (boolean (some #{line} selected-lines))]]
-                 (checkbox (om/computed (u/un-probe "line" line) {:selected? selected?})))
+                 (checkbox (om/computed line {:selected? selected?})))
+               (any-action {:text "Show State" :action #(pprint @my-reconciler)})
+               (any-action {:text "Refresh" :action #(om/transact! this `[(app/root-refresh) :graph/lines :graph/selected-lines])})
+               (dom/br nil)
+               #_(any-action {:text "Add Selection" :action #(help/mutate help/norm-state true 102)})
+               #_(any-action {:text "Remove Selection" :action #(help/mutate help/norm-state false 100)})
                ))))
 
 (defn run []
