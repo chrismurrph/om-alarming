@@ -88,6 +88,9 @@ entries whose key is not in keys."
   (println (str (str/upper-case msg) ":\n" obj))
   obj)
 
+(defn un-probe [msg obj]
+  obj)
+
 ;;
 ;; Just a println would be fine in a javascript environ. But this way can code exactly
 ;; same in both environments, and port the code across easily.
