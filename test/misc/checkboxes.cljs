@@ -107,8 +107,7 @@
     {:value (om/db->tree query (get st key) st)}))
 
 ;;
-;; "Only need to add or remove from graph/selected-lines"
-;; If selected we add...
+;; "Only need to add or remove from the :graph/selected-lines refs mapentry"
 ;; (pprint (get @state :graph/selected-lines))
 ;;
 (defmethod mutate 'graph/select-line
@@ -123,13 +122,6 @@
   (om/reconciler {:normalize true ;; -> documentation
                   :state     init-state
                   :parser    parser}))
-
-(defui AnyAction
-  Object
-  (render [this]
-    (let [{:keys [text action]} (om/props this)]
-      (dom/button #js{:onClick action} text))))
-(def any-action (om/factory AnyAction))
 
 (defui Root
   static om/IQuery
@@ -150,10 +142,10 @@
                (fake-graph selected-lines)
                (dom/br nil)
                (dom/br nil)
-               (any-action {:text "Show State" :action #(pprint @my-reconciler)})
+               (help/any-action {:text "Show State" :action #(pprint @my-reconciler)})
                (dom/br nil)
-               #_(any-action {:text "Add Selection" :action #(help/mutate help/norm-state true 102)})
-               #_(any-action {:text "Remove Selection" :action #(help/mutate help/norm-state false 100)})
+               #_(help/any-action {:text "Add Selection" :action #(help/mutate help/norm-state true 102)})
+               #_(help/any-action {:text "Remove Selection" :action #(help/mutate help/norm-state false 100)})
                ))))
 
 (defn run []

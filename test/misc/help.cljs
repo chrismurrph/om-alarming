@@ -1,6 +1,8 @@
 (ns om-alarming.misc.help
   (:require [om-alarming.util.utils :as u]
-            [cljs.pprint :refer [pprint]]))
+            [cljs.pprint :refer [pprint]]
+            [om.next :as om :refer-macros [defui]]
+            [om.dom :as dom]))
 
 (def norm-state (atom {:graph/selected-lines [[:line/by-id 100] [:line/by-id 101]],
                        :graph/lines
@@ -13,6 +15,13 @@
                                               101 {:id 101, :name "Oxygen"},
                                               102 {:id 102, :name "Carbon Dioxide"},
                                               103 {:id 103, :name "Carbon Monoxide"}}}))
+
+(defui AnyAction
+       Object
+       (render [this]
+               (let [{:keys [text action]} (om/props this)]
+                 (dom/button #js{:onClick action} text))))
+(def any-action (om/factory AnyAction))
 
 (defn mutate [state want-to-select? id]
   (let [ident [:line/by-id id]]
