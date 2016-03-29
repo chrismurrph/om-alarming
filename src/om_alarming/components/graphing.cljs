@@ -466,7 +466,7 @@
                              (>! target-line-chan msg)
                              (recur proportionals in-sticky?))
                            (do
-                             (println "Not thought of this yet!")
+                             (println "Not thought of this yet, no target channel for:" line-ident)
                              (recur proportionals in-sticky?))))))]
       (dom/div nil
                (dom/svg (clj->js init-props)

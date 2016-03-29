@@ -17,6 +17,7 @@
 
 ;;
 ;; GridRow does same thing so this not needed at top
+;; Hmm - that's not actually true, b/c GridRow has gases inside
 ;;
 (defui Location
        static om/Ident

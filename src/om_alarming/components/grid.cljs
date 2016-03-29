@@ -30,8 +30,8 @@
           ident-again (om/get-ident this)
           _ (println "ident will be re-queried is: " ident)]
       (if selected?
-        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) ident-again])
-        (om/transact! this `[(graph/do-nothing {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) ident-again]))))
+        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :graph/lines])
+        (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :graph/lines]))))
   (render [this]
     (ld/log-render "GridDataCell" this)
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)

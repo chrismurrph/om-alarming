@@ -36,10 +36,10 @@
         its-size (count vec-of)
         idx (rand-int its-size)
         val (nth vec-of idx)
-        _ (assert val (str "No random gas value found for: <" ident ">"))
+        ;_ (assert val (str "No random gas value found for: <" ident ">"))
         ;_ (u/log "name: " name ", value: " val)
         ]
-    val))
+    (or val (u/probe (str "No random gas value found for: <" ident ">") nil))))
 
 ;;
 ;; All the lines that get graphed. Has nothing to do with Reagent, so use a normal atom.

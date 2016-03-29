@@ -75,7 +75,7 @@
                                            (println "Pressed so attempting to set to:" action)
                                            (om/transact! this `[(graph/select-line {:want-to-select? ~action :id ~id}) :app/customers])))})
                (dom/label nil (dom/i nil))))))
-(def checkbox (om/factory GraphLineSelectionCheckbox {:keyfn :id}))
+(def graph-line-selection-checkbox (om/factory GraphLineSelectionCheckbox {:keyfn :id}))
 
 (defui Customer
   static om/Ident
@@ -138,7 +138,7 @@
                (check-default-db @my-reconciler)
                (for [line lines
                      :let [selected? (boolean (some #{line} selected-lines))]]
-                 (checkbox (om/computed line {:selected? selected?})))
+                 (graph-line-selection-checkbox (om/computed line {:selected? selected?})))
                (fake-graph selected-lines)
                (dom/br nil)
                (dom/br nil)

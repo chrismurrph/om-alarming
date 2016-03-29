@@ -16,8 +16,10 @@
 (def all-line-colours #{black blue light-blue very-light-blue pink brown green red gray})
 
 (defn new-random-colour
-  [existing-colours]
-  (assert (set? existing-colours) (str "Not a set but a " (type existing-colours)))
-  (println "Existing: " existing-colours)
-  (let [remaining (vec (set/difference all-line-colours existing-colours))]
-    (when (seq remaining) (rand-nth remaining))))
+  ([existing-colours]
+   (assert (set? existing-colours) (str "Not a set but a " (type existing-colours)))
+   (println "Existing: " existing-colours)
+   (let [remaining (vec (set/difference all-line-colours existing-colours))]
+     (when (seq remaining) (rand-nth remaining))))
+  ([]
+    (rand-nth (vec all-line-colours))))
