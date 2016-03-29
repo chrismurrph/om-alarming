@@ -14,13 +14,21 @@
     {:id 101}]
    :graph/lines
    [{:id   100
-     :name "Methane"}
+     :line-name "Methane"}
     {:id   101
-     :name "Oxygen"}
+     :line-name "Oxygen"}
     {:id   102
-     :name "Carbon Dioxide"}
+     :line-name "Carbon Dioxide"}
     {:id   103
-     :name "Carbon Monoxide"}
+     :line-name "Carbon Monoxide"}
+    ]
+   :app/customers
+   [{:id 200
+     :first-name "Greg"}
+    {:id 201
+     :first-name "Sally"}
+    {:id 202
+     :first-name "Ben"}
     ]
    }
   )
@@ -39,27 +47,24 @@
       (db-format/show-hud check-result))))
 
 (defui FakeGraph
-  static om/IQuery
-  (query [this]
-    [:id :name])
   Object
   (render [this]
     (println "Rendering the FakeGraph")
     (let [props (om/props this)
-          selected-names (map :name props)]
+          selected-names (map :line-name props)]
       (dom/label nil (apply str "Graph for these: " (interpose ", " selected-names))))))
 (def fake-graph (om/factory FakeGraph))
 
-(defui Checkbox
+(defui GraphLineSelectionCheckbox
   static om/Ident
   (ident [this props]
     [:line/by-id (:id props)])
   static om/IQuery
   (query [this]
-    [:id :name])
+    [:id :line-name])
   Object
   (render [this]
-    (let [{:keys [id name]} (om/props this)
+    (let [{:keys [id line-name]} (om/props this)
           {:keys [selected?]} (om/get-computed this)
           _ (println "Rendering cb:" id "when selected is:" selected?)]
       (dom/div #js {:className "switch demo3"}
@@ -68,9 +73,17 @@
                               :onClick (fn [e]
                                          (let [action (.. e -target -checked)]
                                            (println "Pressed so attempting to set to:" action)
-                                           (om/transact! this `[(graph/select-line {:want-to-select? ~action :id ~id}) :graph/lines])))})
+                                           (om/transact! this `[(graph/select-line {:want-to-select? ~action :id ~id}) :app/customers])))})
                (dom/label nil (dom/i nil))))))
-(def checkbox (om/factory Checkbox {:keyfn :id}))
+(def checkbox (om/factory GraphLineSelectionCheckbox {:keyfn :id}))
+
+(defui Customer
+  static om/Ident
+  (ident [this props]
+    [:customer/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id :first-name]))
 
 (defmulti read om/dispatch)
 (defmulti mutate om/dispatch)
@@ -88,10 +101,10 @@
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
 
-#_(defmethod read :line/by-id
-    [{:keys [state query]} key {:keys [id]}]
-    (let [st @state]
-      {:value (get-in st [:line/by-id id])}))
+(defmethod read :app/customers
+  [{:keys [state query]} key _]
+  (let [st @state]
+    {:value (om/db->tree query (get st key) st)}))
 
 ;;
 ;; "Only need to add or remove from graph/selected-lines"
@@ -105,9 +118,6 @@
                (swap! state update :graph/selected-lines (fn [st] (-> st
                                                                       (conj ident))))
                (swap! state update :graph/selected-lines (fn [lines] (vec (remove #{ident} lines))))))})
-
-(defmethod mutate 'app/root-refresh
-  [_ _ _])
 
 (def my-reconciler
   (om/reconciler {:normalize true ;; -> documentation
@@ -124,8 +134,10 @@
 (defui Root
   static om/IQuery
   (query [this]
-    [{:graph/lines (om/get-query Checkbox)}
-     {:graph/selected-lines (om/get-query Checkbox)}])
+    [{:graph/lines (om/get-query GraphLineSelectionCheckbox)}
+     {:graph/selected-lines (om/get-query GraphLineSelectionCheckbox)}
+     {:app/customers (om/get-query Customer)}
+     ])
   Object
   (render [this]
     (println "Rendering from Root")
@@ -139,7 +151,6 @@
                (dom/br nil)
                (dom/br nil)
                (any-action {:text "Show State" :action #(pprint @my-reconciler)})
-               (any-action {:text "Refresh" :action #(om/transact! this `[(app/root-refresh) :graph/lines :graph/selected-lines])})
                (dom/br nil)
                #_(any-action {:text "Add Selection" :action #(help/mutate help/norm-state true 102)})
                #_(any-action {:text "Remove Selection" :action #(help/mutate help/norm-state false 100)})
