@@ -40,7 +40,6 @@
            (db-format/display (:graph/lines state))
            (db-format/display (get state :line/by-id))
            (dom/br nil)
-           (db-format/display (get state :graph/lines))
            ;(db-format/display (u/remove-value (get state :graph/lines) [:line/by-id 102]))
            ;(db-format/display (filter (fn [v] (= [:gas-at-location/by-id 500] (:intersect v))) (vals (get state :line/by-id))))
            ;(db-format/display (:id (first (filter (fn [v] (= [:gas-at-location/by-id 500] (:intersect v))) (vals (get state :line/by-id))))))
@@ -98,5 +97,5 @@
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                (dom/br nil)(dom/br nil)
                (dom/div nil
-                        (points-debugging state))))))
+                        (lines-debugging state))))))
 (def debug (om/factory Debug))

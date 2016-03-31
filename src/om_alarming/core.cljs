@@ -152,6 +152,11 @@
   Object
   (pick-colour [this cols]
     (colours/new-random-colour cols))
+  (click-cb [this pick-colour-fn id selected?]
+    ;(println "Hey checkbox clicked: " selected? id)
+    (if selected?
+      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
+      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})])))
   (render [this]
     (ld/log-render "App" this)
     (let [app-props (om/props this)
@@ -164,7 +169,8 @@
                (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:pick-colour-fn #(.pick-colour this existing-colours)}))
+                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:click-cb-fn #(.click-cb this %1 %2 %3)
+                                                                                      :pick-colour-fn #(.pick-colour this existing-colours)}))
                    "New Trending" (d3/present-defcard)
                    "SVG Trending" (no-d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")
@@ -174,8 +180,7 @@
                    "Debug" (debug/debug (om/computed (merge (u/probe "NAV" (:graph/navigator app-props))
                                                             (:graph/trending-graph app-props))
                                                      {:state @my-reconciler}))
-                   nil (dom/div nil "Nothing selected, program has crashed!")
-                   ))))))
+                   nil (dom/div nil "Nothing selected, program has crashed!")))))))
 
 (defn ident-finder
   "Hack b/c we will stop using names...
