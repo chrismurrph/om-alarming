@@ -33,7 +33,7 @@
                 :colour    red
                 :intersect {:grid-cell/id 502}}
                ]
-   :tube/gases
+   :tube/real-gases
               [{:grid-cell/id 500
                 :system-gas   {:id 150}
                 :tube         {:id 1000}}
@@ -46,7 +46,7 @@
                {:grid-cell/id 503
                 :system-gas   {:id 153}
                 :tube         {:id 1000}}]
-   :app/gases [{:id     150 :long-name "Methane" :short-name "CH\u2084"
+   :app/sys-gases [{:id     150 :long-name "Methane" :short-name "CH\u2084"
                 :lowest 0.25 :highest 1 :units "%"}
                {:id     151 :long-name "Oxygen" :short-name "O\u2082"
                 :lowest 19 :highest 12 :units "%"}
@@ -159,7 +159,7 @@
   (om/parser {:read   read
               :mutate mutate}))
 
-(defmethod read :tube/gases
+(defmethod read :tube/real-gases
   [{:keys [state query]} key _]
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
@@ -174,7 +174,7 @@
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :app/gases
+(defmethod read :app/sys-gases
   [{:keys [state query]} key _]
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
@@ -254,21 +254,19 @@
 (defui Root
   static om/IQuery
   (query [this]
-    [{:tube/gases (om/get-query GraphLineSelectionCheckbox)}
+    [{:tube/real-gases (om/get-query GraphLineSelectionCheckbox)}
      {:graph/lines (om/get-query Line)}
      {:app/customers (om/get-query Customer)}
-     {:app/gases (om/get-query SystemGas)}
+     {:app/sys-gases (om/get-query SystemGas)}
      {:app/tubes (om/get-query Location)}
      ])
   Object
   (render [this]
     (println "Rendering from Root")
-    (let [{:keys [tube/gases graph/lines]} (om/props this)]
+    (let [{:keys [tube/real-gases graph/lines]} (om/props this)]
       (dom/div nil
                (check-default-db @my-reconciler)
-               (for [gas gases
-                     :let [selected? (boolean (some #{gas} (map :intersect lines)))]]
-                 (graph-line-selection-checkbox (om/computed gas {:selected? selected?})))
+               (map #(graph-line-selection-checkbox (om/computed % {:selected? (boolean (some #{%} (map :intersect lines)))})) real-gases)
                (fake-graph lines)
                (dom/br nil)
                (dom/br nil)

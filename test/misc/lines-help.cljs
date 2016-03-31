@@ -5,7 +5,7 @@
             [om.dom :as dom]
             [om-alarming.util.colours :as colours]))
 
-(def norm-state (atom {:tube/gases
+(def norm-state (atom {:tube/real-gases
                                   [[:gas-at-location/by-id 500]
                                    [:gas-at-location/by-id 501]
                                    [:gas-at-location/by-id 502]
@@ -15,7 +15,7 @@
                                    201 {:id 201, :first-name "Sally"},
                                    202 {:id 202, :first-name "Ben"}},
                        :app/tubes [[:gas-at-location/by-id 1000]],
-                       :app/gases
+                       :app/sys-gases
                                   [[:gas-of-system/by-id 150]
                                    [:gas-of-system/by-id 151]
                                    [:gas-of-system/by-id 152]

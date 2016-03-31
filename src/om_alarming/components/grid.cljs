@@ -26,9 +26,10 @@
      {:tube (om/get-query gen/Location)}])
   Object
   (pick [this pick-colour-fn id selected?]
-    (let [ident '[:gas-at-location/by-id id]
+    (let [ident `[:gas-at-location/by-id ~id]
           ident-again (om/get-ident this)
-          _ (println "ident will be re-queried is: " ident)]
+          ;_ (println "ident will be re-queried is: " ident)
+          ]
       (if selected?
         (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :graph/lines])
         (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :graph/lines]))))
@@ -53,7 +54,7 @@
                  )
         (dom/div sui-col-info
                  (dom/label nil tube-num))))))
-(def grid-data-cell (om/factory GridDataCell {:keyfn :grid-cell/id}))
+(def grid-data-cell-component (om/factory GridDataCell {:keyfn :grid-cell/id}))
 
 (defn selected?
   "Is the gas, which is really gas at location (intersect), one of the ones that there's a line for?"
@@ -64,7 +65,7 @@
         ]
     res))
 
-(defui GridRow
+#_(defui GridRow
   static om/Ident
   (ident [this props]
     [:tube/by-id (:id props)])
@@ -72,20 +73,20 @@
   (query [this]
     [:id
      :tube-num
-     {:tube/gases (om/get-query GridDataCell)}])
+     {:tube/real-gases (om/get-query GridDataCell)}])
   Object
   (render [this]
     (ld/log-render "GridRow" this)
-    (let [{:keys [id tube-num tube/gases]} (om/props this)
+    (let [{:keys [id tube-num tube/real-gases]} (om/props this)
           computed-props (om/get-computed this)
           {:keys [lines-intersect-ids pick-colour-fn sui-col-info]} computed-props
-          _ (assert lines-intersect-ids computed-props)
+          _ (assert lines-intersect-ids)
           _ (assert pick-colour-fn (str "GridRow: " computed-props))
           _ (assert sui-col-info)
           ;lines-intersect-ids (map #(-> % :intersect :id) lines)
           ;_ (println "gases: " gases)
           ;_ (println "lines: " lines)
-          hdr-and-gases (into [{:grid-cell/id 0}] gases)
+          hdr-and-gases (into [{:grid-cell/id 0}] real-gases)
           ]
       (dom/div #js {:className "row"}
                (for [gas hdr-and-gases]
@@ -94,9 +95,16 @@
                                                 {:tube-num tube-num}
                                                 {:selected? (selected? gas lines-intersect-ids)}
                                                 computed-props))))))))
-(def grid-row (om/factory GridRow {:keyfn :id}))
+#_(def grid-row (om/factory GridRow {:keyfn :id}))
 
+;;
+;; Another way of looking at a gas but don't need an ident as already have with SystemGas
+;;
 (defui GridHeaderLabel
+  static om/IQuery
+  (query [this]
+    [:id
+     :short-name])
   Object
   (render [this]
     (ld/log-render "GridHeaderLabel" this)
@@ -110,42 +118,78 @@
 (def grid-header-label (om/factory GridHeaderLabel {:keyfn :id}))
 
 (defui GridHeaderRow
-  ;static om/IQuery
-  ;(query [this]
-  ;  [:id :app/gases])
   Object
   (render [this]
     (ld/log-render "GridHeaderRow" this)
-    (let [{:keys [app/gases]} (om/props this)
-          hdr-gases (into [{:id 0 :short-name "Tube"}] gases)]
+    (let [sys-gases (:app/sys-gases (om/props this))
+          hdr-gases (into [{:id 0 :short-name "Tube"}] sys-gases)]
       (dom/div #js {:className "row"}
-               (for [gas hdr-gases]
-                 (grid-header-label (om/computed gas (om/get-computed this))))))))
-(def grid-header-row (om/factory GridHeaderRow {:keyfn :id}))
+               (map #(grid-header-label (om/computed % (om/get-computed this))) hdr-gases)))))
+(def grid-header-row (om/factory GridHeaderRow {:keyfn (fn [_] "GridHeaderRow")}))
 
 (defui GasQueryGrid
+  static om/Ident
+  (ident [this props]
+    [:gas-query-grid/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id
+     {:tube/real-gases (om/get-query GridDataCell)}
+     {:graph/lines (om/get-query graph/Line)}
+     ;{:app/tubes (om/get-query gen/Location)}
+     ])
   Object
   (render [this]
     (ld/log-render "GasQueryGrid" this)
-    (let [{:keys [app/gases app/tubes graph/lines]} (om/props this)
-          lines-intersect-ids (map #(-> % :intersect :grid-cell/id) lines)
+    (let [props (om/props this)
+          {:keys [tube/real-gases graph/lines]} props
+          _ (assert real-gases "no real-gases inside GasQueryGrid")
+          ;Send in via computed when need it
+          ;lines-intersect-ids (map #(-> % :intersect :grid-cell/id) lines)
           {:keys [sui-col-info pick-colour-fn]} (om/get-computed this)
+          sui-col-info-map {:sui-col-info sui-col-info :pick-colour-fn pick-colour-fn}
+          for-gas-fn (fn [gas] (grid-data-cell-component (om/computed gas (merge sui-col-info-map {:selected? (boolean (some #{gas} (map :intersect lines)))}))))
           _ (assert sui-col-info)
-          sui-grid-info #js {:className "ui column grid"}]
+          sui-grid-info #js {:className "ui column grid"}
+          hdr-and-gases (into [{:grid-cell/id 0}] (take 4 real-gases))]
       (dom/div sui-grid-info
-               (grid-header-row (om/computed gases {:sui-col-info sui-col-info}))
-               (for [tube tubes]
-                 (grid-row (om/computed tube (merge {:sui-col-info sui-col-info} {:lines-intersect-ids lines-intersect-ids :pick-colour-fn pick-colour-fn}))))))))
-(def gas-query-grid (om/factory GasQueryGrid {:keyfn :id}))
+               (grid-header-row (om/computed props sui-col-info-map))
+               (map for-gas-fn hdr-and-gases)))))
+(def gas-query-grid-component (om/factory GasQueryGrid {:keyfn :id}))
 
-;;
-;; I don't see why this needs to be a component, so leaving for now
-;;
-(defn gas-query-panel [app-props pick-colour-fn]
+(defui GasQueryPanel
+  Object
+  (render [this]
+    (ld/log-render "GasQueryPanel" this)
+    (let [app-props (om/props this)
+          {:keys [grid/gas-query-grid graph/trending-graph]} app-props
+          {:keys [pick-colour-fn]} (om/get-computed this)
+          sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
+          _ (assert pick-colour-fn, "gas-query-panel")
+          grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn})
+          ;_ (assert (:app/sys-gases app-props))
+          ;_ (assert (:app/tubes app-props))
+          _ (assert (:graph/trending-graph app-props) app-props)
+          ;_ (assert (:graph/navigator app-props))
+          ;_ (println (:graph/trending-graph app-props))
+          ]
+      (dom/div #js {:className "ui three column internally celled grid container"}
+               ;;
+               ;; grid and trending graph need to be made separate. User dragging the mouse around s/not mean
+               ;; that new grid cells are created. Anything related to the plumb line moving can go into local state.
+               ;; When it stops moving we can copy everything to the plumb line that's in the state.
+               ;;
+               (dom/div #js {:className "column"}
+                        (gas-query-grid-component (om/computed app-props grid-row-computed)))
+               #_(dom/div #js {:className "two wide column"}
+                        (graph/trending-graph (:graph/trending-graph app-props)))))))
+(def gas-query-panel-component (om/factory GasQueryPanel {:keyfn (fn [_] "GasQueryPanel")}))
+
+#_(defn gas-query-panel [app-props pick-colour-fn]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
         _ (assert pick-colour-fn, "gas-query-panel")
         grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn})
-        _ (assert (:app/gases app-props))
+        _ (assert (:app/sys-gases app-props))
         _ (assert (:app/tubes app-props))
         _ (assert (:graph/trending-graph app-props))
         _ (assert (:graph/navigator app-props))

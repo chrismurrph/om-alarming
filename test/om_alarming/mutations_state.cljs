@@ -6,7 +6,7 @@
 (def state
   (atom
     {:graph/misc           [:misc/by-id 10400],
-     :tube/gases
+     :tube/real-gases
                            [[:gas-at-location/by-id 500]
                             [:gas-at-location/by-id 501]
                             [:gas-at-location/by-id 502]
@@ -67,7 +67,7 @@
                             [:tube/by-id 1007]
                             [:tube/by-id 1008]
                             [:tube/by-id 1009]],
-     :app/gases
+     :app/sys-gases
                            [[:gas-of-system/by-id 150]
                             [:gas-of-system/by-id 151]
                             [:gas-of-system/by-id 152]
@@ -423,7 +423,7 @@
                            {1000
                             {:id       1000,
                              :tube-num 1,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 500]
                                         [:gas-at-location/by-id 501]
                                         [:gas-at-location/by-id 502]
@@ -431,7 +431,7 @@
                             1001
                             {:id       1001,
                              :tube-num 2,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 504]
                                         [:gas-at-location/by-id 505]
                                         [:gas-at-location/by-id 506]
@@ -439,7 +439,7 @@
                             1002
                             {:id       1002,
                              :tube-num 3,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 508]
                                         [:gas-at-location/by-id 509]
                                         [:gas-at-location/by-id 510]
@@ -447,7 +447,7 @@
                             1003
                             {:id       1003,
                              :tube-num 4,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 512]
                                         [:gas-at-location/by-id 513]
                                         [:gas-at-location/by-id 514]
@@ -455,7 +455,7 @@
                             1004
                             {:id       1004,
                              :tube-num 5,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 516]
                                         [:gas-at-location/by-id 517]
                                         [:gas-at-location/by-id 518]
@@ -463,7 +463,7 @@
                             1005
                             {:id       1005,
                              :tube-num 6,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 520]
                                         [:gas-at-location/by-id 521]
                                         [:gas-at-location/by-id 522]
@@ -471,7 +471,7 @@
                             1006
                             {:id       1006,
                              :tube-num 7,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 524]
                                         [:gas-at-location/by-id 525]
                                         [:gas-at-location/by-id 526]
@@ -479,7 +479,7 @@
                             1007
                             {:id       1007,
                              :tube-num 8,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 528]
                                         [:gas-at-location/by-id 529]
                                         [:gas-at-location/by-id 530]
@@ -487,7 +487,7 @@
                             1008
                             {:id       1008,
                              :tube-num 9,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 532]
                                         [:gas-at-location/by-id 533]
                                         [:gas-at-location/by-id 534]
@@ -495,7 +495,7 @@
                             1009
                             {:id       1009,
                              :tube-num 10,
-                             :tube/gases
+                             :tube/real-gases
                                        [[:gas-at-location/by-id 536]
                                         [:gas-at-location/by-id 537]
                                         [:gas-at-location/by-id 538]

@@ -1,7 +1,6 @@
 (ns om-alarming.parsing.mutations.lines
   (:require [om.next :as om]
             [om-alarming.reconciler :refer [mutate]]
-            [om-alarming.parsing.mutations.points :as points]
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]
             [om-alarming.components.log-debug :as ld]))
@@ -39,7 +38,7 @@
   Caller needs to work on this state a little more to put the line in
   an existing graph"
   [st colour intersect-id]
-  (println "Look at" (count (get st :graph/lines)) " lines, new one to be " colour)
+  (println "Look at" (count (get st :graph/lines)) " lines, new one to be colour: " colour)
   (let [id   (->> (om/db->tree [:id] (get st :graph/lines) st)
                   (map :id)
                   (cons 99)

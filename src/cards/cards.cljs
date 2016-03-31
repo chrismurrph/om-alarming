@@ -147,9 +147,9 @@
 ;(defcard selection-grid
 ;  (fn [props _] (grid/gas-query-panel @props))
 ;  {:id 11 :text "Selection Grid"
-;   :app/gases [{:id 1 :short-name "CH4"} {:id 2 :short-name "O2"} {:id 3 :short-name "CO"} {:id 4 :short-name "CO2"}]
+;   :app/sys-gases [{:id 1 :short-name "CH4"} {:id 2 :short-name "O2"} {:id 3 :short-name "CO"} {:id 4 :short-name "CO2"}]
 ;   :app/tubes    [{:id    1
-;               :tube/gases [{:id  1
+;               :tube/real-gases [{:id  1
 ;                        :system-gas {:short-name "CH4"}
 ;                        :selected true}
 ;                       {:id  2
@@ -160,7 +160,7 @@
 ;                        :system-gas {:short-name "CO2"}}
 ;                       ]}
 ;              {:id    2
-;               :tube/gases [{:id  5
+;               :tube/real-gases [{:id  5
 ;                       :system-gas {:short-name "CH4"}}
 ;                       {:id  6
 ;                        :system-gas {:short-name "O2"}}
@@ -170,7 +170,7 @@
 ;                        :system-gas {:short-name "CO2"}}
 ;                       ]}
 ;              {:id    3
-;               :tube/gases [{:id  9
+;               :tube/real-gases [{:id  9
 ;                       :system-gas {:short-name "CH4"}}
 ;                       {:id  10
 ;                        :system-gas {:short-name "O2"}}
@@ -181,7 +181,7 @@
 ;                        :selected true}
 ;                       ]}
 ;              {:id    4
-;               :tube/gases [{:id  13
+;               :tube/real-gases [{:id  13
 ;                       :system-gas {:short-name "CH4"}}
 ;                       {:id  14
 ;                        :system-gas {:short-name "O2"}

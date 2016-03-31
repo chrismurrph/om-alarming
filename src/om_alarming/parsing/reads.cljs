@@ -4,7 +4,7 @@
             [om-alarming.util.utils :as u]
             [default-db-format.core :as db-format]))
 
-(defmethod read :app/gases
+(defmethod read :app/sys-gases
   [{:keys [state query]} key _]
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
@@ -143,11 +143,23 @@
         ]
     {:value (om/db->tree query (get st key) st)}))
 
-(defmethod read :tube/gases
+(defmethod read :tube/real-gases
   [{:keys [state query]} key _]
   (let [st @state
         ;_ (println "In read with:" key "," query ".")
         ;_ (println "In read with:" (get st key))
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :grid/gas-query-grid
+  [{:keys [state query]} key _]
+  (let [st @state
+        ]
+    {:value (om/db->tree query (get st key) st)}))
+
+(defmethod read :grid/gas-query-panel
+  [{:keys [state query]} key _]
+  (let [st @state
         ]
     {:value (om/db->tree query (get st key) st)}))
 

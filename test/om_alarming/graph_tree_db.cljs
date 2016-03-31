@@ -34,7 +34,7 @@
    :app/tubes
    [{:id 1000 :tube-num "Invercargill"}
     {:id 1001 :tube-num "Dunedin"}]
-   :tube/gases
+   :tube/real-gases
    [{:id 300 :value 10.1 :tube {:id 1000} :system-gas {:id 200}}
     {:id 301 :value 10.2 :tube {:id 1000} :system-gas {:id 201}}
     {:id 302 :value 10.3 :tube {:id 1000} :system-gas {:id 202}}
@@ -129,7 +129,7 @@
     [{:system-gases (om/get-query SystemGas)}
      {:app/tubes (om/get-query Location)}
      {:graph/points (om/get-query Point)}
-     {:tube/gases (om/get-query Intersect)}
+     {:tube/real-gases (om/get-query Intersect)}
      {:graph/lines (om/get-query Line)}])
   ;Object
   ;(render [this]

@@ -33,8 +33,8 @@
 
 (enable-console-print!)
 
-(defn halt-receiving []
-  (reconciler/alteration 'graph/stop-receive nil :receiving?))
+;(defn halt-receiving []
+;  (reconciler/alteration 'graph/stop-receive nil :receiving?))
 
 (defn check-default-db [st]
   (let [version db-format/version
@@ -48,8 +48,7 @@
     (when (not ok?)
       (pprint check-result)
       ;(pprint st)
-      (halt-receiving))
-    (db-format/show-hud check-result)))
+      (db-format/show-hud check-result))))
 
 (defui Map
   ;static om/Ident
@@ -135,16 +134,16 @@
           ]
       [
        ;:app/route {:route/data (om/subquery this subq-ref subq-class)}
-       {:app/gases (om/get-query gen/SystemGas)}
-       {:app/tubes (om/get-query grid/GridRow)}
-       {:tube/gases (om/get-query grid/GridDataCell)}
+       {:app/sys-gases (om/get-query gen/SystemGas)}
+       {:app/tubes (om/get-query gen/Location)}
+       {:tube/real-gases (om/get-query grid/GridDataCell)}
        {:app/buttons (om/get-query nav/TabButton)}
        {:app/selected-button (om/get-query nav/TabButton)}
        {:graph/x-gas-details (om/get-query graph/RectTextTick)}
        {:graph/labels (om/get-query graph/Label)}
-       ;; Rid of this b/c of subquery
        {:graph/trending-graph (om/get-query graph/TrendingGraph)}
        {:graph/navigator (om/get-query navigator/GraphNavigator)}
+       {:grid/gas-query-grid (om/get-query grid/GasQueryGrid)}
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
@@ -165,7 +164,7 @@
                (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel app-props #(.pick-colour this existing-colours))
+                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:pick-colour-fn #(.pick-colour this existing-colours)}))
                    "New Trending" (d3/present-defcard)
                    "SVG Trending" (no-d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")
