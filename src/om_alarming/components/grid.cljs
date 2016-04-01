@@ -6,7 +6,8 @@
             [om-alarming.components.general :as gen]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.components.log-debug :as ld]
-            [om-alarming.util.utils :as u]))
+            [om-alarming.util.utils :as u]
+            [cljs.pprint :as pp :refer [pprint]]))
 
 (comment
   (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
@@ -30,8 +31,9 @@
     (assert (not (nil? selected?)))
     (click-cb-fn id selected?))
   (render [this]
-    (ld/log-render-on "GridDataCell" this :grid-cell/id)
+    (ld/log-render "GridDataCell" this :grid-cell/id)
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)
+          _ (assert id)
           {:keys [tube-num sui-col-info click-cb-fn selected?]} (om/get-computed this)
           _ (assert sui-col-info)
           _ (assert click-cb-fn "GridDataCell")
@@ -119,6 +121,32 @@
                (map #(grid-header-label (om/computed % (om/get-computed this))) hdr-gases)))))
 (def grid-header-row (om/factory GridHeaderRow {:keyfn (fn [_] "GridHeaderRow")}))
 
+#_(defn grid-body-row [map-fn hdr-and-gases]
+  (dom/div #js {:className "row"}
+           (map map-fn hdr-and-gases)))
+
+;;
+;; One we are completely making up, for React's benefit
+;;
+(defui GridBodyRow
+  Object
+  (render [this]
+    (ld/log-render "GridBodyRow" this)
+    (let [{:keys [id real-gases]} (om/props this)
+          _ (assert id)
+          _ (assert real-gases)
+          {:keys [sui-col-info click-cb-fn lines]} (om/get-computed this)
+          _ (assert (and sui-col-info click-cb-fn))
+          _ (assert lines)]
+      (dom/div #js {:className "row"}
+               (for [gas real-gases]
+                 (grid-data-cell-component
+                   (om/computed gas {:sui-col-info sui-col-info
+                                     :tube-num    (-> gas :hdr-tube-num)
+                                     :click-cb-fn click-cb-fn
+                                     :selected?   (boolean (some #{gas} (map :intersect lines)))})))))))
+(def grid-body-row (om/factory GridBodyRow {:keyfn :id}))
+
 (defui GasQueryGrid
   static om/Ident
   (ident [this props]
@@ -127,44 +155,58 @@
   (query [this]
     [:id
      {:tube/real-gases (om/get-query GridDataCell)}
-     {:graph/lines (om/get-query graph/Line)}
-     ;{:app/tubes (om/get-query gen/Location)}
+     ; When the user selects or de-selects a line we don't want to be having to update this component in
+     ; the mutation, hence passing in by computed.
+     ;{:graph/lines (om/get-query graph/Line)}
+     {:app/sys-gases (om/get-query gen/SystemGas)}
      ])
   Object
   (render [this]
-    (ld/log-render "GasQueryGrid" this)
+    (ld/log-render-on "GasQueryGrid" this)
     (let [props (om/props this)
-          {:keys [tube/real-gases graph/lines]} props
+          {:keys [id tube/real-gases app/sys-gases]} props
+          _ (assert id)
           _ (assert real-gases "no real-gases inside GasQueryGrid")
           _ (println "FIRST:" (first real-gases))
-          {:keys [sui-col-info click-cb-fn]} (om/get-computed this)
+          ;_ (pprint real-gases)
+          {:keys [sui-col-info click-cb-fn lines]} (om/get-computed this)
+          _ (assert lines "no lines inside GasQueryGrid")
           sui-col-info-map {:sui-col-info sui-col-info}
-          for-gas-fn (fn [gas] (grid-data-cell-component
-                                 (om/computed gas (merge sui-col-info-map
-                                                         {:tube-num (-> gas :hdr-tube-num)
-                                                          :click-cb-fn click-cb-fn
-                                                          :selected? (boolean (some #{gas} (map :intersect lines)))}))))
           _ (assert sui-col-info)
           sui-grid-info #js {:className "ui column grid"}
-          hdr-and-gases (into [{:grid-cell/id 0 :hdr-tube-num 1}] (take 4 real-gases))]
+          all-hdr-and-gases (map-indexed #(into [{:grid-cell/id 0 :hdr-tube-num (inc %1)}] %2) (partition (count sys-gases) real-gases))]
       (dom/div sui-grid-info
                (grid-header-row (om/computed props sui-col-info-map))
-               (map for-gas-fn hdr-and-gases)))))
+               (for [hdr-and-gases all-hdr-and-gases]
+                 (grid-body-row (om/computed {:real-gases hdr-and-gases
+                                              :id         (:hdr-tube-num (first hdr-and-gases))}
+                                             (merge sui-col-info-map
+                                                    {:click-cb-fn click-cb-fn
+                                                     :lines lines}))))))))
 (def gas-query-grid-component (om/factory GasQueryGrid {:keyfn :id}))
 
 (defui GasQueryPanel
+  static om/Ident
+  (ident [this props]
+    [:gas-query-panel/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id
+     {:grid/gas-query-grid (om/get-query GasQueryGrid)}
+     {:graph/trending-graph (om/get-query graph/TrendingGraph)}
+     ])
   Object
   (render [this]
     (ld/log-render "GasQueryPanel" this)
     (let [app-props (om/props this)
           {:keys [grid/gas-query-grid graph/trending-graph]} app-props
-          {:keys [click-cb-fn]} (om/get-computed this)
+          {:keys [click-cb-fn lines]} (om/get-computed this)
           sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
           _ (assert click-cb-fn "gas-query-panel")
-          grid-row-computed (merge sui-col-info-map {:click-cb-fn click-cb-fn})
+          grid-row-computed (merge sui-col-info-map {:click-cb-fn click-cb-fn :lines lines})
           ;_ (assert (:app/sys-gases app-props))
           ;_ (assert (:app/tubes app-props))
-          _ (assert (:graph/trending-graph app-props) app-props)
+          _ (assert trending-graph app-props)
           ;_ (assert (:graph/navigator app-props))
           ;_ (println (:graph/trending-graph app-props))
           ]
@@ -175,10 +217,10 @@
                ;; When it stops moving we can copy everything to the plumb line that's in the state.
                ;;
                (dom/div #js {:className "column"}
-                        (gas-query-grid-component (om/computed app-props grid-row-computed)))
-               #_(dom/div #js {:className "two wide column"}
-                        (graph/trending-graph (:graph/trending-graph app-props)))))))
-(def gas-query-panel-component (om/factory GasQueryPanel {:keyfn (fn [_] "GasQueryPanel")}))
+                        (gas-query-grid-component (om/computed gas-query-grid grid-row-computed)))
+               (dom/div #js {:className "two wide column"}
+                        (graph/trending-graph-component trending-graph))))))
+(def gas-query-panel-component (om/factory GasQueryPanel {:keyfn :id}))
 
 #_(defn gas-query-panel [app-props pick-colour-fn]
   (let [sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}

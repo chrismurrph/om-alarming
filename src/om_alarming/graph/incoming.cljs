@@ -31,7 +31,7 @@
 ;; Will just stop looping when it finishes, so no need for a stop function - hmm - unless the
 ;; user no longer wants to see more values - hmm - not worth effort for random generating code!
 ;;
-(defn generator [start end info out-chan]
+#_(defn generator [start end info out-chan]
   (assert out-chan)
   (assert (nil? (:name info)) "No longer using name")
   (assert (:ident info) "Must have ident")
@@ -55,7 +55,8 @@
              (if (not= (count completed) (count all-times))
                (let [available (remove (into #{} completed) all-times)
                      picked-time (nth available (rand-int (count available)))
-                     new-gen {:val (db/random-gas-value (:ident info)) :time picked-time}]
+                     new-gen {:val (db/random-gas-value (:ident info)) :time picked-time}
+                     _ (println "info:" info)]
                  (recur (conj completed picked-time) (conj batched new-gen)))
                (>! out-chan {:info info :vals batched})))))
 

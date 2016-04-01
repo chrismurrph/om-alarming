@@ -111,12 +111,27 @@
                          :receiving?   false
                          }
 
-   ;:grid/gas-query-panel
-   ;                     {:id           10700
-   ;                      }
+
+   :grid/gas-query-panel
+                        {:id           10700
+                         :grid/gas-query-grid {:id 10800}
+                         :graph/trending-graph {:id 10300}
+                         }
+
 
    :grid/gas-query-grid {:id 10800
-                         }
+                         :tube/real-gases [{:grid-cell/id 500}{:grid-cell/id 501}{:grid-cell/id 502}{:grid-cell/id 503}
+                                           {:grid-cell/id 504}{:grid-cell/id 505}{:grid-cell/id 506}{:grid-cell/id 507}
+                                           {:grid-cell/id 508}{:grid-cell/id 509}{:grid-cell/id 510}{:grid-cell/id 511}
+                                           {:grid-cell/id 512}{:grid-cell/id 513}{:grid-cell/id 514}{:grid-cell/id 515}
+                                           {:grid-cell/id 516}{:grid-cell/id 517}{:grid-cell/id 518}{:grid-cell/id 519}
+                                           {:grid-cell/id 520}{:grid-cell/id 521}{:grid-cell/id 522}{:grid-cell/id 523}
+                                           {:grid-cell/id 524}{:grid-cell/id 525}{:grid-cell/id 526}{:grid-cell/id 527}
+                                           {:grid-cell/id 528}{:grid-cell/id 529}{:grid-cell/id 530}{:grid-cell/id 531}
+                                           {:grid-cell/id 532}{:grid-cell/id 533}{:grid-cell/id 534}{:grid-cell/id 535}
+                                           {:grid-cell/id 536}{:grid-cell/id 537}{:grid-cell/id 538}{:grid-cell/id 539}
+                                           ]
+                         :app/sys-gases [{:id 150}{:id 151}{:id 152}{:id 153}]}
 
    :graph/misc
                         {:id 10400}
@@ -147,7 +162,7 @@
                           :colour    red
                           :intersect {:grid-cell/id 502}}
                          ]
-   :app/sys-gases           [{:id     150 :long-name "Methane" :short-name "CH\u2084"
+   :app/sys-gases       [{:id     150 :long-name "Methane" :short-name "CH\u2084"
                           :lowest 0.25 :highest 1 :units "%"}
                          {:id     151 :long-name "Oxygen" :short-name "O\u2082"
                           :lowest 19 :highest 12 :units "%"}

@@ -46,8 +46,8 @@
                   (str "BAD: state not fully " msg-boiler))]
     (println message)
     (when (not ok?)
-      (pprint check-result)
-      ;(pprint st)
+      ;(pprint check-result)
+      (pprint st)
       (db-format/show-hud check-result))))
 
 (defui Map
@@ -144,6 +144,7 @@
        {:graph/trending-graph (om/get-query graph/TrendingGraph)}
        {:graph/navigator (om/get-query navigator/GraphNavigator)}
        {:grid/gas-query-grid (om/get-query grid/GasQueryGrid)}
+       {:grid/gas-query-panel (om/get-query grid/GasQueryPanel)}
        {:graph/lines (om/get-query graph/Line)}
        {:graph/plumb-line (om/get-query graph/PlumbLine)}
        {:graph/misc (om/get-query graph/Misc)}
@@ -160,7 +161,7 @@
   (render [this]
     (ld/log-render "App" this)
     (let [app-props (om/props this)
-          {:keys [app/route route/data app/buttons app/selected-button graph/lines]} app-props
+          {:keys [app/route route/data app/buttons app/selected-button graph/lines grid/gas-query-panel]} app-props
           existing-colours (into #{} (map :colour lines))]
       (dom/div nil
                (check-default-db @my-reconciler)
@@ -169,9 +170,9 @@
                (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:click-cb-fn #(.click-cb this existing-colours %1 %2)}))
-                   "New Trending" (d3/present-defcard)
-                   "SVG Trending" (no-d3/present-defcard)
+                   "Trending" (grid/gas-query-panel-component (om/computed gas-query-panel {:lines lines :click-cb-fn #(.click-cb this existing-colours %1 %2)}))
+                   ;"New Trending" (d3/present-defcard)
+                   ;"SVG Trending" (no-d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")
                    "Reports" (dom/div nil "Nufin")
                    "Automatic" (dom/div nil "Nufin")

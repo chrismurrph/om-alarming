@@ -475,7 +475,7 @@
                         (plumb-line-component (om/computed plumb-line (merge computed-for-plumb init)))
                         )
                (navigator/navigator (om/computed navigator {:lines lines :comms-chan post-debounce-chan}))))))
-(def trending-graph (om/factory TrendingGraph {:keyfn :id}))
+(def trending-graph-component (om/factory TrendingGraph {:keyfn :id}))
 
 (defn testing-component [name test-props]
   (case name

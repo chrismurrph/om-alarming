@@ -26,6 +26,12 @@
   ([name component]
    (log-render-internal true name component)))
 
+(defn log-render-off
+  ([name component id-fn]
+   (log-render-internal false name component id-fn))
+  ([name component]
+   (log-render-internal false name component)))
+
 (defn log-mutation
   ([k params]
    (when debug-on?

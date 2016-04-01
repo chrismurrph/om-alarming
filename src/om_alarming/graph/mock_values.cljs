@@ -25,21 +25,27 @@
 (def oxygens [21.0 22.0 22.0 21.4 20.0 21.3 22.0 19.5 19.8 21.0 21.1 21.5])
 (def carbon-dioxides [0.05 0.08 0.07 0.09 0.10 0.20 0.21 0.23 0.27 0.13 0.18 0.19])
 (def carbon-monoxides [7 8 9 10 11 12 11 10 9 8 7 6 5])
-(def gas-values {[:gas-at-location/by-id 500] methanes
+#_(def gas-values {[:gas-at-location/by-id 500] methanes
                  [:gas-at-location/by-id 501] oxygens
                  [:gas-at-location/by-id 503] carbon-dioxides
                  [:gas-at-location/by-id 502] carbon-monoxides})
+(def gas-values [methanes oxygens carbon-dioxides carbon-monoxides])
 
 (defn random-gas-value [ident]
   (let [_ (assert ident (str "Not been given an Ident, instead: <" ident ">"))
-        vec-of (get gas-values ident)
+        vec-of (as-> (second ident) $
+                     (- $ 500)
+                     (rem $ 4)
+                     ;(u/probe "nth at:" $)
+                     (nth gas-values $))
+        ;vec-of (get gas-values ident)
         its-size (count vec-of)
         idx (rand-int its-size)
-        val (nth vec-of idx)
+        value (nth vec-of idx)
         ;_ (assert val (str "No random gas value found for: <" ident ">"))
         ;_ (u/log "name: " name ", value: " val)
         ]
-    (or val (u/probe (str "No random gas value found for: <" ident ">") nil))))
+    (or value (u/probe (str "No random gas value found for: <" ident ">") nil))))
 
 ;;
 ;; All the lines that get graphed. Has nothing to do with Reagent, so use a normal atom.
