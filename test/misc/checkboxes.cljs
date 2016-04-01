@@ -63,6 +63,7 @@
   (query [this]
     [:id :line-name])
   Object
+  ;(shouldComponentUpdate [this next-props next-state] true)
   (render [this]
     (let [{:keys [id line-name]} (om/props this)
           {:keys [selected?]} (om/get-computed this)
