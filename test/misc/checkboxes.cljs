@@ -132,7 +132,7 @@
      ])
   Object
   (render [this]
-    (println "Rendering from Root")
+    (println "Rendering 'misc.checkboxes' from Root")
     (let [{:keys [graph/lines graph/selected-lines]} (om/props this)]
       (dom/div nil
                (check-default-db @my-reconciler)

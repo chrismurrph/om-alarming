@@ -152,11 +152,11 @@
   Object
   (pick-colour [this cols]
     (colours/new-random-colour cols))
-  (click-cb [this pick-colour-fn id selected?]
-    ;(println "Hey checkbox clicked: " selected? id)
-    (if selected?
-      (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
-      (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})])))
+  (click-cb [this existing-colours id selected?]
+    (let [pick-colour-fn #(.pick-colour this existing-colours)]
+      (if selected?
+        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
+        (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})]))))
   (render [this]
     (ld/log-render "App" this)
     (let [app-props (om/props this)
@@ -169,8 +169,7 @@
                (let [selected (:name selected-button)]
                  (case selected
                    "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:click-cb-fn #(.click-cb this %1 %2 %3)
-                                                                                      :pick-colour-fn #(.pick-colour this existing-colours)}))
+                   "Trending" (grid/gas-query-panel-component (om/computed app-props {:click-cb-fn #(.click-cb this existing-colours %1 %2)}))
                    "New Trending" (d3/present-defcard)
                    "SVG Trending" (no-d3/present-defcard)
                    "Thresholds" (dom/div nil "Nufin")

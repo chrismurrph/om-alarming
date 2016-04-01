@@ -25,28 +25,23 @@
      {:system-gas (om/get-query gen/SystemGas)}
      {:tube (om/get-query gen/Location)}])
   Object
-  (pick [this click-cb-fn pick-colour-fn id selected?]
+  (pick [this click-cb-fn id selected?]
     (assert id)
     (assert (not (nil? selected?)))
-    (click-cb-fn pick-colour-fn id selected?))
+    (click-cb-fn id selected?))
   (render [this]
-    (ld/log-render "GridDataCell" this :grid-cell/id)
+    (ld/log-render-on "GridDataCell" this :grid-cell/id)
     (let [{:keys [grid-cell/id system-gas tube] :as props} (om/props this)
-          ;_ (println "PROPs" props)
-          {:keys [tube-num sui-col-info pick-colour-fn click-cb-fn selected?]} (om/get-computed this)
+          {:keys [tube-num sui-col-info click-cb-fn selected?]} (om/get-computed this)
           _ (assert sui-col-info)
-          _ (assert pick-colour-fn "GridDataCell")
           _ (assert click-cb-fn "GridDataCell")
-          ;;TODO - we really need to get rid of this happening for no reason, which is an Om Next problem
-          ;_ (println "grid cell created, selected: " selected?)
           ]
       (if system-gas
         (dom/div sui-col-info
-                 #_(checkbox (om/computed {} (merge props {:selected? selected? :pick-fn #(.pick this pick-colour-fn id selected?)})))
                  (dom/div #js {:className (str "ui" (if selected? " checked " " ") "checkbox")}
                           (dom/input #js {:type    "checkbox"
                                           :checked (boolean selected?) ;; <- Note boolean function - js needs it!
-                                          :onClick (fn [_] (.pick this click-cb-fn pick-colour-fn id selected?))})
+                                          :onClick (fn [_] (.pick this click-cb-fn id selected?))})
                           (dom/label nil ""))
                  )
         (dom/div sui-col-info
@@ -141,14 +136,17 @@
     (let [props (om/props this)
           {:keys [tube/real-gases graph/lines]} props
           _ (assert real-gases "no real-gases inside GasQueryGrid")
-          ;Send in via computed when need it
-          ;lines-intersect-ids (map #(-> % :intersect :grid-cell/id) lines)
-          {:keys [sui-col-info pick-colour-fn click-cb-fn]} (om/get-computed this)
-          sui-col-info-map {:sui-col-info sui-col-info :pick-colour-fn pick-colour-fn :click-cb-fn click-cb-fn}
-          for-gas-fn (fn [gas] (grid-data-cell-component (om/computed gas (merge sui-col-info-map {:selected? (boolean (some #{gas} (map :intersect lines)))}))))
+          _ (println "FIRST:" (first real-gases))
+          {:keys [sui-col-info click-cb-fn]} (om/get-computed this)
+          sui-col-info-map {:sui-col-info sui-col-info}
+          for-gas-fn (fn [gas] (grid-data-cell-component
+                                 (om/computed gas (merge sui-col-info-map
+                                                         {:tube-num (-> gas :hdr-tube-num)
+                                                          :click-cb-fn click-cb-fn
+                                                          :selected? (boolean (some #{gas} (map :intersect lines)))}))))
           _ (assert sui-col-info)
           sui-grid-info #js {:className "ui column grid"}
-          hdr-and-gases (into [{:grid-cell/id 0}] (take 4 real-gases))]
+          hdr-and-gases (into [{:grid-cell/id 0 :hdr-tube-num 1}] (take 4 real-gases))]
       (dom/div sui-grid-info
                (grid-header-row (om/computed props sui-col-info-map))
                (map for-gas-fn hdr-and-gases)))))
@@ -160,11 +158,10 @@
     (ld/log-render "GasQueryPanel" this)
     (let [app-props (om/props this)
           {:keys [grid/gas-query-grid graph/trending-graph]} app-props
-          {:keys [pick-colour-fn click-cb-fn]} (om/get-computed this)
+          {:keys [click-cb-fn]} (om/get-computed this)
           sui-col-info-map {:sui-col-info #js {:className "two wide column center aligned"}}
-          _ (assert pick-colour-fn "gas-query-panel")
           _ (assert click-cb-fn "gas-query-panel")
-          grid-row-computed (merge sui-col-info-map {:pick-colour-fn pick-colour-fn :click-cb-fn click-cb-fn})
+          grid-row-computed (merge sui-col-info-map {:click-cb-fn click-cb-fn})
           ;_ (assert (:app/sys-gases app-props))
           ;_ (assert (:app/tubes app-props))
           _ (assert (:graph/trending-graph app-props) app-props)

@@ -262,7 +262,7 @@
      ])
   Object
   (render [this]
-    (println "Rendering from Root")
+    (println "Rendering 'misc.lines' from Root")
     (let [{:keys [tube/real-gases graph/lines]} (om/props this)]
       (dom/div nil
                (check-default-db @my-reconciler)
