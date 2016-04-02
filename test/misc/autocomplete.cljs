@@ -37,15 +37,7 @@
       {:search ast})))
 
 (def my-parser (om/parser {:read read}))
-
-;;
-;; There might be something in the here that we are loosing
-;; It is not just the query but its parameters we need to
-;; transfer onwards
-;;
-(defmethod read :root-join
-  [{:keys [query parser ast] :as env} k params]
-  {:value (u/probe "read res" {:root-join (parser env query)})})
+(declare my-reconciler)
 
 (defn result-list [results]
   (dom/ul #js {:key "result-list"}
@@ -62,14 +54,11 @@
                     (om/set-query! component
                                    {:params {:user-query evt-val}})))}))
 
-(def app-state (atom {:search/results []}))
-
 (declare read-query)
-
 (defui AutoCompleter
   static om/IQueryParams
   (params [_]
-    {:user-query ""})
+    {:user-query "chr"})
   static om/IQuery
   (query [_]
     '[(:search/results {:user-query ?user-query})])
@@ -83,8 +72,21 @@
                  [(search-field this (:user-query (om/get-params this)))]
                  (not (empty? results)) (conj (result-list results)))
                (dom/br nil)
-               (dom/button #js{:onClick (fn [_] (read-query))} "Read Query")))))
+               (comment (dom/button #js{:onClick (fn [_] (read-query))} "Read Query"))))))
 (def auto-completer (om/factory AutoCompleter))
+
+;;
+;; There might be something in the here that we are loosing
+;; It is not just the query but its parameters we need to
+;; transfer onwards
+;;
+(defmethod read :root-join
+  [{:keys [query parser ast] :as env} k params]
+  (println "The user's query is in the ast: " (-> ast :children first :params :user-query))
+  (println "The query is already as we need it to be: " query) ;; <- the query is already as we would want it, yet still doesn't work
+  {:value (u/probe "read res" {:root-join (parser env query)})})
+
+(def app-state (atom {:search/results []}))
 
 (defui Root
   static om/IQuery
@@ -92,8 +94,9 @@
     [{:root-join (om/get-query AutoCompleter)}])
   Object
   (render [this]
-    (let [{:keys [root-join]} (om/props this)
-          _ (println "root-join is:" root-join)]
+    (let [app-props (om/props this)
+          {:keys [root-join]} app-props
+          _ (println "root props:" app-props)]
       (dom/div nil
                (auto-completer root-join)
                (dom/br nil)))))
@@ -146,13 +149,13 @@
      :send    (send-to-chan send-chan)
      :remotes [:remote :search]}))
 
-(defn read-query []
-  (let [q '[(:search/results {:user-query "boo"})]
-        _ (om/set-query! (om/class->any my-reconciler AutoCompleter) {:params {:user-query "boo"}})
-        res (my-parser {:state app-state} q)]
-    (println "RES: " res)))
+(comment (defn read-query []
+           (let [q '[(:search/results {:user-query "boo"})]
+                 _ (om/set-query! (om/class->any my-reconciler AutoCompleter) {:params {:user-query "boo"}})
+                 res (my-parser {:state app-state} q)]
+             (println "RES: " res))))
 
 (search-loop send-chan)
 
-(om/add-root! my-reconciler AutoCompleter
+(om/add-root! my-reconciler Root
               (gdom/getElement "main-app-area"))
