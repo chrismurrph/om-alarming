@@ -26,7 +26,7 @@
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"] ;; <- usually "test", sometimes "src"
                         :figwheel true
-                        :compiler {:main       "misc.checkboxes"
+                        :compiler {:main       "misc.autocomplete"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"

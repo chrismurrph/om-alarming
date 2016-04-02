@@ -160,7 +160,7 @@
     (ld/log-render "RectTextTick" this)
     (let [{:keys [id graph/line]} (om/props this)
           {:keys [current-line x testing-name proportional-y proportional-val]} (om/get-computed this)]
-      (when proportional-y
+      (when (and current-line proportional-y)
         (let [;_ (println "proportional-y: " proportional-y)
               _ (assert id)
               _ (assert line (str "x-gas-info w/out a line. \nCOMPUTED:\n" (om/get-computed this)
@@ -215,7 +215,7 @@
 (defn rect-text-ticks [drop-info]
   (let [{:keys [graph/x-gas-details x-position testing-name graph/current-line proportionals]} drop-info
         points-count (:points-count proportionals)
-        _ (assert (and x-gas-details x-position current-line proportionals))
+        _ (assert (and x-gas-details x-position))
         ;_ (println "x-position: " x-position "points: " points-count)
         ]
     (when (and x-position (pos? points-count))
@@ -284,7 +284,8 @@
           {:keys [height] :as computed-props} (om/get-computed this)
           _ (assert height (str "Must have height, computed-props: " (select-keys computed-props [:height])))
           {:keys [in-sticky-time? x-position proportionals] :as local-state} (om/get-state this)
-          _ (assert proportionals)
+          ;If no current line then won't have
+          ;_ (assert proportionals)
           stroke (process/rgb-map-to-str brown)
           opacity (if in-sticky-time? 0 1) ;; <- experimenting with not seeing the line when it is nil
           line-props (merge process/line-defaults
