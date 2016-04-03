@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.set :as cset]
             [cljs.core.async :as async
-             :refer [chan close! put! timeout <! >! alts!]]
+             :refer [chan close! timeout <! >! alts!]]
             [om.next :as om])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -96,7 +96,7 @@ entries whose key is not in keys."
 ;; same in both environments, and port the code across easily.
 ;;
 
-(def log-chan (chan))
+(def ^:private log-chan (chan))
 
 (go-loop []
   (when-let [v (<! log-chan)]
@@ -104,9 +104,12 @@ entries whose key is not in keys."
     (recur)))
 
 (defn log [debug msg]
-  (when debug (go (>! log-chan msg))))
+  (when debug (async/put! log-chan msg)))
 
-(defn no-log [& txts]
+(defn log-on [msg]
+  (log true msg))
+
+(defn log-off [_]
   ())
 
 (defn first-only [seq]

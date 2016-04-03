@@ -10,6 +10,110 @@ CSS /* GLOBALS */
   margin: 0;
 }
 
+form .form-row {
+  display: table;
+  width: 100%;
+  border-spacing: 0rem;
+  table-layout: fixed;
+  box-sizing: border-box;
+  margin: 0rem 0rem 0.5rem 0rem;
+  line-height: 2rem;
+}
+form .form-row label {
+  display: table-cell;
+  vertical-align: top;
+  width: 5rem;
+  padding-right: 0.5rem;
+}
+form .form-row .input,
+form .form-row input,
+form .form-row textarea {
+  display: table-cell;
+  box-sizing: border-box;
+  width: 100%;
+  vertical-align: top;
+}
+form .form-row input,
+form .form-row textarea {
+  border: thin solid #dddddd;
+  border-radius: 0.25rem;
+  outline: none;
+  font: inherit;
+  padding: 0rem 0.5rem;
+}
+form .form-row input:focus,
+form .form-row textarea:focus {
+  border-color: #919191;
+}
+form .form-row textarea {
+  height: 15rem;
+}
+
+.dialog {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4rem;
+  box-sizing: border-box;
+}
+.dialog .dialog-closer {
+  z-index: 0;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+.dialog .dialog-title {
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 0.5rem;
+  border-bottom: thin solid #111111;
+}
+.dialog .dialog-title .card-id,
+.dialog .dialog-title .board-name {
+  margin-left: 0.5rem;
+}
+.dialog .dialog-content {
+  z-index: 1;
+  position: relative;
+  max-width: 40rem;
+  margin: auto;
+}
+.dialog .assignee {
+  padding: 0.25rem;
+  margin-right: 0.5rem;
+  border: thin solid #00c853;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+.dialog .lane-name {
+  padding: 0.25rem;
+  border: thin solid #ec407a;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+.dialog .dialog-buttons {
+  text-align: right;
+  margin: 0;
+}
+.dialog .dialog-buttons button {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: thin solid #dddddd;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+.dialog .dialog-buttons button:hover {
+  border: thin solid #d0d0d0;
+  background: #f4f4f4;
+}
+
+
 .switch {
   margin: 50px auto;
   position: relative;

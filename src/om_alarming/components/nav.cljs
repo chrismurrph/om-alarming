@@ -13,7 +13,7 @@
     [:button/by-id (:id props)])
   static om/IQuery
   (query [this]
-    '[:id :name :description])
+    '[:id :name :description :showing?])
   Object
   (render [this]
     (ld/log-render "TabButton" this)

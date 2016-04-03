@@ -60,11 +60,11 @@
                          {:id          3
                           :name        "New Trending"
                           :description "D3 Trending"
-                          :showing?    true}
+                          :showing?    false}
                          {:id          4
                           :name        "SVG Trending"
                           :description "SVG Trending"
-                          :showing?    true}
+                          :showing?    false}
                          {:id          5
                           :name        "Thresholds"
                           :description "Alarm Thresholds"

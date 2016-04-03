@@ -233,6 +233,13 @@
 ;; What is a bit 'wrong' is that we do say 4 rect tick texts, yet 3 of them will be invisible, only one
 ;; of them using the proportionals
 ;;
+(def default-local-state
+  {:last-mouse-moment nil
+   :x-position        0
+   :hover-pos         nil
+   :in-sticky-time?   false
+   :proportionals     {:proportional-y nil :proportional-val nil} ;;-> for documentation, will be overwritten
+   })
 (defui PlumbLine
   static om/Ident
   (ident [this props]
@@ -246,12 +253,7 @@
      ])
   Object
   (initLocalState [this]
-    {:last-mouse-moment nil
-     :x-position 0
-     :hover-pos nil
-     :in-sticky-time? false
-     :proportionals {:proportional-y nil :proportional-val nil} ;;-> for documentation, will be overwritten
-     })
+    default-local-state)
   (componentDidMount [this]
     (let [{:keys [comms-chan]} (om/get-computed this)
           _ (assert comms-chan "Must have a channel")
@@ -260,16 +262,21 @@
                            {:keys [hover-pos last-mouse-moment ys-at-x]} value
                            {:keys [in-sticky-time?]} (om/get-state this)]
                        (case cmd
+                         :remove-all ; Only doing this channel operation, not a mutate as well
+                         (om/set-state! this default-local-state)
+
                          :mouse-change
                          (do
                            (when (not in-sticky-time?)
                              (om/update-state! this assoc :last-mouse-moment last-mouse-moment)
                              (om/update-state! this assoc :x-position hover-pos))
                            (om/update-state! this assoc :hover-pos hover-pos))
+
                          :sticky-change
                          (let [opposite-to-current (not in-sticky-time?)]
                            (om/update-state! this assoc :in-sticky-time? opposite-to-current))
                          :ys-at-x-response
+
                          (let [current-id (-> (om/props this) :graph/current-line :id)
                                for-current-line (some #(when (= current-id (:line-id %)) %) ys-at-x)]
                            (u/log false (str "A one: " for-current-line))
@@ -450,15 +457,24 @@
                            (>! plumb-chan msg)
                            (recur proportionals (not in-sticky?)))
 
+                         (= cmd :remove-all)
+                         (do
+                           (u/log-off (str "Activating remove-all"))
+                           (>! plumb-chan msg)
+                           (doseq [ch (vals line-chans)]
+                             (>! ch msg))
+                           (recur proportionals in-sticky?))
+
                          ;;
                          ;; Only information we get from each line is to do the calculation of the proportionals.
                          ;; Only the line has the points. When stuck we don't want to get any points.
                          ;;
                          (nil? line-ident)
                          (do
-                           (when (not in-sticky?)
+                           (if (not in-sticky?)
                              (doseq [ch (vals line-chans)]
-                               (>! ch msg)))
+                               (>! ch msg))
+                             (u/log-off (str "All lines missing out on " cmd)))
                            (recur proportionals in-sticky?))
 
                          :else
@@ -467,7 +483,7 @@
                              (>! target-line-chan msg)
                              (recur proportionals in-sticky?))
                            (do
-                             (println "Not thought of this yet, no target channel for:" line-ident)
+                             (u/log-chan "Not thought of this yet, no target channel for:" line-ident)
                              (recur proportionals in-sticky?))))))]
       (dom/div nil
                (dom/svg (clj->js init-props)

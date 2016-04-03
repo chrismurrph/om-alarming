@@ -52,9 +52,9 @@
      ])
   Object
   (debug [this comms-chan]
-    (go (>! comms-chan {:cmd :debug-rand-point})))
+    (async/put! comms-chan {:cmd :debug-rand-point}))
   (remove-all [this comms-chan]
-    (go (>! comms-chan {:cmd :remove-all})))
+    (async/put! comms-chan {:cmd :remove-all}))
   (render [this]
     (ld/log-render "GraphNavigator" this)
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
@@ -69,27 +69,28 @@
           _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
           _ (println "RECEIVING: " receiving?)
           _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
+          span-minutes (quot span-seconds 60)
           ]
       (dom/div #js {:className "item"}
                (dom/div #js {:className (sized "ui buttons")}
                         (dom/button #js {:className "ui icon button"
                                          :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/backwards {:seconds ~span-seconds})]))
-                                         :title     (str "Go back " (quot span-seconds 60) " minutes")}
+                                         :title     (str "Back " span-minutes " minutes")}
                                     (dom/i #js {:className "left arrow icon"}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"}
                                     (dom/i #js {:className "right arrow icon"
                                                 :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/forwards {:seconds ~span-seconds})]))
-                                                :title     (str "Go forward " (quot span-seconds 60) " minutes")}))
+                                                :title     (str "Forward " span-minutes " minutes")}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
                                          :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/now)]))
-                                         :title     (str "View current " (quot span-seconds 60) " minutes")}
+                                         :title     (str "View current " span-minutes " minutes")}
                                     (dom/i #js {:className "sign in icon"}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
                                          :onClick   (fn [] (om/transact! this `[(graph/toggle-receive {:receiving? ~receiving?})]))
-                                         :title     (str "Start receiving for selected gases")}
+                                         :title     (str (if receiving? "Stop" "Start") " receiving for selected gases")}
                                     (dom/i #js {:className play-stop-css}))
                         (dom/div #js {:className "ui divider"})
                         (dom/button #js {:className "ui icon button"
