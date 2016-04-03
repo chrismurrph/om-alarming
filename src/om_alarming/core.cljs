@@ -16,6 +16,7 @@
             [om-alarming.components.d3 :as d3]
             [om-alarming.components.no-d3-just-svg :as no-d3]
             [om-alarming.components.log-debug :as ld]
+            [om-alarming.components.login-dialog :as dialog]
             [om-alarming.graph.processing :as p]
             [cljs.pprint :as pp :refer [pprint]]
             [default-db-format.core :as db-format]
@@ -134,6 +135,7 @@
           ]
       [
        ;:app/route {:route/data (om/subquery this subq-ref subq-class)}
+       {:app/login-info (om/get-query dialog/LoginDialog)}
        {:app/sys-gases (om/get-query gen/SystemGas)}
        {:app/tubes (om/get-query gen/Location)}
        {:tube/real-gases (om/get-query grid/GridDataCell)}
@@ -158,29 +160,40 @@
       (if selected?
         (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
         (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})]))))
+  (cancel-sign-in-fn [this]
+    (println "user cancelled"))
+  (sign-in-fn [this]
+    (println "user signing in"))
+  (board-update [this board data]
+    (om/transact! this `[(boards/update {:board ~board :data ~data})]))
   (render [this]
     (ld/log-render "App" this)
     (let [app-props (om/props this)
-          {:keys [app/route route/data app/buttons app/selected-button graph/lines grid/gas-query-panel]} app-props
+          {:keys [app/route route/data app/login-info app/buttons app/selected-button graph/lines grid/gas-query-panel]} app-props
           existing-colours (into #{} (map :colour lines))]
       (dom/div nil
                (check-default-db @my-reconciler)
-               (nav/menu-bar buttons
-                             selected-button)
-               (let [selected (:name selected-button)]
-                 (case selected
-                   "Map" (dom/div nil "Nufin")
-                   "Trending" (grid/gas-query-panel-component (om/computed gas-query-panel {:lines lines :click-cb-fn #(.click-cb this existing-colours %1 %2)}))
-                   ;"New Trending" (d3/present-defcard)
-                   ;"SVG Trending" (no-d3/present-defcard)
-                   "Thresholds" (dom/div nil "Nufin")
-                   "Reports" (dom/div nil "Nufin")
-                   "Automatic" (dom/div nil "Nufin")
-                   "Logs" (dom/div nil "Nufin")
-                   "Debug" (debug/debug (om/computed (merge (u/probe "NAV" (:graph/navigator app-props))
-                                                            (:graph/trending-graph app-props))
-                                                     {:state @my-reconciler}))
-                   nil (dom/div nil "Nothing selected, program has crashed!")))))))
+               (if (not (:app/authenticated? login-info))
+                 (dialog/login-dialog (om/computed login-info {:sign-in-fn #(.sign-in-fn this)
+                                                               :cancel-sign-in-fn #(.cancel-sign-in-fn this)
+                                                               :update-fn #(.board-update this %1 %2)}))
+                 (dom/div nil
+                          (nav/menu-bar buttons
+                                        selected-button)
+                          (let [selected (:name selected-button)]
+                            (case selected
+                              "Map" (dom/div nil "Nufin")
+                              "Trending" (grid/gas-query-panel-component (om/computed gas-query-panel {:lines lines :click-cb-fn #(.click-cb this existing-colours %1 %2)}))
+                              "New Trending" (d3/present-defcard)
+                              "SVG Trending" (no-d3/present-defcard)
+                              "Thresholds" (dom/div nil "Nufin")
+                              "Reports" (dom/div nil "Nufin")
+                              "Automatic" (dom/div nil "Nufin")
+                              "Logs" (dom/div nil "Nufin")
+                              "Debug" (debug/debug (om/computed (merge (u/probe "NAV" (:graph/navigator app-props))
+                                                                       (:graph/trending-graph app-props))
+                                                                {:state @my-reconciler}))
+                              nil (dom/div nil "Nothing selected, program has crashed!")))))))))
 
 (defn ident-finder
   "Hack b/c we will stop using names...

@@ -52,7 +52,7 @@ form .form-row textarea {
 .dialog {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 15%;
   height: 100%;
   width: 100%;
   z-index: 1;
@@ -81,7 +81,7 @@ form .form-row textarea {
 .dialog .dialog-content {
   z-index: 1;
   position: relative;
-  max-width: 40rem;
+  max-width: 25rem;
   margin: auto;
 }
 .dialog .assignee {

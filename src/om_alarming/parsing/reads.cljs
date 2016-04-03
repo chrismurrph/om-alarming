@@ -9,6 +9,11 @@
   (let [st @state]
     {:value (om/db->tree query (get st key) st)}))
 
+(defmethod read :app/login-info
+  [{:keys [state query]} key _]
+  (let [st @state]
+    {:value (om/db->tree query (get st key) st)}))
+
 (defmethod read :app/tubes
   [{:keys [state query]} key _]
   (let [st @state]

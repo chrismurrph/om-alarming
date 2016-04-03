@@ -24,6 +24,12 @@
 (def initial-state
 
   {
+   :app/login-info      {:id                10900
+                         :app/name          "Mystery App!"
+                         :app/un            nil
+                         :app/pw            nil
+                         :app/authenticated? false
+                         }
    :app/route           [:app/map '_]
    :app/map             {:id              10500
                          :map/name        "Map"

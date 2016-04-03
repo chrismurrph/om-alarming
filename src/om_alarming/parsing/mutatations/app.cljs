@@ -16,6 +16,10 @@
    }
   )
 
+(defmethod mutate 'boards/update
+  [{:keys [state]} _ {:keys [board data]}]
+  {:action (fn [] (swap! state update-in board #(merge % data)))})
+
 (defmethod mutate 'app/tab
   [{:keys [state]} k {:keys [new-id]}]
   (ld/log-mutation k)
