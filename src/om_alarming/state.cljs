@@ -145,7 +145,7 @@
                          ]
    :graph/plumb-line    {:id                  10201
                          :visible?            true
-                         :graph/current-line  {:id 100}
+                         :graph/current-line  {:id 103}
                          :graph/x-gas-details [{:id 10100} {:id 10101} {:id 10102} {:id 10103}]}
    :graph/lines
                         [
@@ -157,10 +157,10 @@
                           :intersect {:grid-cell/id 501}}
                          {:id        102
                           :colour    blue
-                          :intersect {:grid-cell/id 503}}
+                          :intersect {:grid-cell/id 502}}
                          {:id        103
                           :colour    red
-                          :intersect {:grid-cell/id 502}}
+                          :intersect {:grid-cell/id 503}}
                          ]
    :app/sys-gases       [{:id     150 :long-name "Methane" :short-name "CH\u2084"
                           :lowest 0.25 :highest 1 :units "%"}
