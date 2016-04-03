@@ -68,9 +68,12 @@
   (let [intersect-ident [:gas-at-location/by-id intersect-id]
         line-id (:id (u/first-only (filter (fn [v] (= intersect-ident (:intersect v))) (vals (get st :line/by-id)))))
         line-ident [:line/by-id line-id]
+        current-in-plumb (get-in st [:plumb-line/by-id 10201 :graph/current-line])
+        delete-from-plumb? (= current-in-plumb line-ident)
+        st-plumb-removed (if delete-from-plumb? (assoc-in st [:plumb-line/by-id 10201 :graph/current-line] nil) st)
         ]
     {:line-ident line-ident
-     :state      (-> st
+     :state      (-> st-plumb-removed
                      (update :graph/lines u/vec-remove-value line-ident)
                      (update :line/by-id u/unselect-keys [line-id])
                      )}))

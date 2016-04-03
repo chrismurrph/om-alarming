@@ -38,6 +38,7 @@
                                        ;'graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501 :colour colours/red} nil
                                        )} "Remove line")
            (db-format/display (:graph/lines state))
+           (db-format/display (get-in state [:plumb-line/by-id 10201 :graph/current-line]))
            (db-format/display (get state :line/by-id))
            (dom/br nil)
            ;(db-format/display (u/remove-value (get state :graph/lines) [:line/by-id 102]))
