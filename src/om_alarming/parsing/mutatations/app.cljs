@@ -16,9 +16,13 @@
    }
   )
 
-(defmethod mutate 'boards/update
-  [{:keys [state]} _ {:keys [board data]}]
-  {:action (fn [] (swap! state update-in board #(merge % data)))})
+(defmethod mutate 'app/update
+  [{:keys [state]} _ {:keys [ident data]}]
+  {:action (fn [] (swap! state update-in ident #(merge % data)))})
+
+(defmethod mutate 'app/authenticate
+  [{:keys [state]} _ _]
+  {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? true})))})
 
 (defmethod mutate 'app/tab
   [{:keys [state]} k {:keys [new-id]}]

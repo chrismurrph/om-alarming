@@ -161,11 +161,11 @@
         (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
         (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})]))))
   (cancel-sign-in-fn [this]
-    (println "user cancelled"))
+    (println "user cancelled, doing nothing, we ought to take user back to web page came from"))
   (sign-in-fn [this]
-    (println "user signing in"))
-  (board-update [this board data]
-    (om/transact! this `[(boards/update {:board ~board :data ~data})]))
+    (om/transact! this `[(app/authenticate)]))
+  (general-update [this ident data]
+    (om/transact! this `[(app/update {:ident ~ident :data ~data})]))
   (render [this]
     (ld/log-render "App" this)
     (let [app-props (om/props this)
@@ -176,7 +176,7 @@
                (if (not (:app/authenticated? login-info))
                  (dialog/login-dialog (om/computed login-info {:sign-in-fn #(.sign-in-fn this)
                                                                :cancel-sign-in-fn #(.cancel-sign-in-fn this)
-                                                               :update-fn #(.board-update this %1 %2)}))
+                                                               :update-fn #(.general-update this %1 %2)}))
                  (dom/div nil
                           (nav/menu-bar buttons
                                         selected-button)

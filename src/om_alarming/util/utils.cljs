@@ -88,7 +88,7 @@ entries whose key is not in keys."
   (println (str (str/upper-case msg) ":\n" obj))
   obj)
 
-(defn un-probe [msg obj]
+(defn probe-off [msg obj]
   obj)
 
 ;;

@@ -21,7 +21,7 @@
   Object
   (update [this prop value]
     (let [{:keys [update-fn]} (om/get-computed this)]
-      (update-fn (u/probe "ident updating" (om/get-ident this)) {prop value})))
+      (update-fn (u/probe-off "ident updating" (om/get-ident this)) {prop value})))
   (render [this]
     (let [{:keys [id app/name app/un app/pw]} (om/props this)
           {:keys [cancel-sign-in-fn sign-in-fn]} (om/get-computed this)]
