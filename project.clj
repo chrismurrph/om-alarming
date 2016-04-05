@@ -11,22 +11,22 @@
                  [org.clojure/test.check "0.9.0"]
                  [default-db-format "0.1.1-SNAPSHOT"]
                  [com.andrewmcveigh/cljs-time "0.3.14"]
-                 [binaryage/devtools "0.5.2"]
                  [cljsjs/d3 "3.5.7-1"]
+                 [org.clojure/tools.namespace "0.2.11"]
+                 [com.taoensso/timbre "4.3.0"]
                  ]
 
-  :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-1"]]
+  :plugins [[lein-cljsbuild "1.1.2"]]
 
-  :clean-targets ^{:protect false} ["resources/public/js/"
-                                    "target"]
-                                    
-  :source-paths ["src" "test"]
-                 
+  :clean-targets ^{:protect false} ["resources/public/js/" "target"]
+
+  ;; -> Soon to have these: "src/client" "src/server" instead just src
+  :source-paths ["src" "test" "dev/server"] ;;-> Will get rid of script b/c it s/only contain figwheel
+
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"] ;; <- usually "test", sometimes "src"
                         :figwheel true
-                        :compiler {:main       "misc.autocomplete"
+                        :compiler {:main       "misc.lines"
                                    :asset-path "js/test"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/test"
@@ -49,4 +49,17 @@
                                     :output-dir "resources/public/js/devcards_out"
                                     :source-map-timestamp true }}]}
 
-  :figwheel { :css-dirs ["resources/public/css"] })
+  :figwheel {:open-file-command "open-in-intellij"
+             :css-dirs ["resources/public/css"] }
+
+  :profiles {
+             :dev {
+                   :repl-options {
+                                  :init-ns          user
+                                  :port             7001
+                                  }
+                   :env          {:dev true}
+                   :dependencies [[figwheel-sidecar "0.5.0-6"]
+                                  [binaryage/devtools "0.5.2" :exclusions [environ]] ;;
+                                  [org.clojure/tools.nrepl "0.2.12"]]}}
+  )

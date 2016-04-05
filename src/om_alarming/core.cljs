@@ -28,8 +28,7 @@
             [cljs.core.async :as async :refer [<!]]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.parsing.mutations.graph]
-            [om-alarming.state :as state]
-            [devtools.core :as devtools])
+            [om-alarming.state :as state])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -214,12 +213,19 @@
      :highest (-> system-gas :highest)
      :name (-> system-gas :long-name)}))
 
+#_(def app (atom))
+
+#_(defn mount []
+  (om/add-root! my-reconciler
+                App
+                (.. js/document (getElementById "main-app-area")))
+  (println "Mounting!!")
+  (p/init))
+
 (defn ^:export run []
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
-  (devtools/enable-feature! :sanity-hints :dirac)
-  (devtools/install!)
   (p/init))
 (run)
 

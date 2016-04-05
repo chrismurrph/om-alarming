@@ -24,12 +24,22 @@
 
 (defmulti read om/dispatch)
 
+;;
+;; Here the read returns a value for the :search remote, which will (indirectly) be sent
+;; (:send function), which will cause :search/results to be filled. When filled they will
+;; obviously be displayed (we have a component with those keys in the query).
+;; So here we are returning a value for :search/results (as we always do), plus the
+;; possibility that it will be set to something different in the future.
+;;
+;; Perhaps the target becomes :search when the values are being returned from the remote -
+;; so reads are called with a target of remote (here the target is irrelevant, but used elsewhere)
+;;
 (defmethod read :search/results
   [{:keys [state ast] :as env} k {:keys [user-query]}]
-  (println "state:" @state)
-  (println "ast:" ast)
-  (println "user-query:" user-query)
-  (println "---------")
+  ;(println "state:" @state)
+  ;(println "ast:" ast)
+  ;(println "user-query:" user-query)
+  ;(println "---------")
   (merge
     {:value (get @state k [])}
     (when-not (or (string/blank? user-query)
@@ -54,7 +64,7 @@
                     (om/set-query! component
                                    {:params {:user-query evt-val}})))}))
 
-(declare read-query)
+#_(declare read-quer)
 (defui AutoCompleter
   static om/IQueryParams
   (params [_]
@@ -72,7 +82,7 @@
                  [(search-field this (:user-query (om/get-params this)))]
                  (not (empty? results)) (conj (result-list results)))
                (dom/br nil)
-               (comment (dom/button #js{:onClick (fn [_] (read-query))} "Read Query"))))))
+               (#_ (dom/button #js{:onClick (fn [_] (read-query))} "Read Query"))))))
 (def auto-completer (om/factory AutoCompleter))
 
 ;;
@@ -80,11 +90,47 @@
 ;; It is not just the query but its parameters we need to
 ;; transfer onwards
 ;;
-(defmethod read :root-join
+#_(defmethod read :root-join
   [{:keys [query parser ast] :as env} k params]
   (println "The user's query is in the ast: " (-> ast :children first :params :user-query))
   (println "The query is already as we need it to be: " query) ;; <- the query is already as we would want it, yet still doesn't work
   {:value (u/probe "read res" {:root-join (parser env query)})})
+
+;;
+;; anmonteiro's answer:
+;;
+;; Here we first of all do the subquery.
+;; Here if there is already something in
+;; Hmm - I need to read up on remotes then come back here...
+;;
+(defmethod read :root-join
+  [{:keys [query target parser ast state] :as env} k params]
+  (let [val (parser env query target)]
+    (if (and (= target :search)
+             (not (empty? val)))
+      {:value (select-keys @state [:search/results])
+       :search (om.next.impl.parser/expr->ast (first val))}
+      {:value val})))
+
+;;
+;; Apparently the above is very common logic, so:
+;;
+#_(defmethod read :root-query
+  [{:keys [parser query ast target] :as env} key _]
+  (let [search (parser env query target)]
+    (if (and target (not-empty search))
+      {:search (assoc ast :query search)}
+      {:value (parser env query)})))
+
+;;
+;; In cooperation with this:
+;;
+#_(defn send-to-chan [c]
+  (fn [{:keys [search] :as env} cb]
+    (when search
+      (let [{[search] :children} (om/query->ast (get-in (first search) [:root-query]))
+            query (get-in search [:params :query])]
+        (put! c [query cb])))))
 
 (def app-state (atom {:search/results []}))
 
@@ -149,11 +195,11 @@
      :send    (send-to-chan send-chan)
      :remotes [:remote :search]}))
 
-(comment (defn read-query []
-           (let [q '[(:search/results {:user-query "boo"})]
-                 _ (om/set-query! (om/class->any my-reconciler AutoCompleter) {:params {:user-query "boo"}})
-                 res (my-parser {:state app-state} q)]
-             (println "RES: " res))))
+#_(defn read-query []
+  (let [q '[(:search/results {:user-query "boo"})]
+        _ (om/set-query! (om/class->any my-reconciler AutoCompleter) {:params {:user-query "boo"}})
+        res (my-parser {:state app-state} q)]
+    (println "RES: " res)))
 
 (search-loop send-chan)
 
