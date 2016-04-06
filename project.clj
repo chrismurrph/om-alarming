@@ -42,7 +42,7 @@
                                    :source-map-timestamp true }}
                        {:id "dev"
                         :source-paths ["src/client"]
-                        :figwheel true
+                        ;:figwheel true ;; We want to be connected to a real server rather than a figwheel one
                         :compiler {
                                    :main       "om-alarming.core"
                                    :asset-path "js/out"

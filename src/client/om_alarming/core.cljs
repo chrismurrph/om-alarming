@@ -9,6 +9,7 @@
             [om-alarming.util.colours :as colours]
             [om-alarming.components.grid :as grid]
             [om-alarming.components.debug :as debug]
+            [om-alarming.components.sente :as sente]
             [om-alarming.components.general :as gen]
             [om-alarming.components.nav :as nav]
             [om-alarming.components.graphing :as graph]
@@ -191,9 +192,10 @@
                               "Reports" (dom/div nil "Nufin")
                               "Automatic" (dom/div nil "Nufin")
                               "Logs" (dom/div nil "Nufin")
-                              "Debug" (debug/debug (om/computed (merge (u/probe "NAV" (:graph/navigator app-props))
+                              "Debug" (debug/debug (om/computed (merge (:graph/navigator app-props)
                                                                        (:graph/trending-graph app-props))
                                                                 {:state @my-reconciler}))
+                              "Sente" (sente/sente nil)
                               nil (dom/div nil "Nothing selected, program has crashed!")))))))))
 
 (defn ident-finder

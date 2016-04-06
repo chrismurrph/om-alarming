@@ -93,14 +93,17 @@
       ch-chsk event-msg-handler)))
 
 ;;;; UI events
+; -> these will be coded as ON components in the Sente tab
 
-(when-let [target-el (.getElementById js/document "btn1")]
+;; Don't even display this button
+#_(when-let [target-el (.getElementById js/document "btn1")]
   (.addEventListener target-el "click"
     (fn [ev]
       (->output! "Button 1 was clicked (won't receive any reply from server)")
       (chsk-send! [:example/button1 {:had-a-callback? "nope"}]))))
 
-(when-let [target-el (.getElementById js/document "btn2")]
+;; Working but getting timeout because not connected
+#_(when-let [target-el (.getElementById js/document "btn2")]
   (.addEventListener target-el "click"
     (fn [ev]
       (->output! "Button 2 was clicked (will receive reply from server)")

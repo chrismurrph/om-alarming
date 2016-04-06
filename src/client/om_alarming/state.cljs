@@ -91,6 +91,10 @@
                           :name        "Debug"
                           :description "Debug while developing"
                           :showing?    true}
+                         {:id          10
+                          :name        "Sente"
+                          :description "Sente while developing"
+                          :showing?    true}
                          ]
 
    :debug/squares       [{:id 3922957, :x 119, :y 798, :size 92, :color "yellow"}

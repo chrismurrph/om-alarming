@@ -22,10 +22,11 @@
 (defn start-figwheel
   "Start Figwheel on the given builds, or defaults to build-ids in `figwheel-config`."
   ([]
-   (let [props (System/getProperties)
-         all-builds (->> figwheel-config :all-builds (mapv :id))
-         _ (println "All builds: " all-builds)]
-     (start-figwheel (keys (select-keys props all-builds)))))
+   (let [all-the-builds (->> figwheel-config :all-builds)
+         all-build-ids (mapv :id all-the-builds)
+         _ (println "All builds: " all-build-ids)
+         _ (pprint all-the-builds)]
+     (start-figwheel (keys (select-keys (System/getProperties) all-build-ids)))))
   ([build-ids]
    (let [default-build-ids (:build-ids figwheel-config)
          build-ids (if (empty? build-ids) default-build-ids build-ids)]
