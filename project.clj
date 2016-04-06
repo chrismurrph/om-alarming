@@ -42,7 +42,9 @@
                                    :source-map-timestamp true }}
                        {:id "dev"
                         :source-paths ["src/client"]
-                        ;:figwheel true ;; We want to be connected to a real server rather than a figwheel one
+                        :figwheel true ;; We want to be connected to a real server rather than a figwheel one
+                                       ;; That not what this option is about - it is about whether figwheel code
+                                       ;; is included, so that the reload request is acted on.
                         :compiler {
                                    :main       "om-alarming.core"
                                    :asset-path "js/out"
