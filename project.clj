@@ -20,8 +20,7 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/" "target"]
 
-  ;; -> Soon to have these: "src/client" "src/server" instead just src
-  :source-paths ["src" "test" "dev/server"] ;;-> Will get rid of script b/c it s/only contain figwheel
+  :source-paths ["src/client" "src/server" "test" "dev/server"] ;;-> Will get rid of script b/c it s/only contain figwheel
 
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"] ;; <- usually "test", sometimes "src"
@@ -32,7 +31,7 @@
                                    :output-dir "resources/public/js/test"
                                    :source-map-timestamp true }}
                        {:id "dev"
-                        :source-paths ["src"]
+                        :source-paths ["src/client"]
                         :figwheel true
                         :compiler {
                                    :main       "om-alarming.core"
@@ -41,7 +40,7 @@
                                    :output-dir "resources/public/js/out"
                                    :source-map-timestamp true }}
                        {:id "devcards"
-                        :source-paths ["src"]
+                        :source-paths ["src/client"]
                         :figwheel { :devcards true }
                         :compiler { :main       "cards.ui"
                                     :asset-path "js/devcards_out"
