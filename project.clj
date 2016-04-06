@@ -14,6 +14,7 @@
                  [cljsjs/d3 "3.5.7-1"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [com.taoensso/timbre "4.3.0"]
+                 [smartgas-deps "1.0.0"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]]
@@ -21,6 +22,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/" "target"]
 
   :source-paths ["src/client" "src/server" "test" "dev/server"] ;;-> Will get rid of script b/c it s/only contain figwheel
+  :java-source-paths ["java/src"]
 
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"] ;; <- usually "test", sometimes "src"
