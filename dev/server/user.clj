@@ -14,7 +14,8 @@
 
 (def figwheel-config
   {:figwheel-options {:open-file-command "open-in-intellij"
-                      :css-dirs ["resources/public/css"] }
+                      :css-dirs ["resources/public/css"]
+                      :server-port 2345}
    :build-ids        ["dev"]
    :all-builds       (figwheel-sidecar.repl/get-project-cljs-builds)})
 

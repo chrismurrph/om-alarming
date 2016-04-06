@@ -46,6 +46,31 @@
   (def connected-uids                connected-uids) ; Watchable, read-only atom
   )
 
+;<html>
+;<head>
+;<meta charset="UTF-8">
+;<meta name="viewport" content="width=device-width, initial-scale=1">
+;<link href="/css/compiled/sui_semantic.css" rel="stylesheet" type="text/css">
+;<link href="/css/my.css" rel="stylesheet" type="text/css">
+;<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+;</head>
+;<body>
+;<div id="main-app-area"></div>
+;<script src="/js/main.js" type="text/javascript"></script>
+;</body>
+;</html>
+(defn om-alarming-page-handler [ring-req]
+  (hiccup/html
+    [:head
+     [:meta {:charset "UTF-8"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+     [:link {:href "/css/compiled/sui_semantic.css" :rel "stylesheet" :type "text/css"}]
+     [:link {:href "/css/my.css" :rel "stylesheet" :type "text/css"}]
+     [:script {:src "//d3js.org/d3.v3.min.js" :charset "utf-8"}]]
+    [:body
+     [:div {:id "main-app-area"}]
+     [:script {:src "/js/main.js" :type "text/javascript"}]]))
+
 (defn landing-pg-handler [ring-req]
   (hiccup/html
     [:h1 "Sente reference example"]
@@ -77,7 +102,7 @@
     [:hr]
     [:h2 "Step 4: want to re-randomize Ajax/WebSocket connection type?"]
     [:p "Hit your browser's reload/refresh button"]
-    [:script {:src "main.js"}] ; Include our cljs target
+    [:script {:src "js/main.js"}] ; Include our cljs target
     ))
 
 ;;;; Sente event handlers
@@ -120,6 +145,7 @@
 (defonce graph-line-server_ (atom nil))
 (defonce user-details-server_ (atom nil))
 (defn start-smartgas-servers []
+  (Utils/setupLoggingToFile "logs/smartgas.log")
   (reset! domain-factory_ (DomainSession/getDomainFactoryInstance))
   (reset! role-factory_ (DomainSession/getRoleEnumFactoryInstance))
   (reset! smartgas-server_ (SmartgasServer. (HashMap.)))
@@ -208,7 +234,7 @@
 ;;;; Sente event router (our `event-msg-handler` loop)
 
 (defroutes ring-routes
-           (GET  "/"      ring-req (landing-pg-handler            ring-req))
+           (GET  "/"      ring-req (om-alarming-page-handler      ring-req))
            (GET  "/chsk"  ring-req (ring-ajax-get-or-ws-handshake ring-req))
            (POST "/chsk"  ring-req (ring-ajax-post                ring-req))
            (POST "/login" ring-req (login-handler                 ring-req))
@@ -233,35 +259,13 @@
           (sente/start-server-chsk-router!
             ch-chsk event-msg-handler)))
 
-;;;; Some server>user async push examples
-
-(defn start-example-broadcaster!
-  "As an example of server>user async pushes, setup a loop to broadcast an
-  event to all connected users every 10 seconds"
-  []
-  (let [broadcast!
-        (fn [i]
-          (debugf "Broadcasting server>user: %s" @connected-uids)
-          (doseq [uid (:any @connected-uids)]
-            (chsk-send! uid
-                        [:some/broadcast
-                         {:what-is-this "An async broadcast pushed from server"
-                          :how-often "Every 10 seconds"
-                          :to-whom uid
-                          :i i}])))]
-
-    (go-loop [i 0]
-             (<! (async/timeout 10000))
-             (broadcast! i)
-             (recur (inc i)))))
-
 (defonce    web-server_ (atom nil)) ; {:server _ :port _ :stop-fn (fn [])}
 (defn  stop-web-server! [] (when-let [m @web-server_] ((:stop-fn m))))
 (defn start-web-server! [& [port]]
   (stop-web-server!)
   (let [{:keys [stop-fn port] :as server-map}
         (start-selected-web-server! (var main-ring-handler)
-                                    (or port 8081) ; 0 => auto (any available) port
+                                    (or port 3000) ; 0 => auto (any available) port
                                     )
         uri (format "http://localhost:%s/" port)]
     (infof "Web server is running at `%s`" uri)

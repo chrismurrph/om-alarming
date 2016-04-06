@@ -28,7 +28,9 @@
             [cljs.core.async :as async :refer [<!]]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.parsing.mutations.graph]
-            [om-alarming.state :as state])
+            [om-alarming.state :as state]
+            [om-alarming.client :as client]
+            )
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -226,7 +228,8 @@
   (om/add-root! my-reconciler
                 App
                 (.. js/document (getElementById "main-app-area")))
-  (p/init))
+  (p/init)
+  (client/start!))
 (run)
 
 ;ident (line-name->ident name)]

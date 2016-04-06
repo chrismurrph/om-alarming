@@ -44,7 +44,7 @@
                                                   :placeholder "Enter user password here..."
                                                   :onChange    #(.update this :app/pw (.. % -target -value))})))
                         (dom/p #js {:className "dialog-buttons"}
-                               (dom/button #js{:onClick sign-in-fn} "Sign in")
+                               (dom/button #js{:onClick sign-in-fn} "Log in")
                                (dom/button #js{:onClick cancel-sign-in-fn} "Cancel")))))))
 
 (def login-dialog (om/factory LoginDialog {:keyfn :id}))

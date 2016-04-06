@@ -59,7 +59,8 @@
                                     :source-map-timestamp true }}]}
 
   :figwheel {:open-file-command "open-in-intellij"
-             :css-dirs ["resources/public/css"] }
+             :css-dirs ["resources/public/css"]
+             :server-port 2345}
 
   :profiles {
              :dev {
@@ -69,6 +70,7 @@
                                   }
                    :env          {:dev true}
                    :dependencies [[figwheel-sidecar "0.5.0-6"]
-                                  [binaryage/devtools "0.5.2" :exclusions [environ]] ;;
+                                  [binaryage/devtools "0.5.2" :exclusions [environ]]
+                                  [com.cemerick/piggieback "0.2.1"]
                                   [org.clojure/tools.nrepl "0.2.12"]]}}
   )
