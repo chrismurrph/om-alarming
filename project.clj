@@ -15,6 +15,14 @@
                  [org.clojure/tools.namespace "0.2.11"]
                  [com.taoensso/timbre "4.3.0"]
                  [smartgas-deps "1.0.0"]
+                 [org.clojure/core.async "0.2.374"]
+                 [com.taoensso/sente "1.8.0"]
+                 [http-kit "2.1.21-alpha2"]
+                 [ring "1.4.0"]
+                 [ring/ring-defaults "0.1.5"]               ; Includes `ring-anti-forgery`, etc.
+                 [compojure "1.4.0"]                        ; Or routing lib of your choice
+                 [com.cognitect/transit-clj "0.8.285"]
+                 [com.cognitect/transit-cljs "0.8.237"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.2"]]

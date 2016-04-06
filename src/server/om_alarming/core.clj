@@ -23,8 +23,8 @@
 
     [org.httpkit.server :as http-kit]
     [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
-    [alarm-server.util :as u]
-    [alarm-server.convert :as conv]))
+    [om-alarming.util :as u]
+    [om-alarming.convert :as conv]))
 
 (defn start-selected-web-server! [ring-handler port]
   (infof "Starting http-kit...")
