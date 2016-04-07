@@ -2,11 +2,13 @@
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [om-alarming.sente-client :as client]
+            [om-alarming.util.utils :as u]
             [taoensso.sente :as sente]))
 
 (defui Sente
        Object
        (render [this]
+         ;(u/log-on "Sente component being re-rendered")
          (dom/div nil
                   (dom/h2 nil "Sente reference example")
                   (dom/p nil "An Ajax/WebSocket" (dom/strong nil " (random choice!)") " has been configured for this example")
@@ -23,7 +25,7 @@
                                                (fn [cb-reply] (client/->output! "Callback reply: %s" cb-reply))))} "chsk-send! (with reply)")
                   (dom/br nil)(dom/br nil)
                   (dom/p nil (dom/strong nil "Step 2") " observe std-out (for server output) and below (for client output):")
-                  (dom/textarea #js{:style #js{:id "output" :width "100%" :height "200px"}})
+                  (dom/textarea #js{:id "output" :style #js{:width "100%" :height "200px"}})
                   ;(dom/hr nil)
                   (dom/h3 "Step 3: try login with a user-id")
                   (dom/p "The server can use this id to send events to *you* specifically.")

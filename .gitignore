@@ -6,3 +6,7 @@ figwheel_server.log
 target/
 *min.css
 material.css
+/logs/
+.lein-repl-history
+.nrepl-port
+/java/

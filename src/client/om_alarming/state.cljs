@@ -182,25 +182,35 @@
                           :lowest 0.5 :highest 1.35 :units "%"}]
    :app/tubes
                         [{:id       1000
-                          :tube-num 1}
+                          :tube-num 1
+                          :display-name "Tube 1"}
                          {:id       1001
-                          :tube-num 2}
+                          :tube-num 2
+                          :display-name "Tube 2"}
                          {:id       1002
-                          :tube-num 3}
+                          :tube-num 3
+                          :display-name "Tube 3"}
                          {:id       1003
-                          :tube-num 4}
+                          :tube-num 4
+                          :display-name "Tube 4"}
                          {:id       1004
-                          :tube-num 5}
+                          :tube-num 5
+                          :display-name "Tube 5"}
                          {:id       1005
-                          :tube-num 6}
+                          :tube-num 6
+                          :display-name "tube6"}
                          {:id       1006
-                          :tube-num 7}
+                          :tube-num 7
+                          :display-name "tube7"}
                          {:id       1007
-                          :tube-num 8}
+                          :tube-num 8
+                          :display-name "tube8"}
                          {:id       1008
-                          :tube-num 9}
+                          :tube-num 9
+                          :display-name "Bag Sampling"} ;; could be "Calibrating" - doesn't matter for now
                          {:id       1009
-                          :tube-num 10}
+                          :tube-num 10
+                          :display-name "Shed Tube 10"}
                          ]
    :tube/real-gases
                         [{:grid-cell/id 500

@@ -155,6 +155,9 @@
 
 (defn get-points [?data session]
   (let [{:keys [start-time-str end-time-str metric-name display-name]} ?data
+        ;all-points (.assembledSamplePoints @smartgas-server_)
+        ;_ (println "ALL:\n" all-points)
+        ;display-name (nth (.getNames all-points) (dec display-name))
         multigasReqDO (.requestGraphLine @graph-line-server_ start-time-str end-time-str
                                          (Utils/formList metric-name)
                                          display-name (SeaLogger/format (Date.)) session)

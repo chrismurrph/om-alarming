@@ -68,9 +68,9 @@
 
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
-  (if (and (:first-open? ?data) (:uid ?data))
+  (if (and (:first-open? ?data) (:uid ?data) (not (= :taoensso.sente/nil-uid (:uid ?data))))
     (do
-      (->output! "Channel socket successfully established!")
+      (->output! "Channel socket successfully established with: %s" ?data)
       (reconciler/alteration 'app/authenticate {:token true} :app/login-info))
     (->output! "Channel socket state change: %s" ?data)))
 
@@ -155,6 +155,7 @@
   (.addEventListener target-el "click"
                      (fn [ev]
                        (->output! "Logout was clicked")
+                       (reconciler/alteration 'app/authenticate {:token false} :app/login-info)
                        (sente/ajax-lite "/logout"
                                         {:method :post
                                          :headers {:X-CSRF-Token (:csrf-token @chsk-state)}}
