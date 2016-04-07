@@ -105,7 +105,10 @@
 ;;
 (defmethod read :root-join
   [{:keys [query target parser ast state] :as env} k params]
-  (let [val (parser env query target)]
+  (let [val (parser env query target)
+        _ (println "SEARCH: " val)
+        _ (println "TARGET: " target)
+        _ (println "---")]
     (if (and (= target :search)
              (not (empty? val)))
       {:value (select-keys @state [:search/results])
@@ -115,22 +118,29 @@
 ;;
 ;; Apparently the above is very common logic, so:
 ;;
-#_(defmethod read :root-query
-  [{:keys [parser query ast target] :as env} key _]
-  (let [search (parser env query target)]
-    (if (and target (not-empty search))
-      {:search (assoc ast :query search)}
-      {:value (parser env query)})))
+(comment (defmethod read :root-query
+           [{:keys [parser query ast target] :as env} key _]
+           (let [search (parser env query target)]
+             (if (and target (not-empty search))
+               {:search (assoc ast :query search)}
+               {:value (parser env query)}))))
 
 ;;
 ;; In cooperation with this:
 ;;
-#_(defn send-to-chan [c]
-  (fn [{:keys [search] :as env} cb]
-    (when search
-      (let [{[search] :children} (om/query->ast (get-in (first search) [:root-query]))
-            query (get-in search [:params :query])]
-        (put! c [query cb])))))
+(comment (defn send-to-chan [c]
+           (fn [{:keys [search] :as env} cb]
+             (when search
+               (let [{[search] :children} (om/query->ast (get-in (first search) [:root-query]))
+                     query (get-in search [:params :query])]
+                 (put! c [query cb]))))))
+;; orig:
+(comment (defn send-to-chan [c]
+           (fn [{:keys [search]} cb]
+             (when search
+               (let [{[search] :children} (om/query->ast search)
+                     user-query (get-in search [:params :user-query])]
+                 (put! c [user-query cb]))))))
 
 (def app-state (atom {:search/results []}))
 

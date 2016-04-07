@@ -1,7 +1,7 @@
 (ns om-alarming.components.sente
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.client :as client]
+            [om-alarming.sente-client :as client]
             [taoensso.sente :as sente]))
 
 (defui Sente

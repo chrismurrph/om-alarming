@@ -1,13 +1,14 @@
-(ns om-alarming.client
+(ns om-alarming.sente-client
   (:require
-   [clojure.string  :as str]
-   [cljs.core.async :as async  :refer (<! >! put! chan)]
-   [taoensso.encore :as encore :refer ()]
-   [taoensso.timbre :as timbre :refer-macros (tracef debugf infof warnf errorf)]
-   [taoensso.sente  :as sente  :refer (cb-success?)]
+    [clojure.string :as str]
+    [cljs.core.async :as async :refer (<! >! put! chan)]
+    [taoensso.encore :as encore :refer ()]
+    [taoensso.timbre :as timbre :refer-macros (tracef debugf infof warnf errorf)]
+    [taoensso.sente :as sente :refer (cb-success?)]
 
-   ;; Optional, for Transit encoding:
-   [taoensso.sente.packers.transit :as sente-transit])
+    ;; Optional, for Transit encoding:
+    [taoensso.sente.packers.transit :as sente-transit]
+    [om-alarming.reconciler :as reconciler])
 
   (:require-macros
    [cljs.core.async.macros :as asyncm :refer (go go-loop)]))
@@ -67,8 +68,10 @@
 
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
-  (if (= ?data {:first-open? true})
-    (->output! "Channel socket successfully established!")
+  (if (and (:first-open? ?data) (:uid ?data))
+    (do
+      (->output! "Channel socket successfully established!")
+      (reconciler/alteration 'app/authenticate {:token true} :app/login-info))
     (->output! "Channel socket state change: %s" ?data)))
 
 (defmethod -event-msg-handler :chsk/recv
@@ -117,7 +120,7 @@
 
 (defn authentication? [ajax-resp]
   (let [okay? (:success? ajax-resp)]
-    (->output! "Got back: %s" okay?)
+    (->output! "Got back: %s in %s" okay? ajax-resp)
     okay?))
 
 (defn login-process [user-id pass-id]
@@ -140,9 +143,12 @@
                          (->output! "Ajax login response: %s" ajax-resp)
                          (let [login-successful? (authentication? ajax-resp)]
                            (if-not login-successful?
-                             (->output! "Login failed")
+                             (do
+                               (->output! "Login failed")
+                               (reconciler/alteration 'app/authenticate {:token false}))
                              (do
                                (->output! "Login successful")
+                               (reconciler/alteration 'app/authenticate {:token true})
                                (sente/chsk-reconnect! chsk)))))))))
 
 (when-let [target-el (.getElementById js/document "btnlogout")]

@@ -22,9 +22,12 @@
   (update [this prop value]
     (let [{:keys [update-fn]} (om/get-computed this)]
       (update-fn (u/probe-off "ident updating" (om/get-ident this)) {prop value})))
+  (sign-in [this un pw]
+    (let [{:keys [sign-in-fn]} (om/get-computed this)]
+      (sign-in-fn un pw)))
   (render [this]
     (let [{:keys [id app/name app/un app/pw]} (om/props this)
-          {:keys [cancel-sign-in-fn sign-in-fn]} (om/get-computed this)]
+          {:keys [cancel-sign-in-fn]} (om/get-computed this)]
       (dom/div #js {:className "dialog"}
                (dom/div #js {:className "dialog-closer" :onClick cancel-sign-in-fn})
                (dom/div #js {:className "dialog-content"}
@@ -44,7 +47,7 @@
                                                   :placeholder "Enter user password here..."
                                                   :onChange    #(.update this :app/pw (.. % -target -value))})))
                         (dom/p #js {:className "dialog-buttons"}
-                               (dom/button #js{:onClick sign-in-fn} "Log in")
+                               (dom/button #js{:onClick #(.sign-in this un pw)} "Sign in")
                                (dom/button #js{:onClick cancel-sign-in-fn} "Cancel")))))))
 
 (def login-dialog (om/factory LoginDialog {:keyfn :id}))

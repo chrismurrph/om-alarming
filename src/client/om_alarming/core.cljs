@@ -30,7 +30,7 @@
             [om-alarming.parsing.mutations.lines]
             [om-alarming.parsing.mutations.graph]
             [om-alarming.state :as state]
-            [om-alarming.client :as client]
+            [om-alarming.sente-client :as client]
             )
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
@@ -164,8 +164,9 @@
         (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})]))))
   (cancel-sign-in-fn [this]
     (println "user cancelled, doing nothing, we ought to take user back to web page came from"))
-  (sign-in-fn [this]
-    (om/transact! this `[(app/authenticate)]))
+  (sign-in-fn [this un pw]
+    (println "Off for " un pw)
+    (client/login-process un pw))
   (general-update [this ident data]
     (om/transact! this `[(app/update {:ident ~ident :data ~data})]))
   (render [this]
@@ -176,7 +177,7 @@
       (dom/div nil
                (check-default-db @my-reconciler)
                (if (not (:app/authenticated? login-info))
-                 (dialog/login-dialog (om/computed login-info {:sign-in-fn #(.sign-in-fn this)
+                 (dialog/login-dialog (om/computed login-info {:sign-in-fn #(.sign-in-fn this %1 %2)
                                                                :cancel-sign-in-fn #(.cancel-sign-in-fn this)
                                                                :update-fn #(.general-update this %1 %2)}))
                  (dom/div nil

@@ -21,8 +21,8 @@
   {:action (fn [] (swap! state update-in ident #(merge % data)))})
 
 (defmethod mutate 'app/authenticate
-  [{:keys [state]} _ _]
-  {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? true})))})
+  [{:keys [state]} _ {:keys [token]}]
+  {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? token})))})
 
 (defmethod mutate 'app/tab
   [{:keys [state]} k {:keys [new-id]}]
