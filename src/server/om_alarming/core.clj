@@ -8,7 +8,8 @@
           (org.springframework.security.authentication UsernamePasswordAuthenticationToken)
           (com.seasoft.common.store ClientAuthenticationHolder)
           (org.springframework.security.core.userdetails UsernameNotFoundException)
-          (com.cmts.common.service UserDetails))
+          (com.cmts.common.service UserDetails)
+          (com.cmts.server.objects.cayenne User))
 
   (:require
     [clojure.string     :as str]
@@ -137,6 +138,15 @@
         uid (:uid session)]
     ;(debugf "Ignoring event: %s" event)
     ))
+
+;; To debug from REPL - Cayenne is complaining yet these classes s/be available
+(defn create-user []
+  (let [example-user (User.)
+        _ (.setFirstName example-user "Chris")
+        _ (.setLastName example-user "Murphy")
+        _ (.setStartTime example-user (Date.))]
+    (println "Example user is: " example-user)
+    (println "Started at: " (.getStartTime example-user))))
 
 (defonce domain-factory_ (atom nil))
 (defonce role-factory_ (atom nil))
@@ -277,8 +287,9 @@
     ;  (catch java.awt.HeadlessException _))
     (reset! web-server_ server-map)))
 
-(defn stop!  []  (stop-router!)  (stop-web-server!))
+(defn stop!  []  (stop-router!) (stop-web-server!))
 (defn start! [] (start-router!) (start-web-server!)
+  ;(create-user)
   (start-smartgas-servers))
 
 ;; (defonce _start-once (start!))

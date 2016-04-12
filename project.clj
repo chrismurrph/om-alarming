@@ -64,6 +64,10 @@
              :css-dirs ["resources/public/css"]
              :server-port 2345}
 
+  :repositories [["localrepo1" {:url "file:///home/chris/IdeaProjects/om-alarming"
+                                :username :env/localrepo_username
+                                :password :env/localrepo_password}]] 
+
   :profiles {
              :dev {
                    :repl-options {
