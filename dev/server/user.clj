@@ -47,8 +47,10 @@
   []
   (reset! system (system/make-system)))
 
-(defn start "Start (an already initialized) web server." [] (swap! system component/start))
+(defn start "Start (an already initialized) web server." []
+  (swap! system component/start))
 (defn stop "Stop the running web server." []
+  ;(println "In stop and stop function is " component/stop)
   (swap! system component/stop)
   (reset! system nil))
 

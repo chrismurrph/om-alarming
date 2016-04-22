@@ -10,3 +10,4 @@ material.css
 .lein-repl-history
 .nrepl-port
 /java/
+dependencies.log

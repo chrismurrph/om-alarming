@@ -40,6 +40,21 @@
                  in (recur new-val))))
     out))
 
+;;
+;; This is more the real one, b/c one above is for core.async
+;; USE: (debounce #(onChange (-> % .-target .-value)))
+;;
+(defn another-debounce
+  ([f] (debounce f 1000))
+  ([f timeout]
+   (let [id (atom nil)]
+     (fn [evt]
+       (if (not (nil? @id))
+         (js/clearTimeout @id))
+       (reset! id (js/setTimeout
+                    (partial f evt)
+                    timeout))))))
+
 ;; http://sids.github.io/nerchuko/utils-api.html
 (defn unselect-keys
   "Opposite of select-keys: returns a map containing only those

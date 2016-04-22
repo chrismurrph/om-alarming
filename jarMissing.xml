@@ -1,0 +1,31 @@
+<project name="jar_missing" default="jar_missing" basedir=".">
+
+<property name="dist1.dir" value="./lib"/>
+<property name="dist2.dir" value="/home/chris/IdeaProjects/enhanced-smartgas-deps/lib"/>
+<property name="dist.file" value="${dist1.dir}/missing.jar"/>
+<property name="out.root" value="/home/chris/IdeaProjects/MyPLC/target/scala-2.11/classes"/>
+
+<target name="jar_missing">
+  <tstamp>
+    <format property="TODAY" pattern="dd/MM/yyyy hh:mm aa" locale="au"/>
+  </tstamp>
+  <delete file="${dist.file}" quiet="true"/>
+  <jar destfile="${dist.file}">
+    <fileset dir="${out.root}" includes="com/cmts/server/applic/plcdriver/**/*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/server/applic/**/*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/common/utils/**/*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/comms/**/*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/atmosphere/*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/alarmer/server/store/MyDriverComplex*.class"/>
+    <fileset dir="${out.root}" includes="com/seasoft/simu/**/*.class"/>
+    <manifest>
+      <attribute name="Date-Created" value="${TODAY}"/>
+    </manifest> 
+  </jar>
+  <copy file="${dist.file}" todir="${dist2.dir}"/>
+</target>
+
+<!--
+-->
+
+</project>

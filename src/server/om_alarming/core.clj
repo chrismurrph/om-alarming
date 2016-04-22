@@ -12,20 +12,21 @@
           (com.cmts.server.objects.cayenne User))
 
   (:require
-    [clojure.string     :as str]
+    [clojure.string :as str]
     [ring.middleware.defaults]
-    [compojure.core     :as comp :refer (defroutes GET POST)]
-    [compojure.route    :as route]
-    [hiccup.core        :as hiccup]
-    [clojure.core.async :as async  :refer (<! <!! >! >!! put! chan go go-loop)]
-    [taoensso.encore    :as encore :refer ()]
-    [taoensso.timbre    :as timbre :refer (tracef debugf infof warnf errorf)]
-    [taoensso.sente     :as sente]
+    [compojure.core :as comp :refer (defroutes GET POST)]
+    [compojure.route :as route]
+    [hiccup.core :as hiccup]
+    [clojure.core.async :as async :refer (<! <!! >! >!! put! chan go go-loop)]
+    [taoensso.encore :as encore :refer ()]
+    [taoensso.timbre :as timbre :refer (tracef info infof warnf errorf)]
+    [taoensso.sente :as sente]
 
     [org.httpkit.server :as http-kit]
     [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
     [om-alarming.util :as u]
-    [om-alarming.convert :as conv]))
+    [om-alarming.convert :as conv]
+    [clojure.java.io :as io]))
 
 (defn start-selected-web-server! [ring-handler port]
   (infof "Starting http-kit...")
@@ -117,7 +118,7 @@
   "Wraps `-event-msg-handler` with logging, error catching, etc."
   [{:as ev-msg :keys [id ?data event]}]
   (let [sg-sess (-> ev-msg :ring-req :session :uid)
-        _ (debugf "Asking to do %s FOR %s" id (-> ev-msg :ring-req :session :uid))]
+        _ (infof "Asking to do %s FOR %s" id (-> ev-msg :ring-req :session :uid))]
     (if sg-sess
       (-event-msg-handler ev-msg)
       {:status 404})))
@@ -127,7 +128,7 @@
   [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
   (let [session (:session ring-req)
         uid     (:uid     session)]
-    (debugf "Unhandled event: %s, id: %s" event id)
+    (infof "Unhandled event: %s, id: %s" event id)
     (when ?reply-fn
       (?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
 
@@ -145,8 +146,8 @@
         _ (.setFirstName example-user "Chris")
         _ (.setLastName example-user "Murphy")
         _ (.setStartTime example-user (Date.))]
-    (println "Example user is: " example-user)
-    (println "Started at: " (.getStartTime example-user))))
+    (info "Example user is: " example-user)
+    (info "Started at: " (.getStartTime example-user))))
 
 (defonce domain-factory_ (atom nil))
 (defonce role-factory_ (atom nil))
@@ -155,18 +156,25 @@
 (defonce graph-line-server_ (atom nil))
 (defonce user-details-server_ (atom nil))
 (defn start-smartgas-servers []
-  (Utils/setupLoggingToFile "logs/smartgas.log")
-  (reset! domain-factory_ (DomainSession/getDomainFactoryInstance))
-  (reset! role-factory_ (DomainSession/getRoleEnumFactoryInstance))
-  (reset! smartgas-server_ (SmartgasServer. (HashMap.)))
-  (reset! auth-server_ (AuthenticationUserDetailsGetter. @smartgas-server_))
-  (reset! graph-line-server_ (GraphLineServer. @smartgas-server_))
-  (reset! user-details-server_ (UserDetailsServer. @smartgas-server_)))
+  ;; The component stuff was mis-configured. But a bad idea anyway - you can't componentize existing code.
+  ;; Lets just not start SMARTGAS-connect if it is already running. We are not going to be altering the
+  ;; existing server.
+  (Utils/setupLoggingToFile "logs/smartgas")
+  (when (= nil @domain-factory_)
+    (reset! domain-factory_ (DomainSession/getDomainFactoryInstance))
+    (reset! role-factory_ (DomainSession/getRoleEnumFactoryInstance))
+    (reset! smartgas-server_ (SmartgasServer. (HashMap.)))
+    (reset! auth-server_ (AuthenticationUserDetailsGetter. @smartgas-server_))
+    (reset! graph-line-server_ (GraphLineServer. @smartgas-server_))
+    (reset! user-details-server_ (UserDetailsServer. @smartgas-server_))))
+(defn stop-smartgas-servers []
+  (.discardState @smartgas-server_)
+  (infof "Have discarded state on %s" @smartgas-server_))
 
 (defn get-points [?data session]
   (let [{:keys [start-time-str end-time-str metric-name display-name]} ?data
         ;all-points (.assembledSamplePoints @smartgas-server_)
-        ;_ (println "ALL:\n" all-points)
+        ;_ (info "ALL:\n" all-points)
         ;display-name (nth (.getNames all-points) (dec display-name))
         multigasReqDO (.requestGraphLine @graph-line-server_ start-time-str end-time-str
                                          (Utils/formList metric-name)
@@ -210,14 +218,14 @@
               (let [res (.getUserDetails (.getUserDetails @user-details-server_ user-id (.getRoleEnumCRO @role-factory_) (UserDetails/SMARTGAS_CLIENT_APP) false))
                     sg-sess (.getSessionId res)]
                 {:status 200 :session (assoc session :uid sg-sess)}))
-        _ (debugf "Login RESPONSE: %s" res)]
+        _ (infof "Login RESPONSE: %s" res)]
     res))
 
 (defmethod -event-msg-handler
   :example/points
   [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
   (let [uid (get-in ring-req [:session :uid])]
-    (debugf "uid when points: %s\n" uid)
+    (infof "uid when points: %s\n" uid)
     (when ?reply-fn
       (?reply-fn {:some-reply (get-points ?data uid)}))))
 
@@ -238,7 +246,7 @@
   (let [{:keys [session params]} ring-req
         {:keys [user-id pass-id]} params
         sg-sess (-> session :uid)
-        _ (debugf "Abt to authenticate %s, %s, SESS (only if this nil): %s" user-id pass-id sg-sess)
+        _ (infof "Abt to authenticate %s, %s, SESS (only if this nil): %s" user-id pass-id sg-sess)
         auth-response (if sg-sess {:status 200 :session (assoc session :uid sg-sess)} (auth session user-id pass-id))]
     auth-response))
 
@@ -287,7 +295,10 @@
     ;  (catch java.awt.HeadlessException _))
     (reset! web-server_ server-map)))
 
-(defn stop!  []  (stop-router!) (stop-web-server!))
+(defn stop!  []
+  (stop-router!)
+  (stop-web-server!)
+  (stop-smartgas-servers))
 (defn start! [] (start-router!) (start-web-server!)
   ;(create-user)
   (start-smartgas-servers))

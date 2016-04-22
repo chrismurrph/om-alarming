@@ -3,6 +3,7 @@ Graphing and alarming application for monitoring
 
 This project will continue to be developed in a private repo once stopped here
 This project is more for reading than running as the java server files are not available - however the client s/be able to run w/out the server
+It has the genesis of certain useful libraries in it, which will later be open sourced - related to what goes on before you see the pixel on the graph
 
 To build and run:
 1. `lein clean`
