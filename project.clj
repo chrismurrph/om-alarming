@@ -46,7 +46,7 @@
                                        ;; That not what this option is about - it is about whether figwheel code
                                        ;; is included, so that the reload request is acted on.
                         :compiler {
-                                   :main       "om-alarming.core"
+                                   :main       "om-alarming.root"
                                    :asset-path "js/out"
                                    :output-to  "resources/public/js/main.js"
                                    :output-dir "resources/public/js/out"

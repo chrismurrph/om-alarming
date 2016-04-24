@@ -21,6 +21,40 @@
                    :by-id-kw        "by-id"
                    })
 
+;;
+;; Because these are unionised tree->db (and thus auto normalization) does not work
+;; Hence they are hand-normalized here, and must be separate
+;; As separate you can't include anything in them that would be needed for normalization
+;; So the :app/trending component cannot subsume the :graph/trending-graph component.
+;; Thus in the tab components we must just pass the props through again.
+;;
+(def already-normalized-tabs-state
+  {:app/map         {:singleton {:id        :singleton
+                                 :tab/label "Map"
+                                 :tab/type  :app/map}}
+   :app/trending    {:singleton {:id        :singleton
+                                 :tab/label "Trending"
+                                 :tab/type  :app/trending
+                                 ; These will be dynamically transferred in post-load
+                                 ; (doesn't seem to hurt having)
+                                 :grid/gas-query-grid {:id 10800}
+                                 :graph/trending-graph {:id 10300}
+                                 }}
+   :app/thresholds  {:singleton {:id        :singleton
+                                 :tab/label "Thresholds"
+                                 :tab/type  :app/thresholds}}
+   :app/reports     {:singleton {:id        :singleton
+                                 :tab/label "Reports"
+                                 :tab/type  :app/reports}}
+   :app/automatic   {:singleton {:id        :singleton
+                                 :tab/label "Automatic"
+                                 :tab/type  :app/automatic}}
+   :app/logs        {:singleton {:id        :singleton
+                                 :tab/label "Logs"
+                                 :tab/type  :app/logs}}
+   ; switch to [:settings :singleton] to change tabs
+   :app/current-tab [:app/map :singleton]})
+
 (def initial-state
 
   {
@@ -30,72 +64,72 @@
                          :app/pw            nil
                          :app/authenticated? false
                          }
-   :app/route           [:app/map '_]
-   :app/map             {:id              10500
-                         :map/name        "Map"
-                         :map/description "Mine Plan"}
-   :app/trending        {:id                   10501
-                         :trending/name        "Trending"
-                         :trending/description "Live data, Trending"}
-   :app/thresholds      {:id                     10502
-                         :thresholds/name        "Thresholds"
-                         :thresholds/description "Alarm Thresholds"}
-   :app/reports         {:id                  10503
-                         :reports/name        "Reports"
-                         :reports/description "Event Reports"}
-   :app/automatic       {:id                    10504
-                         :automatic/name        "Automatic"
-                         :automatic/description "Automatic Tube Bundle"}
-   :app/logs            {:id               10505
-                         :logs/name        "Logs"
-                         :logs/description "Warning Log"}
+   ;:app/route           [:app/map '_]
+   ;:app/map             {:id              10500
+   ;                      :map/name        "Map"
+   ;                      :map/description "Mine Plan"}
+   ;:app/trending        {:id                   10501
+   ;                      :trending/name        "Trending"
+   ;                      :trending/description "Live data, Trending"}
+   ;:app/thresholds      {:id                     10502
+   ;                      :thresholds/name        "Thresholds"
+   ;                      :thresholds/description "Alarm Thresholds"}
+   ;:app/reports         {:id                  10503
+   ;                      :reports/name        "Reports"
+   ;                      :reports/description "Event Reports"}
+   ;:app/automatic       {:id                    10504
+   ;                      :automatic/name        "Automatic"
+   ;                      :automatic/description "Automatic Tube Bundle"}
+   ;:app/logs            {:id               10505
+   ;                      :logs/name        "Logs"
+   ;                      :logs/description "Warning Log"}
    :app/debug           {:id                10506
                          :debug/name        "Debug"
                          :debug/description "Debug while developing"}
 
-   :app/selected-button {:id 1}
-   :app/buttons
-                        [{:id          1
-                          :name        "Map"
-                          :description "Mine plan"
-                          :showing?    true}
-                         {:id          2
-                          :name        "Trending"
-                          :description "Live data, Trending"
-                          :showing?    true}
-                         {:id          3
-                          :name        "New Trending"
-                          :description "D3 Trending"
-                          :showing?    false}
-                         {:id          4
-                          :name        "SVG Trending"
-                          :description "SVG Trending"
-                          :showing?    false}
-                         {:id          5
-                          :name        "Thresholds"
-                          :description "Alarm Thresholds"
-                          :showing?    true}
-                         {:id          6
-                          :name        "Reports"
-                          :description "Event Reports"
-                          :showing?    true}
-                         {:id          7
-                          :name        "Automatic"
-                          :description "Automatic Tube Bundle"
-                          :showing?    true}
-                         {:id          8
-                          :name        "Logs"
-                          :description "Warning Log"
-                          :showing?    true}
-                         {:id          9
-                          :name        "Debug"
-                          :description "Debug while developing"
-                          :showing?    true}
-                         {:id          10
-                          :name        "Sente"
-                          :description "Sente while developing"
-                          :showing?    true}
-                         ]
+   ;:app/selected-button {:id 1}
+   ;:app/buttons
+   ;                     [{:id          1
+   ;                       :name        "Map"
+   ;                       :description "Mine plan"
+   ;                       :showing?    true}
+   ;                      {:id          2
+   ;                       :name        "Trending"
+   ;                       :description "Live data, Trending"
+   ;                       :showing?    true}
+   ;                      {:id          3
+   ;                       :name        "New Trending"
+   ;                       :description "D3 Trending"
+   ;                       :showing?    false}
+   ;                      {:id          4
+   ;                       :name        "SVG Trending"
+   ;                       :description "SVG Trending"
+   ;                       :showing?    false}
+   ;                      {:id          5
+   ;                       :name        "Thresholds"
+   ;                       :description "Alarm Thresholds"
+   ;                       :showing?    true}
+   ;                      {:id          6
+   ;                       :name        "Reports"
+   ;                       :description "Event Reports"
+   ;                       :showing?    true}
+   ;                      {:id          7
+   ;                       :name        "Automatic"
+   ;                       :description "Automatic Tube Bundle"
+   ;                       :showing?    true}
+   ;                      {:id          8
+   ;                       :name        "Logs"
+   ;                       :description "Warning Log"
+   ;                       :showing?    true}
+   ;                      {:id          9
+   ;                       :name        "Debug"
+   ;                       :description "Debug while developing"
+   ;                       :showing?    true}
+   ;                      {:id          10
+   ;                       :name        "Sente"
+   ;                       :description "Sente while developing"
+   ;                       :showing?    true}
+   ;                      ]
 
    :debug/squares       [{:id 3922957, :x 119, :y 798, :size 92, :color "yellow"}
                          {:id 8923350, :x 781, :y 47, :size 155, :color "yellow"}
@@ -215,133 +249,164 @@
    :tube/real-gases
                         [{:grid-cell/id 500
                           :system-gas   {:id 150}
-                          :tube         {:id 1000}}
+                          :tube         {:id 1000}
+                          :selected?    true}
                          {:grid-cell/id 501
                           :system-gas   {:id 151}
-                          :tube         {:id 1000}}
+                          :tube         {:id 1000}
+                          :selected?    true}
                          {:grid-cell/id 502
                           :system-gas   {:id 152}
-                          :tube         {:id 1000}}
+                          :tube         {:id 1000}
+                          :selected?    true}
                          {:grid-cell/id 503
                           :system-gas   {:id 153}
-                          :tube         {:id 1000}}
-
+                          :tube         {:id 1000}
+                          :selected?    true}
                          {:grid-cell/id 504
                           :system-gas   {:id 150}
-                          :tube         {:id 1001}}
+                          :tube         {:id 1001}
+                          :selected?    false}
                          {:grid-cell/id 505
                           :system-gas   {:id 151}
-                          :tube         {:id 1001}}
+                          :tube         {:id 1001}
+                          :selected?    false}
                          {:grid-cell/id 506
                           :system-gas   {:id 152}
-                          :tube         {:id 1001}}
+                          :tube         {:id 1001}
+                          :selected?    false}
                          {:grid-cell/id 507
                           :system-gas   {:id 153}
-                          :tube         {:id 1001}}
-
+                          :tube         {:id 1001}
+                          :selected?    false}
                          {:grid-cell/id 508
                           :system-gas   {:id 150}
-                          :tube         {:id 1002}}
+                          :tube         {:id 1002}
+                          :selected?    false}
                          {:grid-cell/id 509
                           :system-gas   {:id 151}
-                          :tube         {:id 1002}}
+                          :tube         {:id 1002}
+                          :selected?    false}
                          {:grid-cell/id 510
                           :system-gas   {:id 152}
-                          :tube         {:id 1002}}
+                          :tube         {:id 1002}
+                          :selected?    false}
                          {:grid-cell/id 511
                           :system-gas   {:id 153}
-                          :tube         {:id 1002}}
-
+                          :tube         {:id 1002}
+                          :selected?    false}
                          {:grid-cell/id 512
                           :system-gas   {:id 150}
-                          :tube         {:id 1003}}
+                          :tube         {:id 1003}
+                          :selected?    false}
                          {:grid-cell/id 513
                           :system-gas   {:id 151}
-                          :tube         {:id 1003}}
+                          :tube         {:id 1003}
+                          :selected?    false}
                          {:grid-cell/id 514
                           :system-gas   {:id 152}
-                          :tube         {:id 1003}}
+                          :tube         {:id 1003}
+                          :selected?    false}
                          {:grid-cell/id 515
                           :system-gas   {:id 153}
-                          :tube         {:id 1003}}
-
+                          :tube         {:id 1003}
+                          :selected?    false}
                          {:grid-cell/id 516
                           :system-gas   {:id 150}
-                          :tube         {:id 1004}}
+                          :tube         {:id 1004}
+                          :selected?    false}
                          {:grid-cell/id 517
                           :system-gas   {:id 151}
-                          :tube         {:id 1004}}
+                          :tube         {:id 1004}
+                          :selected?    false}
                          {:grid-cell/id 518
                           :system-gas   {:id 152}
-                          :tube         {:id 1004}}
+                          :tube         {:id 1004}
+                          :selected?    false}
                          {:grid-cell/id 519
                           :system-gas   {:id 153}
-                          :tube         {:id 1004}}
-
+                          :tube         {:id 1004}
+                          :selected?    false}
                          {:grid-cell/id 520
                           :system-gas   {:id 150}
-                          :tube         {:id 1005}}
+                          :tube         {:id 1005}
+                          :selected?    false}
                          {:grid-cell/id 521
                           :system-gas   {:id 151}
-                          :tube         {:id 1005}}
+                          :tube         {:id 1005}
+                          :selected?    false}
                          {:grid-cell/id 522
                           :system-gas   {:id 152}
-                          :tube         {:id 1005}}
+                          :tube         {:id 1005}
+                          :selected?    false}
                          {:grid-cell/id 523
                           :system-gas   {:id 153}
-                          :tube         {:id 1005}}
-
+                          :tube         {:id 1005}
+                          :selected?    false}
                          {:grid-cell/id 524
                           :system-gas   {:id 150}
-                          :tube         {:id 1006}}
+                          :tube         {:id 1006}
+                          :selected?    false}
                          {:grid-cell/id 525
                           :system-gas   {:id 151}
-                          :tube         {:id 1006}}
+                          :tube         {:id 1006}
+                          :selected?    false}
                          {:grid-cell/id 526
                           :system-gas   {:id 152}
-                          :tube         {:id 1006}}
+                          :tube         {:id 1006}
+                          :selected?    false}
                          {:grid-cell/id 527
                           :system-gas   {:id 153}
-                          :tube         {:id 1006}}
-
+                          :tube         {:id 1006}
+                          :selected?    false}
                          {:grid-cell/id 528
                           :system-gas   {:id 150}
-                          :tube         {:id 1007}}
+                          :tube         {:id 1007}
+                          :selected?    false}
                          {:grid-cell/id 529
                           :system-gas   {:id 151}
-                          :tube         {:id 1007}}
+                          :tube         {:id 1007}
+                          :selected?    false}
                          {:grid-cell/id 530
                           :system-gas   {:id 152}
-                          :tube         {:id 1007}}
+                          :tube         {:id 1007}
+                          :selected?    false}
                          {:grid-cell/id 531
                           :system-gas   {:id 153}
-                          :tube         {:id 1007}}
-
+                          :tube         {:id 1007}
+                          :selected?    false}
                          {:grid-cell/id 532
                           :system-gas   {:id 150}
-                          :tube         {:id 1008}}
+                          :tube         {:id 1008}
+                          :selected?    false}
                          {:grid-cell/id 533
                           :system-gas   {:id 151}
-                          :tube         {:id 1008}}
+                          :tube         {:id 1008}
+                          :selected?    false}
                          {:grid-cell/id 534
                           :system-gas   {:id 152}
-                          :tube         {:id 1008}}
+                          :tube         {:id 1008}
+                          :selected?    false}
                          {:grid-cell/id 535
                           :system-gas   {:id 153}
-                          :tube         {:id 1008}}
-
+                          :tube         {:id 1008}
+                          :selected?    false}
                          {:grid-cell/id 536
                           :system-gas   {:id 150}
-                          :tube         {:id 1009}}
+                          :tube         {:id 1009}
+                          :selected?    false}
                          {:grid-cell/id 537
                           :system-gas   {:id 151}
-                          :tube         {:id 1009}}
+                          :tube         {:id 1009}
+                          :selected?    false}
                          {:grid-cell/id 538
                           :system-gas   {:id 152}
-                          :tube         {:id 1009}}
+                          :tube         {:id 1009}
+                          :selected?    false}
                          {:grid-cell/id 539
                           :system-gas   {:id 153}
-                          :tube         {:id 1009}}
+                          :tube         {:id 1009}
+                          :selected?    false}
                          ]
    }
   )
