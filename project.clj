@@ -26,12 +26,16 @@
                  [navis/untangled-client "0.4.7-SNAPSHOT"]
                  ]
 
-  :plugins [[lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-less "1.7.5"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/" "target"]
 
   :source-paths ["src/client" "src/server" "test" "dev/server"]
   :java-source-paths ["java/src"]
+
+  :less {:source-paths ["less/app.main.less"]
+         :target-path "resources/public/css/app.css"}
 
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["test"] ;; <- usually "test", sometimes "src"

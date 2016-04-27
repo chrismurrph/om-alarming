@@ -25,7 +25,8 @@
    (let [all-the-builds (->> figwheel-config :all-builds)
          all-build-ids (mapv :id all-the-builds)
          _ (println "All builds: " all-build-ids)
-         _ (pprint all-the-builds)]
+         ;_ (pprint all-the-builds)
+         ]
      (start-figwheel (keys (select-keys (System/getProperties) all-build-ids)))))
   ([build-ids]
    (let [default-build-ids (:build-ids figwheel-config)

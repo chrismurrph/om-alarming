@@ -28,6 +28,6 @@
                                            (events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
                                            (doto h (.setEnabled true)))))))
 
-(def my-reconciler (:reconciler app))
+(def my-reconciler (:reconciler @app))
 
 

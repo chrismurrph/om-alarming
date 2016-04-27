@@ -1,11 +1,12 @@
 (ns om-alarming.root
-  (:require [om.dom :as dom]
+  (:require om-alarming.parsing.mutations.app
+            om-alarming.parsing.mutations.graph
+            om-alarming.parsing.mutations.lines
+            om-alarming.parsing.mutations.nav
+            [om.dom :as dom]
             [om.next :as om :refer-macros [defui]]
-            [om-alarming.new-core :as new-core]
-            [om.next :as om]
             [default-db-format.core :as db-format]
-            ;[om-alarming.parsing.reads]
-            ;[om-alarming.reconciler :as reconciler :refer [my-reconciler]]
+            [om-alarming.new-core :refer [my-reconciler app]]
             [om-alarming.query :as q]
             [cljs.pprint :as pp :refer [pprint]]
             [om-alarming.ui :as ui]
@@ -99,11 +100,11 @@
                                                   (dom/li #js{:className "pure-menu-item"}
                                                           (dom/a #js{:className "pure-menu-link"
                                                                      :href      "#"
-                                                                     :onClick #(pprint (:reconciler @new-core/app))} "Help"))))))
+                                                                     :onClick #(pprint @my-reconciler)} "Help"))))))
                (dom/div nil
                         (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2)})))))))
 
-(reset! new-core/app (uc/mount @new-core/app App "main-app-area"))
+(reset! app (uc/mount @app App "main-app-area"))
 
 ;(defn ^:export run []
 ;  (om/add-root! my-reconciler
