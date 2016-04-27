@@ -1,11 +1,12 @@
 (ns om-alarming.root
   (:require [om.dom :as dom]
             [om.next :as om :refer-macros [defui]]
-            ;[my-css.core :as core]
+            [om-alarming.new-core :as new-core]
             [om.next :as om]
             [default-db-format.core :as db-format]
-            [om-alarming.parsing.reads]
-            [om-alarming.reconciler :as reconciler :refer [my-reconciler]]
+            ;[om-alarming.parsing.reads]
+            ;[om-alarming.reconciler :as reconciler :refer [my-reconciler]]
+            [om-alarming.query :as q]
             [cljs.pprint :as pp :refer [pprint]]
             [om-alarming.ui :as ui]
             [om-alarming.components.general :as gen]
@@ -15,7 +16,8 @@
             [om-alarming.util.colours :as colours]
             [om-alarming.parsing.mutations.lines]
             [om-alarming.graph.processing :as p]
-            [om-alarming.sente-client :as client]))
+            [om-alarming.sente-client :as client]
+            [untangled.client.core :as uc]))
 
 (defn tab-style [tab kw]
   #js{:className (str "pure-menu-item" (if (= tab kw) " pure-menu-selected"))})
@@ -38,7 +40,7 @@
 
 (defui ^:once App
   static om/IQuery
-  (query [this] (into ui/non-union-part-of-root-query
+  (query [this] (into q/non-union-part-of-root-query
                       [;:ui/locale
                        ;:ui/react-key
                        {:app/current-tab (om/get-query ui/TabUnion)}
@@ -97,14 +99,16 @@
                                                   (dom/li #js{:className "pure-menu-item"}
                                                           (dom/a #js{:className "pure-menu-link"
                                                                      :href      "#"
-                                                                     :onClick #(pprint @my-reconciler)} "Help"))))))
+                                                                     :onClick #(pprint (:reconciler @new-core/app))} "Help"))))))
                (dom/div nil
                         (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2)})))))))
 
-(defn ^:export run []
-  (om/add-root! my-reconciler
-                App
-                (.. js/document (getElementById "main-app-area")))
-  (p/init)
-  (client/start!))
-(run)
+(reset! new-core/app (uc/mount @new-core/app App "main-app-area"))
+
+;(defn ^:export run []
+;  (om/add-root! my-reconciler
+;                App
+;                (.. js/document (getElementById "main-app-area")))
+;  (p/init)
+;  (client/start!))
+;(run)

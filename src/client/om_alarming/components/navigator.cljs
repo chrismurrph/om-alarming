@@ -4,7 +4,6 @@
             [cljs-time.format :as format-time]
             [cljs-time.core :as time]
             [om-alarming.parsing.mutations.graph]
-            [om-alarming.system :as system]
             [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout]]
             [om-alarming.components.log-debug :as ld]
@@ -24,12 +23,19 @@
 
 #_(dom/div #js {:className "ui divider"})
 
+(comment
+  (defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
+    (let [already-going? (system/going?)]
+      (if (and want-going? (not already-going?))
+        (system/start! line-infos start-millis end-millis graph-chan)
+        (when (and already-going? (not want-going?))
+          (system/stop!))))))
+
+;;
+;; Should come in in computed or be in state or be a mutation
+;;
 (defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
-  (let [already-going? (system/going?)]
-    (if (and want-going? (not already-going?))
-      (system/start! line-infos start-millis end-millis graph-chan)
-      (when (and already-going? (not want-going?))
-        (system/stop!)))))
+  (println "start-stop-system " want-going? line-infos start-millis end-millis graph-chan))
 
 (defn to-info [line-query-res]
   (let [system-gas (-> line-query-res :intersect :system-gas)]

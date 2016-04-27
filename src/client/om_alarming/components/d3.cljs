@@ -9,7 +9,8 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.reconciler :as reconciler])
+            ;[om-alarming.reconciler :as reconciler]
+            )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (defn render-squares [component props src]

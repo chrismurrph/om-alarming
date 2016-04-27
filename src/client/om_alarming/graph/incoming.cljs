@@ -8,7 +8,7 @@
             [cljs-time.format :as format-time]
             [cljs-time.coerce :as coerce]
             [om.next :as om]
-            [om-alarming.reconciler :as reconciler])
+            [om-alarming.new-core :as new-core])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 ;;
@@ -86,7 +86,7 @@
         flight-start (format-time/unparse date-time-formatter start-date-time)
         flight-end (format-time/unparse date-time-formatter end-date-time)
         gas-ident (:ident info)
-        query-res (-> (om/db->tree [{gas-ident [{:system-gas [:long-name]} {:tube [:display-name]}]}] :tube/real-gases @reconciler/my-reconciler) vals first)
+        query-res (-> (om/db->tree [{gas-ident [{:system-gas [:long-name]} {:tube [:display-name]}]}] :tube/real-gases @new-core/my-reconciler) vals first)
         ;_ (println "RES:" query-res)
         ]
     ;(println "start, end" flight-start flight-end)

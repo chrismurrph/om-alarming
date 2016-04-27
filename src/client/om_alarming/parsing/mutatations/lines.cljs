@@ -1,6 +1,7 @@
 (ns om-alarming.parsing.mutations.lines
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [mutate]]
+            ;[om-alarming.reconciler :refer [mutate]]
+            [untangled.client.mutations :as m]
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]
             [om-alarming.components.log-debug :as ld]))
@@ -84,17 +85,17 @@
     (-> state
         (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident))))
 
-(defmethod mutate 'graph/do-nothing
+(defmethod m/mutate 'graph/do-nothing
   [{:keys [state]} k params]
   (ld/log-mutation k params)
   {:action nil})
 
-(defmethod mutate 'graph/add-line
+(defmethod m/mutate 'graph/add-line
   [{:keys [state]} k params]
   (ld/log-mutation k params)
   {:action #(swap! state create-line params)})
 
-(defmethod mutate 'graph/remove-line
+(defmethod m/mutate 'graph/remove-line
   [{:keys [state]} k params]
   (ld/log-mutation k params)
   {:action #(swap! state rem-line params)})

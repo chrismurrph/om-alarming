@@ -4,14 +4,19 @@
     [cljs-time.core :as time]))
 
 ;(def goog-date "function (opt_year, opt_month, opt_date, opt_hours,")
-(def irrelevant-keys #{:app/debug
-                       :app/route
+(def irrelevant-keys #{
+                       :app/map
                        :app/trending
-                       :app/automatic
                        :app/thresholds
                        :app/reports
+                       :app/automatic
                        :app/logs
-                       :app/map
+                       :app/current-tab
+                       :ui/react-key
+                       :ui/locale
+                       :om.next/tables
+                       :app/debug
+                       :app/route
                        :debug/squares
                        })
 (def okay-val-maps #{[:r :g :b]

@@ -1,6 +1,7 @@
 (ns om-alarming.parsing.mutations.app
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [mutate]]
+            ;[om-alarming.reconciler :refer [mutate]]
+            [untangled.client.mutations :as m]
             [om-alarming.components.log-debug :as ld]
             ))
 
@@ -16,15 +17,15 @@
    }
   )
 
-(defmethod mutate 'app/update
+(defmethod m/mutate 'app/update
   [{:keys [state]} _ {:keys [ident data]}]
   {:action (fn [] (swap! state update-in ident #(merge % data)))})
 
-(defmethod mutate 'app/authenticate
+(defmethod m/mutate 'app/authenticate
   [{:keys [state]} _ {:keys [token]}]
   {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? token})))})
 
-(defmethod mutate 'app/tab
+(defmethod m/mutate 'app/tab
   [{:keys [state]} k {:keys [new-id]}]
   (ld/log-mutation k)
   {:value  {:keys [:app/selected-button :app/route]}

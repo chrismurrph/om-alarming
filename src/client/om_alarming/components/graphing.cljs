@@ -9,7 +9,7 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            [om-alarming.reconciler :as reconciler]
+            ;[om-alarming.reconciler :as reconciler]
             [om-alarming.components.log-debug :as ld]
             )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))

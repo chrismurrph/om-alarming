@@ -1,6 +1,7 @@
 (ns om-alarming.parsing.mutations.graph
   (:require [om.next :as om]
-            [om-alarming.reconciler :refer [mutate]]
+            ;[om-alarming.reconciler :refer [mutate]]
+            [untangled.client.mutations :as m]
             [cljs-time.core :as time]
             [om-alarming.components.log-debug :as ld]))
 
@@ -33,20 +34,20 @@
   ;(println "INS: " (-> translators :point-fn))
   (swap! state assoc-in [:trending-graph/by-id 10300 :graph/translators] translators))
 
-(defmethod mutate 'graph/translators
+(defmethod m/mutate 'graph/translators
   [{:keys [state]} k {:keys [translators]}]
   (ld/log-mutation k)
   {:value  {:keys [:graph/trending-graph :graph/translators]}
    :action #(insert-translators state translators)})
 
-(defmethod mutate 'graph/misc
+(defmethod  m/mutate 'graph/misc
   [{:keys [state]} k params]
   (ld/log-mutation k)
   {:value  {:keys [:graph/misc]}
    ;:action #(swap! state assoc :graph/misc misc)
    :action #(swap! state assoc-in [:misc/by-id 10400] (merge {:id 10400} (:misc params)))})
 
-(defmethod mutate 'graph/toggle-receive
+(defmethod  m/mutate 'graph/toggle-receive
   [{:keys [state]} k _]
   (ld/log-mutation k)
   {:value  {:keys [:receiving?]}
@@ -88,17 +89,17 @@
       ;(rm-all-points)
       (assoc-in [:navigator/by-id 10600 :receiving?] false)))
 
-(defmethod mutate 'navigate/forwards
+(defmethod  m/mutate 'navigate/forwards
   [{:keys [state]} k {:keys [seconds]}]
   (ld/log-mutation k)
   {:action #(swap! state update-end-time (fn [end-time] (time/plus end-time (time/seconds seconds))))})
 
-(defmethod mutate 'navigate/backwards
+(defmethod  m/mutate 'navigate/backwards
   [{:keys [state]} k {:keys [seconds]}]
   (ld/log-mutation k)
   {:action #(swap! state update-end-time (fn [end-time] (time/minus end-time (time/seconds seconds))))})
 
-(defmethod mutate 'navigate/now
+(defmethod  m/mutate 'navigate/now
   [{:keys [state]} k _]
   (ld/log-mutation k)
   {:action #(swap! state assoc-end-time (time/now))})

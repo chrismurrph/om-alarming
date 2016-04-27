@@ -23,13 +23,14 @@
                  [compojure "1.4.0"]                        ; Or routing lib of your choice
                  [com.cognitect/transit-clj "0.8.285"]
                  [com.cognitect/transit-cljs "0.8.237"]
+                 [navis/untangled-client "0.4.7-SNAPSHOT"]
                  ]
 
-  :plugins [[lein-cljsbuild "1.1.2"]]
+  :plugins [[lein-cljsbuild "1.1.3"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/" "target"]
 
-  :source-paths ["src/client" "src/server" "test" "dev/server"] ;;-> Will get rid of script b/c it s/only contain figwheel
+  :source-paths ["src/client" "src/server" "test" "dev/server"]
   :java-source-paths ["java/src"]
 
   :cljsbuild {:builds [{:id "test"
