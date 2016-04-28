@@ -347,6 +347,16 @@
 (defn boolean? [v]
   (or (true? v) (false? v)))
 
+(defui Translators
+  static om/Ident
+  (ident [this props]
+    [:translators/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id
+     :point-fn
+     :horiz-fn]))
+
 (defui TrendingGraph
   static om/Ident
   (ident [this props]
@@ -361,7 +371,7 @@
      :labels-visible?
      {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
-     {:graph/translators [:point-fn :horiz-fn]}])
+     {:graph/translators (om/get-query Translators)}])
   Object
   (initLocalState [this]
     (println "In initLocalState for TrendingGraph")

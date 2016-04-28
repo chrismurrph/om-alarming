@@ -22,5 +22,6 @@
    {:graph/plumb-line (om/get-query graph/PlumbLine)}
    {:graph/x-gas-details (om/get-query graph/RectTextTick)}
    {:app/login-info (om/get-query dialog/LoginDialog)}
+   {:graph/translators (om/get-query graph/Translators)}
    ])
 

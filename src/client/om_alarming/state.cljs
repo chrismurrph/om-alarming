@@ -139,6 +139,7 @@
    :debug/squares       [{:id 3922957, :x 119, :y 798, :size 92, :color "yellow"}
                          {:id 8923350, :x 781, :y 47, :size 155, :color "yellow"}
                          {:id 579612, :x 607, :y 250, :size 199, :color "blue"}]
+   :graph/translators   {:id 11000 :horiz-fn nil :vert-fn nil :point-fn nil}
    :graph/trending-graph
                         {:id                10300
                          :width             640
@@ -147,7 +148,7 @@
                          :graph/lines       [{:id 100} {:id 101} {:id 102} {:id 103}]
                          :labels-visible?   false
                          :graph/plumb-line  {:id 10201}
-                         :graph/translators {:horiz-fn nil :vert-fn nil :point-fn nil}
+                         :graph/translators {:id 11000}
                          :graph/misc        {:id 10400}
                          :hover-pos         nil
                          :last-mouse-moment nil
