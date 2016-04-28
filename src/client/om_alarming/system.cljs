@@ -3,7 +3,8 @@
     [cljs.core.async :as async :refer [<! timeout chan put! close! alts!]]
     [om-alarming.graph.incoming :as in]
     [om-alarming.graph.staging-area :as sa]
-    [om-alarming.reconciler :as reconciler])
+    [om-alarming.reconciler :as reconciler]
+    [om-alarming.new-core :as core])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def uniqkey (atom 0))
@@ -38,7 +39,7 @@
              (let [[{:keys [info point]} ch] (alts! [poison-ch inner-chan])]
                (if (= ch poison-ch)
                  (println "[point-adding-component] stopping")
-                 (let [paused? (not (:receiving? (:graph/navigator (reconciler/internal-query [{:graph/navigator [:receiving?]}]))))
+                 (let [paused? (not (:receiving? (:graph/navigator ((core/my-parser) {:state (core/my-reconciler)} [{:graph/navigator [:receiving?]}]))))
                        [x y val] point
                        line-ident (:ref info)
                        _ (println "Ident: " line-ident)
@@ -46,9 +47,6 @@
                    (if (and (< counted-to 1000) (not paused?))
                      (do
                        (async/put! graph-chan {:cmd :new-point :value {:x x :y y :val val :point-id (gen-uid)} :line line-ident})
-                       #_(reconciler/alteration 'graph/add-point
-                                              {:line-name-ident line-ident :x x :y y :val val}
-                                              :graph/points)
                        ;(println "Receiving " name x y)
                        (recur (inc counted-to)))
                      (recur counted-to))))))
