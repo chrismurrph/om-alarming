@@ -8,7 +8,8 @@
 
     ;; Optional, for Transit encoding:
     [taoensso.sente.packers.transit :as sente-transit]
-    [om-alarming.reconciler :as reconciler])
+    ;[om-alarming.reconciler :as reconciler]
+    [om.next :as om])
 
   (:require-macros
    [cljs.core.async.macros :as asyncm :refer (go go-loop)]))
@@ -66,12 +67,16 @@
   [{:as ev-msg :keys [event]}]
   (->output! "Unhandled event: %s" event))
 
+(defonce reconciler-atom_ (atom nil))
+(def rec @reconciler-atom_)
+
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
   (if (and (:first-open? ?data) (:uid ?data) (not (= :taoensso.sente/nil-uid (:uid ?data))))
     (do
       (->output! "Channel socket successfully established with: %s" ?data)
-      (reconciler/alteration 'app/authenticate {:token true} :app/login-info))
+      ;; `[(~mutate-key ~param-map)])
+      (om/transact! rec '[(app/authenticate {:token true}) :app/login-info]))
     (->output! "Channel socket state change: %s" ?data)))
 
 (defmethod -event-msg-handler :chsk/recv
@@ -89,11 +94,13 @@
 
 (defonce router_ (atom nil))
 (defn  stop-router! [] (when-let [stop-f @router_] (stop-f)))
-(defn start-router! []
+(defn start-router! [reconciler]
   (stop-router!)
   (reset! router_
     (sente/start-client-chsk-router!
-      ch-chsk event-msg-handler)))
+      ch-chsk event-msg-handler))
+  (reset! reconciler-atom_
+          reconciler))
 
 ;;;; UI events
 ; -> these will be coded as ON components in the Sente tab
@@ -145,17 +152,17 @@
                            (if-not login-successful?
                              (do
                                (->output! "Login failed")
-                               (reconciler/alteration 'app/authenticate {:token false}))
+                               (om/transact! rec '[(app/authenticate {:token false})]))
                              (do
                                (->output! "Login successful")
-                               (reconciler/alteration 'app/authenticate {:token true})
+                               (om/transact! rec '[(app/authenticate {:token true})])
                                (sente/chsk-reconnect! chsk)))))))))
 
 (when-let [target-el (.getElementById js/document "btnlogout")]
   (.addEventListener target-el "click"
                      (fn [ev]
                        (->output! "Logout was clicked")
-                       (reconciler/alteration 'app/authenticate {:token false} :app/login-info)
+                       (om/transact! rec '[(app/authenticate {:token false} :app/login-info)])
                        (sente/ajax-lite "/logout"
                                         {:method :post
                                          :headers {:X-CSRF-Token (:csrf-token @chsk-state)}}
@@ -179,6 +186,6 @@
 
 ;;;; Init stuff
 
-(defn start! [] (start-router!))
+(defn start! [reconciler] (start-router! reconciler))
 
-(defonce _start-once (start!))
+;(defonce _start-once (start!))

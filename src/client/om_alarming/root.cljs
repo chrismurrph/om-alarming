@@ -58,11 +58,10 @@
     (let [{:keys [app/current-tab graph/lines ui/react-key] :or {ui/react-key "ROOT"} :as props} (om/props this)
           {:keys [tab/type tab/label]} current-tab
           _ (println "tab is " type "")
-          ;my-reconciler (:reconciler @core/app)
           existing-colours (into #{} (map :colour lines))
           ]
       (dom/div nil
-               (if (core/my-reconciler)
+               (if (core/my-reconciler-available?)
                  (check-default-db @(core/my-reconciler))
                  (println "reconciler not available in Root component when first mounted"))
                (dom/div #js{:className "custom-wrapper pure-g"

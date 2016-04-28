@@ -3,10 +3,11 @@
             [goog.string.format]
             [om-alarming.util.utils :as u :refer [log distance bisect-vertical-between]]
             [om-alarming.util.colours :refer [black]]
-            [om-alarming.reconciler :as reconciler]
+    ;[om-alarming.reconciler :as reconciler]
             [cljs.pprint :refer [pprint]]
             [cljs.core.async :as async
-             :refer [<! >! chan close! put! timeout]])
+             :refer [<! >! chan close! put! timeout]]
+            [om.next :as om])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [cljs.core.match.macros :refer [match]]))
 
@@ -120,10 +121,10 @@
 ;; All are defaulted - see main-component
 ;; Note that :trans-colour does not exist - colours have to be of shape {:r :g :b}
 ;;
-(defn init []
+(defn init [rec par]
   (let [;ch (chan)
         ;proc (controller ch)
-        options-map (:graph/trending-graph (reconciler/internal-query [{:graph/trending-graph [:width :height]}]))
+        options-map (:graph/trending-graph (par {:state rec} [{:graph/trending-graph [:width :height]}]))
         _ (println "Created a controller, back: " options-map)
         ;misc (into {:comms ch} options-map)
         ;_ (println "S/be going into graph/misc: " misc)
@@ -136,6 +137,6 @@
                                          (or (:max-y staging) 999) graph-width graph-height)
         ]
     (println "About to do mutates")
-    (reconciler/alteration 'graph/translators {:translators translators} [:graph/trending-graph :graph/translators])
+    (om/transact! rec `[(graph/translators {:translators ~translators}) :graph/trending-graph :graph/translators])
     ;(reconciler/alteration 'graph/misc {:misc misc} :graph/misc)
     ))

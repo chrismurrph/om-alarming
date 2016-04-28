@@ -14,14 +14,25 @@
 
 (def merged-state (atom (merge state/already-normalized-tabs-state (om/tree->db q/non-union-part-of-root-query state/initial-state true))))
 
+(declare my-reconciler)
 (defonce app (atom (uc/new-untangled-client
                      ; passing an atom, since have hand normalized it already.
                      :initial-state merged-state
                      :started-callback (fn [app]
-                                         (p/init)
-                                         (client/start!)))))
+                                         (p/init (:reconciler app) (:parser app))
+                                         (client/start! (:reconciler app))))))
+
+(defn my-reconciler-available? []
+  (:reconciler @app))
 
 (defn my-reconciler []
-  (:reconciler @app))
+  (let [rec (:reconciler @app)
+        _ (assert rec "No reconciler available")]
+    rec))
+
+(defn my-parser []
+  (let [par (:parser @app)
+        _ (assert par "No parser available")]
+    par))
 
 
