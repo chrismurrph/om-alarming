@@ -1,5 +1,5 @@
 (ns om-alarming.new-core
-  (:require om-alarming.parsing.mutations.app               ;; just example
+  (:require ;om-alarming.parsing.mutations.app => have put all in root, not really sure where they should go
             [untangled.client.core :as uc]
             [om-alarming.query :as q]
             [om-alarming.state :as state]
@@ -28,6 +28,7 @@
                                            (events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
                                            (doto h (.setEnabled true)))))))
 
-(def my-reconciler (:reconciler @app))
+(defn my-reconciler []
+  (:reconciler @app))
 
 

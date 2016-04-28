@@ -6,7 +6,7 @@
             [om.dom :as dom]
             [om.next :as om :refer-macros [defui]]
             [default-db-format.core :as db-format]
-            [om-alarming.new-core :refer [my-reconciler app]]
+            [om-alarming.new-core :as core]
             [om-alarming.query :as q]
             [cljs.pprint :as pp :refer [pprint]]
             [om-alarming.ui :as ui]
@@ -62,8 +62,8 @@
           existing-colours (into #{} (map :colour lines))
           ]
       (dom/div nil
-               (if my-reconciler
-                 (check-default-db @my-reconciler)
+               (if (core/my-reconciler)
+                 (check-default-db @(core/my-reconciler))
                  (println "reconciler not available in Root component when first mounted"))
                (dom/div #js{:className "custom-wrapper pure-g"
                             :id        "menu"}
@@ -100,11 +100,11 @@
                                                   (dom/li #js{:className "pure-menu-item"}
                                                           (dom/a #js{:className "pure-menu-link"
                                                                      :href      "#"
-                                                                     :onClick #(pprint @my-reconciler)} "Help"))))))
+                                                                     :onClick   #(pprint @(core/my-reconciler))} "Help"))))))
                (dom/div nil
                         (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2)})))))))
 
-(reset! app (uc/mount @app App "main-app-area"))
+(reset! core/app (uc/mount @core/app App "main-app-area"))
 
 ;(defn ^:export run []
 ;  (om/add-root! my-reconciler

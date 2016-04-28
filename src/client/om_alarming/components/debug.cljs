@@ -1,7 +1,7 @@
 (ns om-alarming.components.debug
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            ;[om-alarming.reconciler :as reconciler]
+            [om-alarming.reconciler :as reconciler]
             [om-alarming.state :as state]
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]

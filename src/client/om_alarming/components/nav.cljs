@@ -1,8 +1,7 @@
 (ns om-alarming.components.nav
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.parsing.mutations.app]
-            ;[om-alarming.new-core :refer [my-reconciler]]
+            om-alarming.parsing.mutations.app
             [om-alarming.util.util :refer [class-names]]
             [om-alarming.components.log-debug :as ld]
             ))
