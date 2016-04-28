@@ -98,6 +98,21 @@ td {
   text-align: center;
   vertical-align: middle;
 }
+/* copied most from button */
+.time-label {
+  font-family: inherit;
+  font-size: 125%;
+  padding: 0.5em 1em;
+  color: rgba(0, 0, 0, 0.8);
+  /* rgba supported */
+  border: none rgba(0, 0, 0, 0);
+  /*IE9 + everything else*/
+  background-color: #E6E6E6;
+  text-decoration: none;
+  border-radius: 2px;
+  position: relative;
+  top: 2.5px;
+}
 /* Temp off
 @media (max-width: 47.999em) {
 

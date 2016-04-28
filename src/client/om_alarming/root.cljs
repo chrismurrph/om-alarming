@@ -49,11 +49,11 @@
   Object
   (pick-colour [this cols]
     (colours/new-random-colour cols))
-  (click-cb [this existing-colours id selected?]
+  (click-cb [this existing-colours cell id selected?]
     (let [pick-colour-fn #(.pick-colour this existing-colours)]
       (if selected?
-        (om/transact! this `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id})])
-        (om/transact! this `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)})]))))
+        (om/transact! cell `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) [:trending-graph/by-id 10300]])
+        (om/transact! cell `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) [:trending-graph/by-id 10300]]))))
   (render [this]
     (let [{:keys [app/current-tab graph/lines ui/react-key] :or {ui/react-key "ROOT"} :as props} (om/props this)
           {:keys [tab/type tab/label]} current-tab
@@ -101,7 +101,7 @@
                                                                      :href      "#"
                                                                      :onClick   #(pprint @(core/my-reconciler))} "Help"))))))
                (dom/div nil
-                        (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2)})))))))
+                        (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2 %3)})))))))
 
 (reset! core/app (uc/mount @core/app App "main-app-area"))
 

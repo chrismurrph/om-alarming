@@ -22,7 +22,7 @@
     (assert (not (nil? selected?)))
     (click-cb-fn this id selected?))
   (render [this]
-    (ld/log-render-on "GridDataCell" this :grid-cell/id)
+    (ld/log-render-off "GridDataCell" this :grid-cell/id)
     (let [{:keys [grid-cell/id system-gas tube selected?] :as props} (om/props this)
           _ (assert id)
           _ (assert (not (nil? selected?)))
@@ -48,7 +48,7 @@
      ])
   Object
   (render [this]
-    (ld/log-render-on "GasQueryGrid" this)
+    (ld/log-render-off "GasQueryGrid" this)
     (let [props (om/props this)
           {:keys [id tube/real-gases app/sys-gases]} props
           hdr-gases (map :short-name (into [{:id 0 :short-name "Tube"}] sys-gases))
@@ -68,11 +68,7 @@
                                      (map (fn [cell] (let [tube-num (:hdr-tube-num cell)]
                                                        (dom/td nil (if tube-num
                                                                      tube-num
-                                                                     (grid-data-cell-component (om/computed cell {:click-cb-fn click-cb-fn})))))) hdr-and-gases))))
-                 #_(for [hdr-and-gases all-hdr-and-gases]
-                 (grid-body-row (om/computed {:real-gases hdr-and-gases
-                                              :id         (:hdr-tube-num (first hdr-and-gases))}
-                                             {:click-cb-fn click-cb-fn})))))))
+                                                                     (grid-data-cell-component (om/computed cell {:click-cb-fn click-cb-fn})))))) hdr-and-gases))))))))
 (def gas-query-grid-component (om/factory GasQueryGrid {:keyfn :id}))
 
 (comment (dom/table #js{:className "pure-table pure-table-striped"}

@@ -1,6 +1,5 @@
 (ns om-alarming.parsing.mutations.lines
   (:require [om.next :as om]
-            ;[om-alarming.reconciler :refer [mutate]]
             [untangled.client.mutations :as m]
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]
@@ -60,13 +59,16 @@
 (defn create-line [st params]
   (let [{:keys [graph-ident colour intersect-id]} params]
     (if colour
-      (let [{:keys [state line-ident]} (new-line st colour intersect-id)]
+      (let [in-selected [:gas-at-location/by-id intersect-id :selected?]
+            {:keys [state line-ident]} (new-line st colour intersect-id)]
         (-> state
-            (update-in (conj graph-ident :graph/lines) conj line-ident)))
+            (update-in (conj graph-ident :graph/lines) conj line-ident)
+            (assoc-in in-selected true)))
       st)))
 
 (defn delete-line [st intersect-id]
   (let [intersect-ident [:gas-at-location/by-id intersect-id]
+        in-selected (conj intersect-ident :selected?)
         line-id (:id (u/first-only (filter (fn [v] (= intersect-ident (:intersect v))) (vals (get st :line/by-id)))))
         line-ident [:line/by-id line-id]
         current-in-plumb (get-in st [:plumb-line/by-id 10201 :graph/current-line])
@@ -77,6 +79,7 @@
      :state      (-> st-plumb-removed
                      (update :graph/lines u/vec-remove-value line-ident)
                      (update :line/by-id u/unselect-keys [line-id])
+                     (assoc-in in-selected false)
                      )}))
 
 (defn rem-line [st params]

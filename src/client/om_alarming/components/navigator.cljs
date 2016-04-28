@@ -62,6 +62,45 @@
   (remove-all [this comms-chan]
     (async/put! comms-chan {:cmd :remove-all}))
   (render [this]
+    (ld/log-render-on "GraphNavigator" this)
+    (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
+          {:keys [lines comms-chan]} (om/get-computed this)
+          ;_ (println "LINES:\n" lines "\n")
+          line-infos (map to-info lines)
+          ;_ (println "line-infos: " line-infos)
+          formatted-end-time (format-time/unparse date-time-formatter end-time)
+          begin-time (calc-begin-time end-time span-seconds)
+          formatted-begin-time (format-time/unparse date-time-formatter begin-time)
+          play-stop-css (if receiving? "stop icon" "play icon")
+          _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
+          _ (println "RECEIVING: " receiving?)
+          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
+          span-minutes (quot span-seconds 60)
+          ]
+      (dom/div nil
+               (dom/label #js{:className "time-label"} formatted-begin-time)
+               (dom/button #js{:className "button-xlarge pure-button"
+                               :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/backwards {:seconds ~span-seconds})]))
+                               :title     (str "Back " span-minutes " minutes")}
+                           (dom/i #js{:className "fa fa-chevron-left"}))
+               (dom/button #js{:className "button-xlarge pure-button"
+                               :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/forwards {:seconds ~span-seconds})]))
+                               :title     (str "Forward " span-minutes " minutes")}
+                           (dom/i #js{:className "fa fa-chevron-right"}))
+               (dom/button #js{:className "button-xlarge pure-button"
+                               :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/now)]))
+                               :title     (str "View current " span-minutes " minutes")}
+                           (dom/i #js{:className "fa fa-caret-square-o-down"}))
+               (dom/button #js{:className "button-xlarge pure-button"
+                               :onClick   (fn [] (om/transact! this `[(graph/toggle-receive {:receiving? ~receiving?})]))
+                               :title     (str (if receiving? "Stop" "Start") " receiving for selected gases")}
+                           (dom/i #js{:className "fa fa-play"}))
+               (dom/button #js{:className "button-xlarge pure-button"
+                               :onClick   (fn [] (.debug this comms-chan))
+                               :title     (str "Will put a random point on the screen")}
+                           (dom/i #js{:className "fa fa-paw"}))
+               (dom/label #js{:className "time-label"} formatted-end-time))))
+  #_(render [this]
     (ld/log-render "GraphNavigator" this)
     (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
           {:keys [lines comms-chan]} (om/get-computed this)
