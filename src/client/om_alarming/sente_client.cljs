@@ -67,7 +67,8 @@
   (->output! "Unhandled event: %s" event))
 
 (defonce reconciler-atom_ (atom nil))
-(def rec @reconciler-atom_)
+(defn rec []
+  @reconciler-atom_)
 
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
@@ -75,7 +76,7 @@
     (do
       (->output! "Channel socket successfully established with: %s" ?data)
       ;; `[(~mutate-key ~param-map)])
-      (om/transact! rec '[(app/authenticate {:token true}) :app/login-info]))
+      (om/transact! (rec) '[(app/authenticate {:token true}) :app/login-info]))
     (->output! "Channel socket state change: %s" ?data)))
 
 (defmethod -event-msg-handler :chsk/recv
@@ -151,17 +152,17 @@
                            (if-not login-successful?
                              (do
                                (->output! "Login failed")
-                               (om/transact! rec '[(app/authenticate {:token false})]))
+                               (om/transact! (rec) '[(app/authenticate {:token false})]))
                              (do
-                               (->output! "Login successful")
-                               (om/transact! rec '[(app/authenticate {:token true})])
+                               (->output! "Login successful, rec: " (rec))
+                               (om/transact! (rec) '[(app/authenticate {:token true})])
                                (sente/chsk-reconnect! chsk)))))))))
 
 (when-let [target-el (.getElementById js/document "btnlogout")]
   (.addEventListener target-el "click"
                      (fn [ev]
                        (->output! "Logout was clicked")
-                       (om/transact! rec '[(app/authenticate {:token false} :app/login-info)])
+                       (om/transact! (rec) '[(app/authenticate {:token false} :app/login-info)])
                        (sente/ajax-lite "/logout"
                                         {:method :post
                                          :headers {:X-CSRF-Token (:csrf-token @chsk-state)}}

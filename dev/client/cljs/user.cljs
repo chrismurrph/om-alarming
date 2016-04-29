@@ -3,7 +3,7 @@
     [cljs.pprint :refer [pprint]]
     [devtools.core :as devtools]
     ;untangled-todomvc.mutations
-    [om-alarming.new-core :as new-core]
+    [om-alarming.core :as new-core]
     [untangled.client.core :as uc]
     [om-alarming.root :as root]))
 

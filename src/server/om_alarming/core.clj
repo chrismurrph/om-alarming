@@ -48,26 +48,31 @@
   (def connected-uids                connected-uids) ; Watchable, read-only atom
   )
 
-;<html>
 ;<head>
 ;<meta charset="UTF-8">
 ;<meta name="viewport" content="width=device-width, initial-scale=1">
-;<link href="/css/compiled/sui_semantic.css" rel="stylesheet" type="text/css">
-;<link href="/css/my.css" rel="stylesheet" type="text/css">
+;<title>Om Alarming</title>
+;<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+;<link rel="stylesheet" href="/css/base.css">
+;<link rel="stylesheet" href="/css/pure.css">
+;<link rel="stylesheet" href="/css/grids-responsive.css">
+;<link rel="stylesheet" href="/css/app.css">
 ;<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 ;</head>
 ;<body>
 ;<div id="main-app-area"></div>
 ;<script src="/js/main.js" type="text/javascript"></script>
 ;</body>
-;</html>
 (defn om-alarming-page-handler [ring-req]
   (hiccup/html
     [:head
      [:meta {:charset "UTF-8"}]
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-     [:link {:href "/css/compiled/sui_semantic.css" :rel "stylesheet" :type "text/css"}]
-     [:link {:href "/css/my.css" :rel "stylesheet" :type "text/css"}]
+     [:link {:rel "stylesheet" :href "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" :type "text/css"}]
+     [:link {:rel "stylesheet" :href "/css/base.css" :type "text/css"}]
+     [:link {:rel "stylesheet" :href "/css/pure.css" :type "text/css"}]
+     [:link {:rel "stylesheet" :href "/css/grids-responsive.css" :type "text/css"}]
+     [:link {:rel "stylesheet" :href "/css/app.css" :type "text/css"}]
      [:script {:src "//d3js.org/d3.v3.min.js" :charset "utf-8"}]]
     [:body
      [:div {:id "main-app-area"}]
@@ -168,7 +173,7 @@
     (reset! graph-line-server_ (GraphLineServer. @smartgas-server_))
     (reset! user-details-server_ (UserDetailsServer. @smartgas-server_))))
 (defn stop-smartgas-servers []
-  (.discardState @smartgas-server_)
+  (.discardState @smartgas-server_) ;; Mehtod doesn't exist anymore - would be too difficult to make SMARTGAS reloadable
   (infof "Have discarded state on %s" @smartgas-server_))
 
 (defn get-points [?data session]
@@ -225,7 +230,7 @@
   :example/points
   [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
   (let [uid (get-in ring-req [:session :uid])]
-    (infof "uid when points: %s\n" uid)
+    (infof "uid, ?data when points: %s, %s\n" uid ?data)
     (when ?reply-fn
       (?reply-fn {:some-reply (get-points ?data uid)}))))
 

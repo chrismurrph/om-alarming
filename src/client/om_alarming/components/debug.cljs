@@ -5,7 +5,8 @@
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]
             [om-alarming.util.colours :as colours]
-            [om-alarming.new-core :as core]))
+            ;[om-alarming.core :as core]
+            ))
 
 (defn add-point-to-line [state line-ident point-ident]
   (update-in state (conj line-ident :graph/points) conj point-ident))
@@ -32,9 +33,9 @@
   )
 
 ;'[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501 :colour colours/red})]
-(defn lines-debugging [state]
+(defn lines-debugging [widget state]
   (dom/div nil
-           (dom/button #js {:onClick #(om/transact! (core/my-reconciler)
+           (dom/button #js {:onClick #(om/transact! widget
                                                    '[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501})])} "Remove line")
            (db-format/display (:graph/lines state))
            (db-format/display (get-in state [:plumb-line/by-id 10201 :graph/current-line]))
@@ -97,5 +98,5 @@
                (dom/label nil (str "STATE ok?: " (db-format/ok? (db-format/check state/check-config state))))
                (dom/br nil)(dom/br nil)
                (dom/div nil
-                        (lines-debugging state))))))
+                        (lines-debugging this state))))))
 (def debug (om/factory Debug))

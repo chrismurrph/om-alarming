@@ -53,30 +53,6 @@
   {:value  {:keys [:receiving?]}
    :action #(swap! state update-in [:navigator/by-id 10600 :receiving?] not)})
 
-;(defmethod mutate 'graph/start-receive
-;  [{:keys [state]} _ _]
-;  {:value  {:keys [:receiving?]}
-;   :action #(swap! state update-in [:navigator/by-id 10600 :receiving?] true)})
-
-;(defmethod mutate 'graph/stop-receive
-;  [{:keys [state]} _ _]
-;  {:value  {:keys [:receiving?]}
-;   :action #(swap! state assoc-in [:graph/navigator 10600 :receiving?] false)})
-
-;;
-;; Will have to reduce over every line ident with state being the accumulator
-;;
-#_(defn rm-all-points-from-line [st line-ident]
-  (-> st
-      (assoc-in (conj line-ident :graph/points) [])))
-
-#_(defn rm-all-points [st]
-  (let [all-lines-idents (:graph/lines st)]
-    (-> (reduce rm-all-points-from-line
-                st
-                all-lines-idents)
-        (assoc :graph/points []))))
-
 (defn update-end-time [st fn]
   (-> st
       (update-in [:navigator/by-id 10600 :end-time] fn)

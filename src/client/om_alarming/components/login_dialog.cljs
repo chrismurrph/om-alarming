@@ -17,6 +17,7 @@
     [:id
      :app/un
      :app/pw
+     :app/name
      :app/authenticated?])
   Object
   (update [this prop value]
@@ -32,7 +33,7 @@
                (dom/div #js {:className "dialog-closer" :onClick cancel-sign-in-fn})
                (dom/div #js {:className "dialog-content"}
                         (dom/h1 #js {:className "dialog-title"}
-                                "Welcome" (dom/span #js {:className "board-name"} name))
+                                "Welcome to" (dom/span #js {:className "board-name"} name))
                         (dom/form #js {:onSubmit #(.preventDefault %)}
                                   (dom/div #js {:className "form-row"}
                                            (dom/label nil "Name:")

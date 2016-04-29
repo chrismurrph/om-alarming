@@ -98,7 +98,7 @@ td {
   text-align: center;
   vertical-align: middle;
 }
-/* copied most from button */
+/* copied most from pure-button */
 .time-label {
   font-family: inherit;
   font-size: 125%;
@@ -113,6 +113,94 @@ td {
   position: relative;
   top: 2.5px;
 }
+/* copied from kanban */
+form .form-row {
+  display: table;
+  width: 100%;
+  border-spacing: 0rem;
+  table-layout: fixed;
+  box-sizing: border-box;
+  margin: 0rem 0rem 0.5rem 0rem;
+  line-height: 2rem;
+}
+form .form-row label {
+  display: table-cell;
+  vertical-align: top;
+  width: 5rem;
+  padding-right: 0.5rem;
+}
+form .form-row .input,
+form .form-row input,
+form .form-row textarea {
+  display: table-cell;
+  box-sizing: border-box;
+  width: 100%;
+  vertical-align: top;
+}
+form .form-row input,
+form .form-row textarea {
+  border: thin solid #dddddd;
+  border-radius: 0.25rem;
+  outline: none;
+  font: inherit;
+  padding: 0rem 0.5rem;
+}
+form .form-row input:focus,
+form .form-row textarea:focus {
+  border-color: #919191;
+}
+form .form-row textarea {
+  height: 15rem;
+}
+.dialog {
+  position: fixed;
+  left: 0;
+  top: 15%;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4rem;
+  box-sizing: border-box;
+}
+.dialog .dialog-closer {
+  z-index: 0;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+.dialog .dialog-title {
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 0.5rem;
+  border-bottom: thin solid #111111;
+}
+.dialog .dialog-title .board-name {
+  margin-left: 0.5rem;
+}
+.dialog .dialog-content {
+  z-index: 1;
+  position: relative;
+  max-width: 25rem;
+  margin: auto;
+}
+.dialog .dialog-buttons {
+  text-align: right;
+  margin: 0;
+}
+.dialog .dialog-buttons button {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: thin solid #dddddd;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+.dialog .dialog-buttons button:hover {
+  border: thin solid #d0d0d0;
+  background: #f4f4f4;
+}
 /* Temp off
 @media (max-width: 47.999em) {
 
@@ -124,49 +212,5 @@ td {
         display: block;
     }
 
-}
-*/
-/*
-.locale-selector {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-}
-
-.author {
-    position: relative;
-    font-size: 8pt;
-    margin-left: 4px;
-    top: 4px;
-}
-.value {
-    font-style: italic;
-}
-
-.comments {
-    display:block;
-}
-
-.comment {
-    display:block;
-    padding-left: 6px;
-    padding-bottom: 8px;
-}
-
-.tabs {
-    list-style: none;
-    padding-left: 0px;
-}
-
-.tab {
-    display: inline;
-    border: 1px solid gray;
-    padding: 5px;
-    text-decoration: underline;
-    background-color: white;
-}
-
-.active-tab {
-    background-color: lightgray;
 }
 */

@@ -29,13 +29,6 @@
       (when (and already-going? (not want-going?))
         (system-stop-fn)))))
 
-;;
-;; Should come in in computed or be in state or be a mutation
-;;
-(comment
-  (defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
-    (println "start-stop-system " want-going? line-infos start-millis end-millis graph-chan)))
-
 (defn to-info [line-query-res]
   (let [system-gas (-> line-query-res :intersect :system-gas)]
     {:ref [:line/by-id (:id line-query-res)]

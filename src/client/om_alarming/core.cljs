@@ -1,4 +1,4 @@
-(ns om-alarming.new-core
+(ns om-alarming.core
   (:require
     [untangled.client.core :as uc]
     [om-alarming.query :as q]
@@ -14,9 +14,6 @@
   (:import goog.History))
 
 (def merged-state (atom (merge state/already-normalized-tabs-state (om/tree->db q/non-union-part-of-root-query state/initial-state true))))
-
-(defn function? [v]
-  (= "function Date" (subs (str (type v)) 0 8)))
 
 (defonce app (atom (uc/new-untangled-client
                      ; passing an atom, since have hand normalized it already.
