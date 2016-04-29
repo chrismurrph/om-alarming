@@ -250,7 +250,7 @@
   [ring-req]
   (let [{:keys [session params]} ring-req
         {:keys [user-id pass-id]} params
-        sg-sess (-> session :uid)
+        sg-sess (:uid session)
         _ (infof "Abt to authenticate %s, %s, SESS (only if this nil): %s" user-id pass-id sg-sess)
         auth-response (if sg-sess {:status 200 :session (assoc session :uid sg-sess)} (auth session user-id pass-id))]
     auth-response))
@@ -261,6 +261,8 @@
 
 (defroutes ring-routes
            (GET  "/"      ring-req (om-alarming-page-handler      ring-req))
+           (GET  "/index" ring-req (om-alarming-page-handler      ring-req))
+           (GET  "/index.html" ring-req (om-alarming-page-handler      ring-req))
            (GET  "/chsk"  ring-req (ring-ajax-get-or-ws-handshake ring-req))
            (POST "/chsk"  ring-req (ring-ajax-post                ring-req))
            (POST "/login" ring-req (login-handler                 ring-req))

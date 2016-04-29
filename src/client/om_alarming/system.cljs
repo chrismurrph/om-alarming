@@ -24,8 +24,8 @@
     (fn stop! []
       (close! poison-ch))))
 
-(defn make-outer-chan [reconciler line-infos start-millis end-millis]
-  (in/query-remote-server reconciler line-infos start-millis end-millis))
+(defn make-outer-chan [line-infos start-millis end-millis]
+  (in/query-remote-server line-infos start-millis end-millis))
 
 (defn make-inner-chan [line-infos week-ago-millis now-millis outer-chan]
   (sa/show-component line-infos week-ago-millis now-millis outer-chan))
@@ -58,7 +58,7 @@
 
 (defn make-system-container! [parser reconciler line-infos start-millis end-millis graph-chan]
   (println "[system] starting")
-  (let [[stop-fn-outer outer-chan] (make-outer-chan reconciler line-infos start-millis end-millis)
+  (let [[stop-fn-outer outer-chan] (make-outer-chan line-infos start-millis end-millis)
         [stop-fn-inner inner-chan] (make-inner-chan line-infos start-millis end-millis outer-chan)
         components [(make-printer-component) stop-fn-inner stop-fn-outer (point-adding-component parser reconciler inner-chan graph-chan)]
         ;_ (println "Num of components in started system is " (count components))

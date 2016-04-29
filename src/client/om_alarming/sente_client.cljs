@@ -123,7 +123,7 @@
           :end-time-str "07_03_2016__09_10_36.794"
           :metric-name "Oxygen"
           :display-name "Shed Tube 10"}] 5000
-        (fn [cb-reply] (->output! "Callback reply: %s" cb-reply))))))
+        (fn [cb-reply] (->output! "Example callback reply: %s" cb-reply))))))
 
 (defn authentication? [ajax-resp]
   (let [okay? (:success? ajax-resp)]

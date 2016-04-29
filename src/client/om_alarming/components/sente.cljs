@@ -22,7 +22,7 @@
                                                  :end-time-str "07_03_2016__09_10_36.794"
                                                  :metric-name "Oxygen"
                                                  :display-name "Shed Tube 10"}] 5000
-                                               (fn [cb-reply] (client/->output! "Callback reply: %s" cb-reply))))} "chsk-send! (with reply)")
+                                               (fn [cb-reply] (client/->output! "Experimenting with Sente callback reply: %s" cb-reply))))} "chsk-send! (with reply)")
                   (dom/br nil)(dom/br nil)
                   (dom/p nil (dom/strong nil "Step 2") " observe std-out (for server output) and below (for client output):")
                   (dom/textarea #js{:id "output" :style #js{:width "100%" :height "200px"}})

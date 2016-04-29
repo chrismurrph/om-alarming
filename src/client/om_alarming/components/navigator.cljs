@@ -29,13 +29,15 @@
       (when (and already-going? (not want-going?))
         (system-stop-fn)))))
 
-(defn to-info [line-query-res]
-  (let [system-gas (-> line-query-res :intersect :system-gas)]
-    {:ref [:line/by-id (:id line-query-res)]
-     :lowest (-> system-gas :lowest)
-     :highest (-> system-gas :highest)
-     ;:name (-> system-gas :long-name)
-     :ident [:gas-at-location/by-id (-> line-query-res :intersect :grid-cell/id)]}))
+(defn to-info [line]
+  (let [intersect (:intersect line)
+        system-gas (:system-gas intersect)]
+    {:ref [:line/by-id (:id line)]
+     :lowest (:lowest system-gas)
+     :highest (:highest system-gas)
+     :display-name (-> intersect :tube :display-name)
+     :metric-name (:long-name system-gas)
+     :ident [:gas-at-location/by-id (-> line :intersect :grid-cell/id)]}))
 
 (defui Misc
   static om/Ident

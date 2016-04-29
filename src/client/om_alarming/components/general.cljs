@@ -15,14 +15,10 @@
        (query [this]
               [:id :short-name :lowest :highest :long-name]))
 
-;;
-;; GridRow does same thing so this not needed at top
-;; Hmm - that's not actually true, b/c GridRow has gases inside
-;;
 (defui Location
        static om/Ident
        (ident [this props]
               [:tube/by-id (:id props)])
        static om/IQuery
        (query [this]
-              [:id :tube-num]))
+              [:id :tube-num :display-name]))
