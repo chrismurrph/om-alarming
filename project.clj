@@ -1,7 +1,7 @@
 (defproject om-alarming "0.1.0"
   :description "Alarming and Trending"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.8.40"]
+                 [org.clojure/clojurescript "1.8.51"]
                  [org.clojure/core.async "0.2.371"]
                  [org.clojure/core.match "0.2.1"]
                  [org.omcljs/om "1.0.0-alpha32"]            ;; <- 33-SNAPSHOT is latest

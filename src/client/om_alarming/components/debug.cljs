@@ -1,7 +1,6 @@
 (ns om-alarming.components.debug
   (:require [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
-            [om-alarming.reconciler :as reconciler]
             [om-alarming.state :as state]
             [default-db-format.core :as db-format]
             [om-alarming.util.utils :as u]
@@ -32,12 +31,11 @@
   ;(dom/pre nil (with-out-str (cljs.pprint/pprint (show-added-point-to-line state [:line/by-id 100] [:graph-point/by-id 2003]))))
   )
 
+;'[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501 :colour colours/red})]
 (defn lines-debugging [state]
   (dom/div nil
-           (dom/button #js {:onClick #((om/transact! (core/my-reconciler)
-                                                     '[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501})]
-                                                     ;'[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501 :colour colours/red})]
-                                                     )) "Remove line"})
+           (dom/button #js {:onClick #(om/transact! (core/my-reconciler)
+                                                   '[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id 501})])} "Remove line")
            (db-format/display (:graph/lines state))
            (db-format/display (get-in state [:plumb-line/by-id 10201 :graph/current-line]))
            (db-format/display (get state :line/by-id))

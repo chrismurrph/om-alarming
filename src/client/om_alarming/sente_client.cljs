@@ -8,7 +8,6 @@
 
     ;; Optional, for Transit encoding:
     [taoensso.sente.packers.transit :as sente-transit]
-    ;[om-alarming.reconciler :as reconciler]
     [om.next :as om])
 
   (:require-macros

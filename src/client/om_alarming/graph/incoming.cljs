@@ -8,7 +8,7 @@
             [cljs-time.format :as format-time]
             [cljs-time.coerce :as coerce]
             [om.next :as om]
-            [om-alarming.new-core :as core])
+            )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 ;;
@@ -79,14 +79,14 @@
 (comment info {:ref [:line/by-id 103], :lowest 0.5, :highest 1.35, :ident [:gas-at-location/by-id 503]})
 
 (def date-time-formatter (format-time/formatter "dd_MM_yyyy__HH_mm_ss.SSS"))
-(defn remote-query [start end info out-chan]
+(defn remote-query [reconciler start end info out-chan]
   (chk-params start end out-chan)
   (let [start-date-time (coerce/to-date-time start)
         end-date-time (coerce/to-date-time end)
         flight-start (format-time/unparse date-time-formatter start-date-time)
         flight-end (format-time/unparse date-time-formatter end-date-time)
         gas-ident (:ident info)
-        query-res (-> (om/db->tree [{gas-ident [{:system-gas [:long-name]} {:tube [:display-name]}]}] :tube/real-gases @(core/my-reconciler)) vals first)
+        query-res (-> (om/db->tree [{gas-ident [{:system-gas [:long-name]} {:tube [:display-name]}]}] :tube/real-gases reconciler) vals first)
         ;_ (println "RES:" query-res)
         ]
     ;(println "start, end" flight-start flight-end)
@@ -123,8 +123,8 @@
 
 (defn query-remote-server
   "Just needs the names that are to be queried and start/end times"
-  [line-infos start end]
-  (let [new-gen (partial remote-query start end)
+  [reconciler line-infos start end]
+  (let [new-gen (partial remote-query reconciler start end)
         out-chan (chan)
         gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
         ;_ (log gas-channels)

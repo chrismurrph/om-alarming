@@ -9,7 +9,6 @@
             [om-alarming.components.general :as gen]
             [om-alarming.components.navigator :as navigator]
             [cljs.pprint :as pp :refer [pprint]]
-            ;[om-alarming.reconciler :as reconciler]
             [om-alarming.components.log-debug :as ld]
             )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
@@ -54,14 +53,6 @@
   (query [this]
     [:grid-cell/id :value {:tube (om/get-query gen/Location)}
      {:system-gas (om/get-query gen/SystemGas)}]))
-
-(defui Misc
-  static om/Ident
-  (ident [this props]
-    [:misc/by-id (:id props)])
-  static om/IQuery
-  (query [this]
-    [:id]))
 
 (defn random-circle []
   {
@@ -369,7 +360,6 @@
      {:graph/lines (om/get-query Line)}
      {:graph/navigator (om/get-query navigator/GraphNavigator)}
      :labels-visible?
-     {:graph/misc (om/get-query Misc)}
      {:graph/plumb-line (om/get-query PlumbLine)}
      {:graph/translators (om/get-query Translators)}])
   Object

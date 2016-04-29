@@ -6,8 +6,7 @@
             [om-alarming.parsing.mutations.graph]
             [cljs.core.async :as async
              :refer [<! >! chan close! put! timeout]]
-            [om-alarming.components.log-debug :as ld]
-            )
+            [om-alarming.components.log-debug :as ld])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (def date-time-formatter (format-time/formatters :mysql))
@@ -23,19 +22,19 @@
 
 #_(dom/div #js {:className "ui divider"})
 
-(comment
-  (defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
-    (let [already-going? (system/going?)]
-      (if (and want-going? (not already-going?))
-        (system/start! line-infos start-millis end-millis graph-chan)
-        (when (and already-going? (not want-going?))
-          (system/stop!))))))
+(defn start-stop-system [system-going-fn system-start-fn system-stop-fn want-going? line-infos start-millis end-millis graph-chan]
+  (let [already-going? (system-going-fn)]
+    (if (and want-going? (not already-going?))
+      (system-start-fn line-infos start-millis end-millis graph-chan)
+      (when (and already-going? (not want-going?))
+        (system-stop-fn)))))
 
 ;;
 ;; Should come in in computed or be in state or be a mutation
 ;;
-(defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
-  (println "start-stop-system " want-going? line-infos start-millis end-millis graph-chan))
+(comment
+  (defn start-stop-system [want-going? line-infos start-millis end-millis graph-chan]
+    (println "start-stop-system " want-going? line-infos start-millis end-millis graph-chan)))
 
 (defn to-info [line-query-res]
   (let [system-gas (-> line-query-res :intersect :system-gas)]
@@ -44,6 +43,17 @@
      :highest (-> system-gas :highest)
      ;:name (-> system-gas :long-name)
      :ident [:gas-at-location/by-id (-> line-query-res :intersect :grid-cell/id)]}))
+
+(defui Misc
+  static om/Ident
+  (ident [this props]
+    [:misc/by-id (:id props)])
+  static om/IQuery
+  (query [this]
+    [:id
+     :system-going-fn
+     :system-start-fn
+     :system-stop-fn]))
 
 (defui GraphNavigator
   static om/Ident
@@ -55,7 +65,7 @@
      :end-time
      :span-seconds
      :receiving?
-     ])
+     {:graph/misc (om/get-query Misc)}])
   Object
   (debug [this comms-chan]
     (async/put! comms-chan {:cmd :debug-rand-point}))
@@ -63,7 +73,8 @@
     (async/put! comms-chan {:cmd :remove-all}))
   (render [this]
     (ld/log-render-on "GraphNavigator" this)
-    (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
+    (let [{:keys [end-time span-seconds receiving? graph/misc] :as props} (om/props this)
+          {:keys [system-going-fn system-start-fn system-stop-fn]} misc
           {:keys [lines comms-chan]} (om/get-computed this)
           ;_ (println "LINES:\n" lines "\n")
           line-infos (map to-info lines)
@@ -71,10 +82,10 @@
           formatted-end-time (format-time/unparse date-time-formatter end-time)
           begin-time (calc-begin-time end-time span-seconds)
           formatted-begin-time (format-time/unparse date-time-formatter begin-time)
-          play-stop-css (if receiving? "stop icon" "play icon")
+          play-stop-css (if receiving? "fa fa-stop" "fa fa-play")
           _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
           _ (println "RECEIVING: " receiving?)
-          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
+          _ (start-stop-system system-going-fn system-start-fn system-stop-fn receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
           span-minutes (quot span-seconds 60)
           ]
       (dom/div nil
@@ -94,59 +105,11 @@
                (dom/button #js{:className "button-xlarge pure-button"
                                :onClick   (fn [] (om/transact! this `[(graph/toggle-receive {:receiving? ~receiving?})]))
                                :title     (str (if receiving? "Stop" "Start") " receiving for selected gases")}
-                           (dom/i #js{:className "fa fa-play"}))
+                           (dom/i #js{:className play-stop-css}))
                (dom/button #js{:className "button-xlarge pure-button"
                                :onClick   (fn [] (.debug this comms-chan))
                                :title     (str "Will put a random point on the screen")}
                            (dom/i #js{:className "fa fa-paw"}))
-               (dom/label #js{:className "time-label"} formatted-end-time))))
-  #_(render [this]
-    (ld/log-render "GraphNavigator" this)
-    (let [{:keys [end-time span-seconds receiving?] :as props} (om/props this)
-          {:keys [lines comms-chan]} (om/get-computed this)
-          ;_ (println "LINES:\n" lines "\n")
-          line-infos (map to-info lines)
-          ;_ (println "line-infos: " line-infos)
-          formatted-end-time (format-time/unparse date-time-formatter end-time)
-          begin-time (calc-begin-time end-time span-seconds)
-          formatted-begin-time (format-time/unparse date-time-formatter begin-time)
-          play-stop-css (if receiving? "stop icon" "play icon")
-          _ (println "Num of lines, start, end: " (count lines) formatted-begin-time formatted-end-time)
-          _ (println "RECEIVING: " receiving?)
-          _ (start-stop-system receiving? line-infos (.getTime begin-time) (.getTime end-time) comms-chan)
-          span-minutes (quot span-seconds 60)
-          ]
-      (dom/div #js {:className "item"}
-               (dom/div #js {:className (sized "ui buttons")}
-                        (dom/button #js {:className "ui icon button"
-                                         :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/backwards {:seconds ~span-seconds})]))
-                                         :title     (str "Back " span-minutes " minutes")}
-                                    (dom/i #js {:className "left arrow icon"}))
-                        (dom/div #js {:className "ui divider"})
-                        (dom/button #js {:className "ui icon button"}
-                                    (dom/i #js {:className "right arrow icon"
-                                                :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/forwards {:seconds ~span-seconds})]))
-                                                :title     (str "Forward " span-minutes " minutes")}))
-                        (dom/div #js {:className "ui divider"})
-                        (dom/button #js {:className "ui icon button"
-                                         :onClick   (fn [] (.remove-all this comms-chan) (om/transact! this `[(navigate/now)]))
-                                         :title     (str "View current " span-minutes " minutes")}
-                                    (dom/i #js {:className "sign in icon"}))
-                        (dom/div #js {:className "ui divider"})
-                        (dom/button #js {:className "ui icon button"
-                                         :onClick   (fn [] (om/transact! this `[(graph/toggle-receive {:receiving? ~receiving?})]))
-                                         :title     (str (if receiving? "Stop" "Start") " receiving for selected gases")}
-                                    (dom/i #js {:className play-stop-css}))
-                        (dom/div #js {:className "ui divider"})
-                        (dom/button #js {:className "ui icon button"
-                                         :onClick   (fn [] (.debug this comms-chan))
-                                         :title     (str "Will put a random point on the screen")}
-                                    (dom/i #js {:className "paw icon"})))
-               (dom/div #js {:className "item"}
-                        (dom/label #js {:className (sized "ui horizontal label") :style #js {:width 250}}
-                                   formatted-begin-time)
-                        (dom/label #js {:className (sized "ui horizontal label") :style #js {:width 250}}
-                                   formatted-end-time))))))
+               (dom/label #js{:className "time-label"} formatted-end-time)))))
 
 (def navigator (om/factory GraphNavigator {:keyfn :id}))
-#_(format-time/show-formatters)

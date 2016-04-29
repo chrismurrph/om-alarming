@@ -1,5 +1,5 @@
 (ns om-alarming.new-core
-  (:require                                                 ;om-alarming.parsing.mutations.app => have put all in root, not really sure where they should go
+  (:require
     [untangled.client.core :as uc]
     [om-alarming.query :as q]
     [om-alarming.state :as state]
@@ -9,18 +9,27 @@
     [untangled.client.logging :as log]
     [cljs.pprint :refer [pprint]]
     [om-alarming.graph.processing :as p]
-    [om-alarming.sente-client :as client])
+    [om-alarming.sente-client :as client]
+    [om-alarming.system :as system])
   (:import goog.History))
 
 (def merged-state (atom (merge state/already-normalized-tabs-state (om/tree->db q/non-union-part-of-root-query state/initial-state true))))
 
-(declare my-reconciler)
+(defn function? [v]
+  (= "function Date" (subs (str (type v)) 0 8)))
+
 (defonce app (atom (uc/new-untangled-client
                      ; passing an atom, since have hand normalized it already.
                      :initial-state merged-state
                      :started-callback (fn [app]
-                                         (p/init (:reconciler app) (:parser app))
-                                         (client/start! (:reconciler app))))))
+                                         (let [rec (:reconciler app)
+                                               par (:parser app)
+                                               system-start-fn (partial system/start! par rec)]
+                                           (p/init rec par)
+                                           (client/start! rec)
+                                           (om/transact! rec `[(graph/misc {:misc {:system-going-fn ~system/going?
+                                                                                   :system-start-fn ~system-start-fn
+                                                                                   :system-stop-fn  ~system/stop!}})]))))))
 
 (defn my-reconciler-available? []
   (:reconciler @app))

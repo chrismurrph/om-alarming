@@ -18,7 +18,7 @@
    {:graph/lines (om/get-query graph/Line)}
    {:graph/trending-graph (om/get-query graph/TrendingGraph)}
    {:graph/navigator (om/get-query navigator/GraphNavigator)}
-   {:graph/misc (om/get-query graph/Misc)}
+   {:graph/misc (om/get-query navigator/Misc)}
    {:graph/plumb-line (om/get-query graph/PlumbLine)}
    {:graph/x-gas-details (om/get-query graph/RectTextTick)}
    {:app/login-info (om/get-query dialog/LoginDialog)}

@@ -32,7 +32,7 @@
 
 (defn insert-translators [state translators]
   ;(println "INS: " (-> translators :point-fn))
-  (swap! state assoc-in [:trending-graph/by-id 10300 :graph/translators] translators))
+  (swap! state assoc-in [:translators/by-id 11000] (merge {:id 11000} translators)))
 
 (defmethod m/mutate 'graph/translators
   [{:keys [state]} k {:keys [translators]}]

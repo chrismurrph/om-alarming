@@ -2,7 +2,6 @@
   (:require
     [cljs.pprint :refer [pprint]]
     [devtools.core :as devtools]
-    ;[om-alarming.reconciler :as reconciler]
     ;untangled-todomvc.mutations
     [om-alarming.new-core :as new-core]
     [untangled.client.core :as uc]

@@ -3,7 +3,6 @@
     [om-alarming.util.colours :refer [pink green blue red]]
     [cljs-time.core :as time]))
 
-;(def goog-date "function (opt_year, opt_month, opt_date, opt_hours,")
 (def irrelevant-keys #{
                        :app/map
                        :app/trending
@@ -19,8 +18,7 @@
                        :app/route
                        :debug/squares
                        })
-(def okay-val-maps #{[:r :g :b]
-                     [:horiz-fn :vert-fn :point-fn]})
+(def okay-val-maps #{[:r :g :b]})
 (def check-config {:excluded-keys   irrelevant-keys
                    :okay-value-maps okay-val-maps
                    :by-id-kw        "by-id"
@@ -69,77 +67,16 @@
                          :app/pw            nil
                          :app/authenticated? false
                          }
-   ;:app/route           [:app/map '_]
-   ;:app/map             {:id              10500
-   ;                      :map/name        "Map"
-   ;                      :map/description "Mine Plan"}
-   ;:app/trending        {:id                   10501
-   ;                      :trending/name        "Trending"
-   ;                      :trending/description "Live data, Trending"}
-   ;:app/thresholds      {:id                     10502
-   ;                      :thresholds/name        "Thresholds"
-   ;                      :thresholds/description "Alarm Thresholds"}
-   ;:app/reports         {:id                  10503
-   ;                      :reports/name        "Reports"
-   ;                      :reports/description "Event Reports"}
-   ;:app/automatic       {:id                    10504
-   ;                      :automatic/name        "Automatic"
-   ;                      :automatic/description "Automatic Tube Bundle"}
-   ;:app/logs            {:id               10505
-   ;                      :logs/name        "Logs"
-   ;                      :logs/description "Warning Log"}
    :app/debug           {:id                10506
                          :debug/name        "Debug"
                          :debug/description "Debug while developing"}
-
-   ;:app/selected-button {:id 1}
-   ;:app/buttons
-   ;                     [{:id          1
-   ;                       :name        "Map"
-   ;                       :description "Mine plan"
-   ;                       :showing?    true}
-   ;                      {:id          2
-   ;                       :name        "Trending"
-   ;                       :description "Live data, Trending"
-   ;                       :showing?    true}
-   ;                      {:id          3
-   ;                       :name        "New Trending"
-   ;                       :description "D3 Trending"
-   ;                       :showing?    false}
-   ;                      {:id          4
-   ;                       :name        "SVG Trending"
-   ;                       :description "SVG Trending"
-   ;                       :showing?    false}
-   ;                      {:id          5
-   ;                       :name        "Thresholds"
-   ;                       :description "Alarm Thresholds"
-   ;                       :showing?    true}
-   ;                      {:id          6
-   ;                       :name        "Reports"
-   ;                       :description "Event Reports"
-   ;                       :showing?    true}
-   ;                      {:id          7
-   ;                       :name        "Automatic"
-   ;                       :description "Automatic Tube Bundle"
-   ;                       :showing?    true}
-   ;                      {:id          8
-   ;                       :name        "Logs"
-   ;                       :description "Warning Log"
-   ;                       :showing?    true}
-   ;                      {:id          9
-   ;                       :name        "Debug"
-   ;                       :description "Debug while developing"
-   ;                       :showing?    true}
-   ;                      {:id          10
-   ;                       :name        "Sente"
-   ;                       :description "Sente while developing"
-   ;                       :showing?    true}
-   ;                      ]
 
    :debug/squares       [{:id 3922957, :x 119, :y 798, :size 92, :color "yellow"}
                          {:id 8923350, :x 781, :y 47, :size 155, :color "yellow"}
                          {:id 579612, :x 607, :y 250, :size 199, :color "blue"}]
    :graph/translators   {:id 11000 :horiz-fn nil :vert-fn nil :point-fn nil}
+   :graph/misc          {:id 10400 :system-going-fn nil :system-start-fn nil :system-stop-fn nil}
+
    :graph/trending-graph
                         {:id                10300
                          :width             640
@@ -149,7 +86,6 @@
                          :labels-visible?   false
                          :graph/plumb-line  {:id 10201}
                          :graph/translators {:id 11000}
-                         :graph/misc        {:id 10400}
                          :hover-pos         nil
                          :last-mouse-moment nil
                          }
@@ -159,6 +95,7 @@
                          :end-time     (time/now)
                          :span-seconds (* 60 60)
                          :receiving?   false
+                         :graph/misc   {:id 10400}
                          }
 
 
@@ -182,9 +119,6 @@
                                            {:grid-cell/id 536}{:grid-cell/id 537}{:grid-cell/id 538}{:grid-cell/id 539}
                                            ]
                          :app/sys-gases [{:id 150}{:id 151}{:id 152}{:id 153}]}
-
-   :graph/misc
-                        {:id 10400}
 
    :graph/x-gas-details
                         [
