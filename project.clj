@@ -24,6 +24,7 @@
                  [com.cognitect/transit-clj "0.8.285"]
                  [com.cognitect/transit-cljs "0.8.237"]
                  [navis/untangled-client "0.4.8"]
+                 [clj-time "0.11.0"]
                  ]
 
   :plugins [[lein-cljsbuild "1.1.3"]

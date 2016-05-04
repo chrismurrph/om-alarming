@@ -5,7 +5,8 @@
             [om-alarming.components.grid :as grid]
             [om-alarming.components.general :as gen]
             [om-alarming.components.log-debug :as ld]
-            [om-alarming.components.navigator :as navigator]))
+            [om-alarming.components.navigator :as navigator]
+            [om-alarming.components.sente :as sente]))
 
 (defui ^:once MapTab
   static om/IQuery
@@ -74,12 +75,23 @@
                (dom/p nil "reports ...")))))
 (def ui-reports-tab (om/factory ReportsTab))
 
+(defui ^:once SenteTab
+  static om/IQuery
+  (query [this] [:id :tab/type :tab/label])
+  Object
+  (render [this]
+    (let [{:keys [tab/label]} (om/props this)]
+      (dom/div nil
+               (sente/sente nil)))))
+(def ui-sente-tab (om/factory SenteTab))
+
 (defui ^:once TabUnion
   static om/IQuery
   (query [this] {:app/map        (om/get-query MapTab)
                  :app/trending   (om/get-query TrendingTab)
                  :app/thresholds (om/get-query ThresholdsTab)
-                 :app/reports    (om/get-query ReportsTab)})
+                 :app/reports    (om/get-query ReportsTab)
+                 :app/sente      (om/get-query SenteTab)})
   static om/Ident
   (ident [this props] [(:tab/type props) (:id props)])
   Object
@@ -92,6 +104,7 @@
         :app/trending (ui-trending-tab (om/computed props {:click-cb-fn click-cb-fn}))
         :app/thresholds (ui-thresholds-tab props)
         :app/reports (ui-reports-tab props)
+        :app/sente (ui-sente-tab props)
         (dom/div nil (str "MISSING TAB: <" type ">"))))))
 (def ui-tab (om/factory TabUnion))
 

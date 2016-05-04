@@ -21,9 +21,11 @@ Some facts about our setup:
 
 When changes are made to Scala code these are the steps to then getting it working with om-alarming:
 
-1. MyPLC to be built using sbt (compile is enough)
+1. MyPLC to be built using sbt (compile is enough). But if you want a new MyPLC.jar use sbt-assembly (*)
 2. missing.jar to be built here (ant -f jarMissing.xml)
 3. enhanced-smartgas-deps has its own project that uses sbt-assembly to build enhanced-smartgas-deps.jar
 4. There is a shell script (cp-out.sh) to copy enhanced-smartgas-deps.jar to the alarm-server project and install it into maven from there
 5. In the om alarming IDEA project you will notice that it gets re-indexed (same for alarm-server)
-6. I believe you can run the om alarming server and it will pick up the changes
+6. You can run the om alarming server and it will pick up and compile the changes
+
+(*) No longer need to manually add in the 2551 application.conf, as in lib have application.jar, so it gets picked up

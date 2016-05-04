@@ -48,21 +48,6 @@
   (def connected-uids                connected-uids) ; Watchable, read-only atom
   )
 
-;<head>
-;<meta charset="UTF-8">
-;<meta name="viewport" content="width=device-width, initial-scale=1">
-;<title>Om Alarming</title>
-;<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-;<link rel="stylesheet" href="/css/base.css">
-;<link rel="stylesheet" href="/css/pure.css">
-;<link rel="stylesheet" href="/css/grids-responsive.css">
-;<link rel="stylesheet" href="/css/app.css">
-;<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-;</head>
-;<body>
-;<div id="main-app-area"></div>
-;<script src="/js/main.js" type="text/javascript"></script>
-;</body>
 (defn om-alarming-page-handler [ring-req]
   (hiccup/html
     [:head
@@ -78,40 +63,6 @@
      [:div {:id "main-app-area"}]
      [:script {:src "/js/main.js" :type "text/javascript"}]]))
 
-(defn landing-pg-handler [ring-req]
-  (hiccup/html
-    [:h1 "Sente reference example"]
-    [:p "An Ajax/WebSocket" [:strong " (random choice!)"] " has been configured for this example"]
-    [:hr]
-    [:p [:strong "Step 1: "] " try hitting the buttons:"]
-    ;[:button#btn1 {:type "button"} "chsk-send! (w/o reply)"]
-    [:button#btn2 {:type "button"} "chsk-send! (with reply)"]
-    ;;
-    [:p [:strong "Step 2: "] " observe std-out (for server output) and below (for client output):"]
-    [:textarea#output {:style "width: 100%; height: 200px;"}]
-    ;;
-    [:hr]
-    [:h2 "Step 3: try login with a user-id"]
-    [:p  "The server can use this id to send events to *you* specifically."]
-    [:p
-     [:input#input-pass-login-1 {:type :text :placeholder "Pass-id"}]
-     [:button#btn-login-1 {:type "button" :name "Chris"} "Chris login!"]
-     ]
-    [:p
-     [:input#input-user-login-2 {:type :text :placeholder "User-id"}]
-     [:input#input-pass-login-2 {:type :text :placeholder "Pass-id"}]
-     [:button#btn-login-2 {:type "button"} "Secure login!"]
-     ]
-    [:p
-     [:button#btnlogout {:type "button"} "LOG OUT"]
-     ]
-    ;;
-    [:hr]
-    [:h2 "Step 4: want to re-randomize Ajax/WebSocket connection type?"]
-    [:p "Hit your browser's reload/refresh button"]
-    [:script {:src "js/main.js"}] ; Include our cljs target
-    ))
-
 ;;;; Sente event handlers
 
 (defmulti -event-msg-handler
@@ -123,7 +74,8 @@
   "Wraps `-event-msg-handler` with logging, error catching, etc."
   [{:as ev-msg :keys [id ?data event]}]
   (let [sg-sess (-> ev-msg :ring-req :session :uid)
-        _ (infof "Asking to do %s FOR %s" id (-> ev-msg :ring-req :session :uid))]
+        ;_ (infof "Asking to do %s FOR %s" id (-> ev-msg :ring-req :session :uid))
+        ]
     (if sg-sess
       (-event-msg-handler ev-msg)
       {:status 404})))
@@ -173,7 +125,7 @@
     (reset! graph-line-server_ (GraphLineServer. @smartgas-server_))
     (reset! user-details-server_ (UserDetailsServer. @smartgas-server_))))
 (defn stop-smartgas-servers []
-  (.discardState @smartgas-server_) ;; Mehtod doesn't exist anymore - would be too difficult to make SMARTGAS reloadable
+  (.discardState @smartgas-server_) ;; Method doesn't exist anymore - would be too difficult to make SMARTGAS reloadable
   (infof "Have discarded state on %s" @smartgas-server_))
 
 (defn get-points [?data session]
@@ -211,6 +163,8 @@
 ;; Catch the exception and return nil if the user doesn't exist.
 ;;
 (defn load-user [auth-server user-id]
+  (assert auth-server)
+  (assert user-id)
   (try (.loadUserByUsername auth-server user-id)
        (catch UsernameNotFoundException _ nil)))
 
@@ -231,8 +185,12 @@
   [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
   (let [uid (get-in ring-req [:session :uid])]
     (infof "uid, ?data when points: %s, %s\n" uid ?data)
-    (when ?reply-fn
-      (?reply-fn {:some-reply (get-points ?data uid)}))))
+    (?reply-fn {:some-reply (get-points ?data uid)})))
+
+(defmethod -event-msg-handler
+  :app/startup-info
+  [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+  (?reply-fn {:some-reply {:millis-advance-of-utc (u/millis-ahead-utc)}}))
 
 (defn logout-handler
   [ring-req]

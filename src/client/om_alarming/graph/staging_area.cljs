@@ -21,10 +21,10 @@
 ;; (a higher threshold means that it is worse, which may mean it has a lower value)
 ;; TODO It is wrong that these are line names. But we are going to get rid of line names altogether
 ;;
-;(def gas-infos [{:name "Carbon Dioxide at 2" :lowest 0.5 :highest 1.35}
-;                {:name "Carbon Monoxide at 3" :lowest 30 :highest 55}
-;                {:name "Oxygen at 4" :lowest 19 :highest 12}
-;                {:name "Methane at 1" :lowest 0.25 :highest 1}])
+;(def gas-infos [{:name "Carbon Dioxide at 2" :best 0.5 :worst 1.35}
+;                {:name "Carbon Monoxide at 3" :best 30 :worst 55}
+;                {:name "Oxygen at 4" :best 19 :worst 12}
+;                {:name "Methane at 1" :best 0.25 :worst 1}])
 
 ;;
 ;; Given lowest and highest work out a divider so that given a change of 1 in the business
@@ -34,19 +34,19 @@
 ;; the 'pixels'.
 ;; (By pixels I mean units of staging area - just easier to think of as pixels)
 ;;
-(defn- transition-divide-by [lowest highest]
-  (let [spread (abs (- highest lowest))
+(defn- transition-divide-by [best worst]
+  (let [spread (abs (- worst best))
         five-hundreth (/ spread 500)]
     five-hundreth))
 
 ;;
 ;; Returns function that will turn an external value into where it goes (height-wise) on the stage 
 ;;
-(defn stage-ify-changer [lowest highest]
-  (let [_ (assert lowest)
-        _ (assert highest)
-        divide-num (transition-divide-by lowest highest)
-        _ (assert (not= 0 divide-num) (str "lowest: " lowest ", hightest: " highest))
+(defn stage-ify-changer [best worst]
+  (let [_ (assert best)
+        _ (assert worst)
+        divide-num (transition-divide-by best worst)
+        _ (assert (not= 0 divide-num) (str "lowest: " best ", hightest: " worst))
         ;; I once saw lower values for O2 be higher, but it seemed to 'fix itself'. So we may have a strange
         ;; intermittent bug
         ;other-slope (neg? (- highest lowest))
@@ -109,7 +109,7 @@
     (go-loop []
              (let [batch-in (<! receiving-chan)
                    {:keys [vals info]} batch-in
-                   info-info {:info (u/unselect-keys info [:lowest :highest])}]
+                   info-info {:info (u/unselect-keys info [:best :worst])}]
                (doseq [value vals]
                  (let [point value
                        ;_ (u/log true (str "info is " info ", point is " point))
@@ -122,10 +122,10 @@
 ;; (which is close to being positioned properly on the graph itself)
 ;;
 (defn receiver [info time->x central? inner-chan receiving-chan]
-  (let [{:keys [ref lowest highest]} info
-        _ (assert lowest (str "Not found match from: " info))
+  (let [{:keys [ref best worst]} info
+        _ (assert best (str "Not found match from: " info))
         _ (assert time->x)
-        transitioner (stage-ify-changer lowest highest)
+        transitioner (stage-ify-changer best worst)
         one-by-one-receiver (unbatch receiving-chan)]
     (go-loop [accumulated []
               release-channel nil]

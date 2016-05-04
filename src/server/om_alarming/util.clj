@@ -1,4 +1,22 @@
-(ns om-alarming.util)
+(ns om-alarming.util
+  (:require [clj-time.core :as t]))
+
+(defn millis-ahead-utc []
+  (let [tz (t/default-time-zone)
+        utc-tz (t/time-zone-for-id "UTC")
+        now (t/now)
+        time-now-where-we-are (t/from-time-zone now tz)
+        time-now-utc (t/from-time-zone now utc-tz)
+        advance-of-utc (t/interval time-now-where-we-are time-now-utc)
+        millis (.toDurationMillis advance-of-utc)
+        ]
+    #_(println (.toString tz))
+    #_(println (.toString utc-tz))
+    #_(println "Advanced by: " (-> millis
+                                   (/ 1000)
+                                   (/ 60)
+                                   (/ 60)))
+    millis))
 
 ;; http://sids.github.io/nerchuko/utils-api.html
 (defn unselect-keys

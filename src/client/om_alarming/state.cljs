@@ -8,6 +8,7 @@
                        :app/trending
                        :app/thresholds
                        :app/reports
+                       :app/sente
                        :app/automatic
                        :app/logs
                        :app/current-tab
@@ -49,6 +50,9 @@
    :app/reports     {:singleton {:id        :singleton
                                  :tab/label "Reports"
                                  :tab/type  :app/reports}}
+   :app/sente       {:singleton {:id        :singleton
+                                 :tab/label "Sente"
+                                 :tab/type  :app/sente}}
    :app/automatic   {:singleton {:id        :singleton
                                  :tab/label "Automatic"
                                  :tab/type  :app/automatic}}
@@ -147,13 +151,13 @@
                           :intersect {:grid-cell/id 503}}
                          ]
    :app/sys-gases       [{:id     150 :long-name "Methane" :short-name "CH\u2084"
-                          :lowest 0.25 :highest 1 :units "%"}
+                          :best 0.25 :worst 1 :units "%"}
                          {:id     151 :long-name "Oxygen" :short-name "O\u2082"
-                          :lowest 19 :highest 12 :units "%"}
+                          :best 19 :worst 12 :units "%"}
                          {:id     152 :long-name "Carbon Monoxide" :short-name "CO"
-                          :lowest 30 :highest 55 :units "ppm"}
+                          :best 30 :worst 55 :units "ppm"}
                          {:id     153 :long-name "Carbon Dioxide" :short-name "CO\u2082"
-                          :lowest 0.5 :highest 1.35 :units "%"}]
+                          :best 0.5 :worst 1.35 :units "%"}]
    :app/tubes
                         [{:id       1000
                           :tube-num 1

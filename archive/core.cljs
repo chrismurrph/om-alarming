@@ -209,13 +209,13 @@
           ident (first (filter #(= (-> % second) id) idents))]
       ident)))
 
-(def lines-query [{:graph/lines [:id {:intersect [{:system-gas [:lowest :highest :long-name]}]}]}])
+(def lines-query [{:graph/lines [:id {:intersect [{:system-gas [:best :worst :long-name]}]}]}])
 
 (defn to-info [line-query-res]
   (let [system-gas (-> line-query-res :intersect :system-gas)]
     {:ref [:line/by-id (:id line-query-res)]
-     :lowest (-> system-gas :lowest)
-     :highest (-> system-gas :highest)
+     :best (-> system-gas :best)
+     :worst (-> system-gas :worst)
      :name (-> system-gas :long-name)}))
 
 #_(def app (atom))

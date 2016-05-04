@@ -13,7 +13,7 @@
               [:gas-of-system/by-id (:id props)])
        static om/IQuery
        (query [this]
-              [:id :short-name :lowest :highest :long-name]))
+              [:id :short-name :best :worst :long-name]))
 
 (defui Location
        static om/Ident

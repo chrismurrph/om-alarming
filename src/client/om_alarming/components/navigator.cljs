@@ -33,8 +33,8 @@
   (let [intersect (:intersect line)
         system-gas (:system-gas intersect)]
     {:ref [:line/by-id (:id line)]
-     :lowest (:lowest system-gas)
-     :highest (:highest system-gas)
+     :best (:best system-gas)
+     :worst (:worst system-gas)
      :display-name (-> intersect :tube :display-name)
      :metric-name (:long-name system-gas)
      :ident [:gas-at-location/by-id (-> line :intersect :grid-cell/id)]}))

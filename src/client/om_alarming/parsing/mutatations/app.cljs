@@ -10,9 +10,10 @@
    2 :app/trending 
    3 :app/thresholds
    4 :app/reports
-   5 :app/automatic
-   6 :app/logs
-   7 :app/debug
+   5 :app/sente
+   6 :app/automatic
+   7 :app/logs
+   8 :app/debug
    }
   )
 

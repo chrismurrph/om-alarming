@@ -102,29 +102,6 @@
   (reset! reconciler-atom_
           reconciler))
 
-;;;; UI events
-; -> these will be coded as ON components in the Sente tab
-
-;; Don't even display this button
-#_(when-let [target-el (.getElementById js/document "btn1")]
-  (.addEventListener target-el "click"
-    (fn [ev]
-      (->output! "Button 1 was clicked (won't receive any reply from server)")
-      (chsk-send! [:example/button1 {:had-a-callback? "nope"}]))))
-
-;; Working but getting timeout because not connected
-#_(when-let [target-el (.getElementById js/document "btn2")]
-  (.addEventListener target-el "click"
-    (fn [ev]
-      (->output! "Button 2 was clicked (will receive reply from server)")
-      (chsk-send! 
-        [:example/points 
-         {:start-time-str "01_03_2016__09_08_02.948"
-          :end-time-str "07_03_2016__09_10_36.794"
-          :metric-name "Oxygen"
-          :display-name "Shed Tube 10"}] 5000
-        (fn [cb-reply] (->output! "Example callback reply: %s" cb-reply))))))
-
 (defn authentication? [ajax-resp]
   (let [okay? (:success? ajax-resp)]
     (->output! "Got back: %s in %s" okay? ajax-resp)
@@ -157,6 +134,9 @@
                                (->output! "Login successful, rec: " (rec))
                                (om/transact! (rec) '[(app/authenticate {:token true})])
                                (sente/chsk-reconnect! chsk)))))))))
+
+#_(chsk-send! [:app/startup-info {}] (fn [cb-reply]
+                                       (println "TZ Info: " cb-reply)))
 
 (when-let [target-el (.getElementById js/document "btnlogout")]
   (.addEventListener target-el "click"

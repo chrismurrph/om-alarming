@@ -322,7 +322,7 @@
     ;; in another component, otherwise you won't get default-db-format. Anyway from the std query
     ;; we will have no problem doing this query, as recursive denormalization will have been done:
     ;;
-    ;[:id {:graph/lines [:id {:intersect [{:system-gas [:lowest :highest :long-name]}]}]}]
+    ;[:id {:graph/lines [:id {:intersect [{:system-gas [:best :worst :long-name]}]}]}]
     ;[:id #_{:graph/lines [:id]}]
     ;;
     ;; If it really keeps on having lines then we are going to have to change our mutations

@@ -36,6 +36,9 @@
         (pprint st))
       (db-format/show-hud check-result))))
 
+(comment
+  )
+
 (defui ^:once App
   static om/IQuery
   (query [this] (into q/non-union-part-of-root-query
@@ -44,31 +47,44 @@
                        {:app/current-tab (om/get-query ui/TabUnion)}
                        ]))
   Object
+  (initLocalState [this]
+    {:last-time-auth? false})
   (pick-colour [this cols]
     (colours/new-random-colour cols))
   (click-cb [this existing-colours cell id selected?]
     (let [pick-colour-fn #(.pick-colour this existing-colours)]
-      (if selected?
-        (om/transact! cell `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) [:trending-graph/by-id 10300]])
-        (om/transact! cell `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) [:trending-graph/by-id 10300]]))))
+      (if selected?                                         ;; graph/remove-line and graph/add-line s/not need ident in params or follow-on read!!
+        (om/transact! cell `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :graph/trending-graph #_[:trending-graph/by-id 10300]])
+        (om/transact! cell `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :graph/trending-graph #_[:trending-graph/by-id 10300]]))))
   (cancel-sign-in-fn [this]
     (println "user cancelled, doing nothing, we ought to take user back to web page came from"))
   (sign-in-fn [this un pw]
-    (println "Off for " un pw)
+    (println "Trying to sign in for: " un pw)
     (client/login-process un pw))
   (general-update [this ident data]
     (om/transact! this `[(app/update {:ident ~ident :data ~data})]))
   (render [this]
     (let [{:keys [app/current-tab app/login-info graph/lines ui/react-key] :or {ui/react-key "ROOT"} :as props} (om/props this)
           {:keys [tab/type tab/label]} current-tab
+          {:keys [app/authenticated?]} login-info
+          previously-authenticated? (:last-time-auth? (om/get-state this))
+          _ (om/set-state! this {:last-time-auth? authenticated?})
           ;_ (println "tab is " type "")
           existing-colours (into #{} (map :colour lines))
+          ;_ (println (str "NOW: " authenticated? " BEFORE: " previously-authenticated?))
+          just-logged-in? (and authenticated? (not previously-authenticated?))
+          _ (when just-logged-in?
+              (js/setTimeout
+                (fn [] (client/chsk-send!
+                         [:app/startup-info {}] (fn [cb-reply]
+                                                  (println "TZ Info: " cb-reply))))
+                2000))
           ]
       (dom/div nil
                (if (core/my-reconciler-available?)
                  (check-default-db @(core/my-reconciler))
                  (println "reconciler not available in Root component when first mounted"))
-               (if (not (:app/authenticated? login-info))
+               (if (not authenticated?)
                  (dialog/login-dialog (om/computed login-info {:sign-in-fn        #(.sign-in-fn this %1 %2)
                                                                :cancel-sign-in-fn #(.cancel-sign-in-fn this)
                                                                :update-fn         #(.general-update this %1 %2)}))
@@ -101,7 +117,11 @@
                                                              (dom/li (tab-style type :app/reports)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/reports})])} "Reports")))))
+                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/reports})])} "Reports"))
+                                                             (dom/li (tab-style type :app/sente)
+                                                                     (dom/a #js{:className "pure-menu-link"
+                                                                                :href      "#"
+                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/sente})])} "Sente")))))
                                    (dom/div #js{:className "pure-u-1 pure-u-md-1-3"}
                                             (dom/div #js{:className "pure-menu pure-menu-horizontal custom-menu-3 custom-can-transform"}
                                                      (dom/ul #js{:className "pure-menu-list"}

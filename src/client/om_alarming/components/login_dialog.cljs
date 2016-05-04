@@ -27,7 +27,7 @@
     (let [{:keys [sign-in-fn]} (om/get-computed this)]
       (sign-in-fn un pw)))
   (render [this]
-    (let [{:keys [id app/name app/un app/pw]} (om/props this)
+    (let [{:keys [id app/name app/un app/pw app/authenticated?]} (om/props this)
           {:keys [cancel-sign-in-fn]} (om/get-computed this)]
       (dom/div #js {:className "dialog"}
                (dom/div #js {:className "dialog-closer" :onClick cancel-sign-in-fn})
