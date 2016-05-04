@@ -37,7 +37,16 @@
       (db-format/show-hud check-result))))
 
 (comment
-  )
+  _ (om/set-state! this {:last-time-auth? authenticated?})
+  previously-authenticated? (:last-time-auth? (om/get-state this))
+  ;_ (println (str "NOW: " authenticated? " BEFORE: " previously-authenticated?))
+  just-logged-in? (and authenticated? (not previously-authenticated?))
+  (when just-logged-in?
+    (js/setTimeout
+      (fn [] (client/chsk-send!
+               [:app/startup-info {}] (fn [cb-reply]
+                                        (println "TZ Info: " cb-reply))))
+      2000)))
 
 (defui ^:once App
   static om/IQuery
@@ -54,8 +63,8 @@
   (click-cb [this existing-colours cell id selected?]
     (let [pick-colour-fn #(.pick-colour this existing-colours)]
       (if selected?                                         ;; graph/remove-line and graph/add-line s/not need ident in params or follow-on read!!
-        (om/transact! cell `[(graph/remove-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id}) :graph/trending-graph #_[:trending-graph/by-id 10300]])
-        (om/transact! cell `[(graph/add-line {:graph-ident [:trending-graph/by-id 10300] :intersect-id ~id :colour ~(pick-colour-fn)}) :graph/trending-graph #_[:trending-graph/by-id 10300]]))))
+        (om/transact! cell `[(graph/remove-line {:intersect-id ~id}) [:trending-graph/by-id 10300]])
+        (om/transact! cell `[(graph/add-line {:intersect-id ~id :colour ~(pick-colour-fn)}) [:trending-graph/by-id 10300]]))))
   (cancel-sign-in-fn [this]
     (println "user cancelled, doing nothing, we ought to take user back to web page came from"))
   (sign-in-fn [this un pw]
@@ -67,18 +76,8 @@
     (let [{:keys [app/current-tab app/login-info graph/lines ui/react-key] :or {ui/react-key "ROOT"} :as props} (om/props this)
           {:keys [tab/type tab/label]} current-tab
           {:keys [app/authenticated?]} login-info
-          previously-authenticated? (:last-time-auth? (om/get-state this))
-          _ (om/set-state! this {:last-time-auth? authenticated?})
           ;_ (println "tab is " type "")
           existing-colours (into #{} (map :colour lines))
-          ;_ (println (str "NOW: " authenticated? " BEFORE: " previously-authenticated?))
-          just-logged-in? (and authenticated? (not previously-authenticated?))
-          _ (when just-logged-in?
-              (js/setTimeout
-                (fn [] (client/chsk-send!
-                         [:app/startup-info {}] (fn [cb-reply]
-                                                  (println "TZ Info: " cb-reply))))
-                2000))
           ]
       (dom/div nil
                (if (core/my-reconciler-available?)

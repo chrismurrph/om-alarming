@@ -57,12 +57,12 @@
 ;; and colour and id of its intersect.
 ;;
 (defn create-line [st params]
-  (let [{:keys [graph-ident colour intersect-id]} params]
+  (let [{:keys [colour intersect-id]} params]
     (if colour
       (let [in-selected [:gas-at-location/by-id intersect-id :selected?]
             {:keys [state line-ident]} (new-line st colour intersect-id)]
         (-> state
-            (update-in (conj graph-ident :graph/lines) conj line-ident)
+            (update-in (conj [:trending-graph/by-id 10300] :graph/lines) conj line-ident)
             (assoc-in in-selected true)))
       st)))
 
@@ -83,10 +83,10 @@
                      )}))
 
 (defn rem-line [st params]
-  (let [{:keys [graph-ident intersect-id]} params
+  (let [{:keys [intersect-id]} params
         {:keys [state line-ident]} (delete-line st intersect-id)]
     (-> state
-        (update-in (conj graph-ident :graph/lines) u/vec-remove-value line-ident))))
+        (update-in (conj [:trending-graph/by-id 10300] :graph/lines) u/vec-remove-value line-ident))))
 
 (defmethod m/mutate 'graph/do-nothing
   [{:keys [state]} k params]

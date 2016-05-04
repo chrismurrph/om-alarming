@@ -25,16 +25,21 @@
   [{:keys [state]} _ {:keys [token]}]
   {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? token})))})
 
-(defmethod m/mutate 'app/tab
-  [{:keys [state]} k {:keys [new-id]}]
-  (ld/log-mutation k)
-  {;:value  {:keys [:app/selected-button :app/route]}
-   :action #(let [route (get id->route new-id)
-                  _ (println "Selected: " new-id route)
-                  ]
-             (swap! state (fn [st] (-> st
-                                       (assoc-in [:app/selected-button 1] new-id)
-                                       (assoc :app/route route)))))})
+(defmethod m/mutate 'app/server-info
+  [{:keys [state]} _ data]
+  {:action (fn [] (swap! state update :app/server-info #(merge % data)))})
+
+(comment
+  (defmethod m/mutate 'app/tab
+    [{:keys [state]} k {:keys [new-id]}]
+    (ld/log-mutation k)
+    {;:value  {:keys [:app/selected-button :app/route]}
+     :action #(let [route (get id->route new-id)
+                    _ (println "Selected: " new-id route)
+                    ]
+               (swap! state (fn [st] (-> st
+                                         (assoc-in [:app/selected-button 1] new-id)
+                                         (assoc :app/route route)))))}))
 
 ;;
 ;; [(app/store-system {:system-going-fn system/going?

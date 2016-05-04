@@ -18,6 +18,7 @@
                        :app/debug
                        :app/route
                        :debug/squares
+                       :app/server-info
                        })
 (def okay-val-maps #{[:r :g :b]})
 (def check-config {:excluded-keys   irrelevant-keys
@@ -65,6 +66,7 @@
 (def initial-state
 
   {
+   :app/server-info {:millis-advance-of-utc nil}
    :app/login-info      {:id                10900
                          :app/name          "Mystery App!"
                          :app/un            nil

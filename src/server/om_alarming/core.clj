@@ -210,7 +210,9 @@
         {:keys [user-id pass-id]} params
         sg-sess (:uid session)
         _ (infof "Abt to authenticate %s, %s, SESS (only if this nil): %s" user-id pass-id sg-sess)
-        auth-response (if sg-sess {:status 200 :session (assoc session :uid sg-sess)} (auth session user-id pass-id))]
+        auth-response (if sg-sess
+                        {:status 200 :session session}
+                        (auth session user-id pass-id))]
     auth-response))
 
 ;; TODO Add your (defmethod -event-msg-handler <event-id> [ev-msg] <body>)s here...

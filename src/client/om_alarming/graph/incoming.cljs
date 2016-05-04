@@ -74,7 +74,8 @@
             {:start-time-str "01_03_2016__09_08_02.948"
              :end-time-str   "07_03_2016__09_10_36.794"
              :metric-name    "Oxygen"
-             :display-name   "Shed Tube 10"}] 5000
+             :display-name   "Shed Tube 10"}]
+           5000
            (fn [cb-reply] (client/->output! "Example Callback reply: %s" cb-reply))))
 
 (comment info {:ref [:line/by-id 103], :best 0.5, :worst 1.35, :ident [:gas-at-location/by-id 503]})
