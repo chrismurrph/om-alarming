@@ -13,15 +13,15 @@
                   (dom/h2 nil "Sente reference example")
                   (dom/p nil "An Ajax/WebSocket" (dom/strong nil " (random choice!)") " has been configured for this example")
                   (dom/p nil (dom/strong nil "Step 1") " try hitting the buttons:")
-                  (dom/button #js{:type "button"
+                  (dom/button #js{:type    "button"
                                   :onClick (fn [_]
                                              (client/->output! "Button 2 was clicked (will receive reply from server)")
                                              (client/chsk-send!
-                                               [:example/points
+                                               [:graph/points
                                                 {:start-time-str "01_03_2016__09_08_02.948"
-                                                 :end-time-str "07_03_2016__09_10_36.794"
-                                                 :metric-name "Oxygen"
-                                                 :display-name "Shed Tube 10"}] 5000
+                                                 :end-time-str   "07_03_2016__09_10_36.794"
+                                                 :metric-names   ["Oxygen" "Methane"]
+                                                 :display-name   "Shed Tube 10"}] 5000
                                                (fn [cb-reply] (client/->output! "Experimenting with Sente callback reply: %s" cb-reply))))} "chsk-send! (with reply)")
                   (dom/br nil)(dom/br nil)
                   (dom/p nil (dom/strong nil "Step 2") " observe std-out (for server output) and below (for client output):")

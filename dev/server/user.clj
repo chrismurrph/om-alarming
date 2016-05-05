@@ -65,5 +65,12 @@
   (stop)
   (refresh :after 'user/go))
 
+(def data '([{:time "05_05_2016" :val 0.2}{:time "05_05_2017" :val 0.3}] [] [{:time "05_05_2016" :val 0.5}{:time "05_05_2017" :val 0.6}]))
+(def infos [{:best 1 :worst 2 :name "Methane"}{:best 5 :worst 6 :name "Oxygen"}{:best 9 :worst 10 :name "Vacuum"}])
+
+(defn test-me []
+  (let [first-res (map (fn [datum info] (into {} [[:info info] [:points datum]])) data infos)]
+    first-res))
+
 
 

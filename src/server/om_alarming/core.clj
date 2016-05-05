@@ -124,27 +124,20 @@
     (reset! auth-server_ (AuthenticationUserDetailsGetter. @smartgas-server_))
     (reset! graph-line-server_ (GraphLineServer. @smartgas-server_))
     (reset! user-details-server_ (UserDetailsServer. @smartgas-server_))))
-(defn stop-smartgas-servers []
+#_(defn stop-smartgas-servers []
   (.discardState @smartgas-server_) ;; Method doesn't exist anymore - would be too difficult to make SMARTGAS reloadable
   (infof "Have discarded state on %s" @smartgas-server_))
 
+(defn underscore [name]
+  (clojure.string/replace name #" " "_"))
+
 (defn get-points [?data session]
-  (let [{:keys [start-time-str end-time-str metric-name display-name]} ?data
-        ;all-points (.assembledSamplePoints @smartgas-server_)
-        ;_ (info "ALL:\n" all-points)
-        ;display-name (nth (.getNames all-points) (dec display-name))
+  (let [{:keys [start-time-str end-time-str metric-names display-name]} ?data
         multigasReqDO (.requestGraphLine @graph-line-server_ start-time-str end-time-str
-                                         (Utils/formList metric-name)
+                                         (map underscore metric-names)
                                          display-name (SeaLogger/format (Date.)) session)
         ]
-    (->> (conv/multigas->out multigasReqDO)
-         (map bean)
-         (map #(u/unselect-keys % [:class]))
-         (map conv/simplify-type)
-         (map conv/make-as-expected)
-         (filter #(:val %))
-         (vec)
-         )))
+    (map conv/points->vec (conv/multigas->outs multigasReqDO))))
 
 ;;
 ;; With this we are using Spring authentication the same way existing server code does. This
@@ -177,11 +170,11 @@
               (let [res (.getUserDetails (.getUserDetails @user-details-server_ user-id (.getRoleEnumCRO @role-factory_) (UserDetails/SMARTGAS_CLIENT_APP) false))
                     sg-sess (.getSessionId res)]
                 {:status 200 :session (assoc session :uid sg-sess)}))
-        _ (infof "Login RESPONSE: %s" res)]
+        _ (infof "AUTH RESPONSE: %s" res)]
     res))
 
 (defmethod -event-msg-handler
-  :example/points
+  :graph/points
   [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
   (let [uid (get-in ring-req [:session :uid])]
     (infof "uid, ?data when points: %s, %s\n" uid ?data)
@@ -265,7 +258,7 @@
 (defn stop!  []
   (stop-router!)
   (stop-web-server!)
-  (stop-smartgas-servers))
+  #_(stop-smartgas-servers))
 (defn start! [] (start-router!) (start-web-server!)
   ;(create-user)
   (start-smartgas-servers))

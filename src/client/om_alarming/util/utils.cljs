@@ -124,8 +124,7 @@ entries whose key is not in keys."
 (defn log-on [msg]
   (log true msg))
 
-(defn log-off [_]
-  ())
+(defn log-off [msg])
 
 (defn first-only [seq]
   ;(assert (<= 1 (count seq)))

@@ -47,8 +47,8 @@
                    (>! out-chan {:info info :val (db/random-gas-value (:ident info)) :time picked-time})
                    (recur (conj completed picked-time)))))))
 
-(defn- chk-params [start end out-chan]
-  (assert out-chan)
+(defn- chk-params [start end out-chans]
+  (assert out-chans)
   (assert (> end start) (str "end: " end ", must be greater than start: " start))
   )
 
@@ -70,7 +70,7 @@
 
 
 (comment (client/chsk-send!
-           [:example/points
+           [:graph/points
             {:start-time-str "01_03_2016__09_08_02.948"
              :end-time-str   "07_03_2016__09_10_36.794"
              :metric-name    "Oxygen"
@@ -82,7 +82,7 @@
 
 ;;
 ;; We have start and end times in millis, which server must be rounding, because it can send back times that are
-;; slightly before when we requested. These functions allow us to accept back seemingly slightly odd results
+;; slightly before when we requested. These functions allow us to accept back seemingly slightly out/odd results
 ;;
 (defn back-sec [millis]
   (* 1000 (quot millis 1000)))
@@ -104,35 +104,50 @@
         _ (assert (<= milliseconds (forward-sec end)) (str "Bad that falls after end: " milliseconds ", where end is " end))]
     milliseconds))
 
-(defn remote-query [start end info out-chan]
-  (chk-params start end out-chan)
+(defn receive-for-location
+  "infos are only for the display name asking for. The reply will return vectors in the same order"
+  [flight-start flight-end in-chan convert-time display-name infos]
+  (client/chsk-send!
+    [:graph/points
+     {:start-time-str flight-start
+      :end-time-str   flight-end
+      :metric-names   (map :metric-name infos)
+      :display-name   display-name}] 5000
+    (fn [cb-reply]
+      (let [;_ (client/->output! "Callback reply: %s" cb-reply)
+            all-gas-data (:some-reply cb-reply)
+            all-data (map (fn [info datum] (into {} [[:info info] [:points datum]])) infos all-gas-data)
+            ]
+        (doseq [{:keys [points info]} all-data]
+          (let [_ (println "INFO" info "\nPOINTS:" (count points) "\n")
+                incoming (mapv (fn [in] {:val (-> in :val) :time (convert-time (-> in :time))}) points)]
+            (async/put! in-chan {:info info :vals incoming})))))))
+
+(defn remote-query [start end in-chan infos]
+  (chk-params start end in-chan)
   (let [start-date-time (coerce/to-date-time start)
         end-date-time (coerce/to-date-time end)
         flight-start (format-time/unparse date-time-formatter start-date-time)
         flight-end (format-time/unparse date-time-formatter end-date-time)
         convert-time (partial server-time->long-time start end)
+        receiver (partial receive-for-location flight-start flight-end in-chan convert-time)
+        grouped-by-location (group-by :display-name infos)
+        display-names (distinct (keys grouped-by-location))
         ]
     (println "start, end" flight-start flight-end)
-    (println "info" info)
-    (client/chsk-send!
-      [:example/points
-       {:start-time-str flight-start
-        :end-time-str   flight-end
-        :metric-name    (:metric-name info)
-        :display-name   (:display-name info)}] 5000
-      (fn [cb-reply]
-        (let [_ (client/->output! "Callback reply: %s" cb-reply)
-              incoming (mapv (fn [in] {:val (:val in) :time (convert-time (:time in))}) (:some-reply cb-reply))]
-          (async/put! out-chan {:info info :vals incoming}))))))
+    (println "for display-names:" display-names)
+    (doseq [display-name display-names]
+      (let [infos (get grouped-by-location display-name)]
+        (receiver display-name infos)))))
 
 ;;
 ;; Just needs the channels it is going to get values from
 ;; Will just stop recuring when the chans have run out of values
 ;;
-(defn controller-component [out-chan chans-in]
+(defn controller-component [out-chan in-chan]
   (println "[controller-component] starting")
   (let [poison-ch (chan)
-        chans (conj chans-in poison-ch)
+        chans [in-chan poison-ch]
         ;_ (log "CHANs:" (into [] chans))
         ]
     (go-loop []
@@ -149,14 +164,16 @@
 (defn query-remote-server
   "Just needs the names that are to be queried and start/end times"
   [line-infos start end]
-  (let [new-gen (partial remote-query start end)
+  (let [in-chan (chan)
+        ;new-gen (partial remote-query start end in-chan)
         out-chan (chan)
-        gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
-        _ (println gas-channels)
-        stop-fn (controller-component out-chan (vals gas-channels))
+        ;gas-channels (into {} (map (fn [info] (vector info (chan))) line-infos))
+        ;_ (println gas-channels)
+        stop-fn (controller-component out-chan in-chan)
         ]
-    (doseq [[inf ch] gas-channels]
-      (new-gen inf ch))
+    (remote-query start end in-chan line-infos)
+    #_(doseq [[inf ch] gas-channels]
+      )
     [stop-fn out-chan]
     )
   )

@@ -75,6 +75,9 @@
     (ld/log-render-on "GraphNavigator" this)
     (let [{:keys [end-time span-seconds receiving? graph/misc app/server-info] :as props} (om/props this)
           {:keys [system-going-fn system-start-fn system-stop-fn]} misc
+          ;; No problem lines being computed because is on same branch of the tree as graph which really will be
+          ;; informed when they change. They actually need to exist one level further up as well as here. 2nd one
+          ;; is not really a preventative reason, so might be nice to try putting lines in props sometime
           {:keys [lines comms-chan]} (om/get-computed this)
           ;_ (println "LINES:\n" lines "\n")
           line-infos (map to-info lines)
