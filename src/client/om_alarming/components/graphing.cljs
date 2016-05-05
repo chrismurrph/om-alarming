@@ -266,8 +266,8 @@
                          :sticky-change
                          (let [opposite-to-current (not in-sticky-time?)]
                            (om/update-state! this assoc :in-sticky-time? opposite-to-current))
-                         :ys-at-x-response
 
+                         :ys-at-x-response
                          (let [current-id (-> (om/props this) :graph/current-line :id)
                                for-current-line (some #(when (= current-id (:line-id %)) %) ys-at-x)]
                            (u/log false (str "A one: " for-current-line))
@@ -366,74 +366,23 @@
   (initLocalState [this]
     (println "In initLocalState for TrendingGraph")
     (let [comms (chan)
-          debounce-ch (u/debounce comms 20)]
+          debounce-ch (u/debounce comms 20)
+          plumb-chan (chan)]
       ;;
       ;; If you want a message not to be debounced/slowed then put it into the post debounce chan
       ;;
       {:lag-chan comms
-       :post-debounce-chan debounce-ch}))
+       :post-debounce-chan debounce-ch
+       :plumb-chan plumb-chan
+       :line-chans nil}))
   (componentDidMount [this]
-    (println "In componentDidMount for TrendingGraph"))
-  (mouse-change [this hover-pos last-mouse-moment]
-    (let [{:keys [lag-chan post-debounce-chan]} (om/get-state this)
-          msg1 {:cmd :mouse-change :value {:hover-pos hover-pos :last-mouse-moment last-mouse-moment}}
-          msg2 {:cmd :request-y-at-x :x-position hover-pos :reply-chan post-debounce-chan}
-          ]
-      (async/put! post-debounce-chan msg1)
-      ;We are going to want to do this, but debounced:
-      ;Which is re-routed to all the lines
-      (async/put! lag-chan msg2)))
-  (sticky-change [this x-position]
-    (let [local-state (om/get-state this)
-          ch (:post-debounce-chan local-state)]
-      (async/put! ch {:cmd :sticky-change})))
-  (handler-fn [this e]
-    ;(assert comms-channel)
-    (let [bounds (. (dom/node this) getBoundingClientRect)
-          y (- (.-clientY e) (.-top bounds))
-          x (- (.-clientX e) (.-left bounds))
-          mouse-evt-type (.-type e)
-          ;_ (println x y "in" comms-channel)
-          ]
-      ;(put! comms-channel {:type (.-type e) :x x :y y})
-      (case mouse-evt-type
-        "mousemove" (let [now-moment (now-time)]
-                      (.mouse-change this (int x) now-moment))
-        "mouseup" (let []
-                    (.sticky-change this (int x)))
-        "mousedown")
-      nil))
-  (render [this]
-    (ld/log-render "TrendingGraph" this)
-    (let [app-props (om/props this)
-          local-props (om/get-state this)
-          {:keys [lag-chan post-debounce-chan]} local-props
-          ;_ (pprint props)
-          {:keys [width
-                  height
-                  graph/lines
-                  graph/navigator
-                  graph/labels-visible?
-                  graph/misc
-                  graph/plumb-line
-                  graph/translators]} app-props
-          _ (assert (and width height) (str "No width or height in: <" app-props ">"))
-          line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
-          plumb-chan (chan)
-          {:keys [point-fn horiz-fn]} translators
-          _ (assert point-fn)
-          _ (assert horiz-fn)
-          _ (assert plumb-line)
-          ;computed-for-line (merge translators {:comms-chan post-debounce-chan})
-          computed-for-plumb (merge translators {:comms-chan plumb-chan})
-          handler #(.handler-fn this %)
-          handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
-          init {:width width :height height}
-          init-props (merge {:style {:border "thin solid black"}} init handlers)
+    (println "In componentDidMount for TrendingGraph")
+    (let [{:keys [post-debounce-chan plumb-chan]} (om/get-state this)
           _ (go-loop [proportionals [] in-sticky? false]
                      (let [msg (<! post-debounce-chan)
                            cmd (:cmd msg)
-                           line-ident (-> msg :line)]
+                           line-ident (:line msg)
+                           {:keys [line-chans]} (om/get-state this)]
                        (cond
                          (= cmd :y-at-x-response)
                          (let [received (-> msg :y-proportionals)
@@ -483,8 +432,65 @@
                              (>! target-line-chan msg)
                              (recur proportionals in-sticky?))
                            (do
-                             (u/log-on (str "Not thought of this yet, no target channel for:" line-ident))
-                             (recur proportionals in-sticky?))))))]
+                             (u/log-on (str "Not thought of this yet, no target channel for: " line-ident ", when num line chans is " (count line-chans)))
+                             (recur proportionals in-sticky?))))))]))
+  (mouse-change [this hover-pos last-mouse-moment]
+    (let [{:keys [lag-chan post-debounce-chan]} (om/get-state this)
+          msg1 {:cmd :mouse-change :value {:hover-pos hover-pos :last-mouse-moment last-mouse-moment}}
+          msg2 {:cmd :request-y-at-x :x-position hover-pos :reply-chan post-debounce-chan}
+          ]
+      (async/put! post-debounce-chan msg1)
+      ;We are going to want to do this, but debounced:
+      ;Which is re-routed to all the lines
+      (async/put! lag-chan msg2)))
+  (sticky-change [this x-position]
+    (let [local-state (om/get-state this)
+          ch (:post-debounce-chan local-state)]
+      (async/put! ch {:cmd :sticky-change})))
+  (handler-fn [this e]
+    ;(assert comms-channel)
+    (let [bounds (. (dom/node this) getBoundingClientRect)
+          y (- (.-clientY e) (.-top bounds))
+          x (- (.-clientX e) (.-left bounds))
+          mouse-evt-type (.-type e)
+          ;_ (println x y "in" comms-channel)
+          ]
+      ;(put! comms-channel {:type (.-type e) :x x :y y})
+      (case mouse-evt-type
+        "mousemove" (let [now-moment (now-time)]
+                      (.mouse-change this (int x) now-moment))
+        "mouseup" (let []
+                    (.sticky-change this (int x)))
+        "mousedown")
+      nil))
+  (render [this]
+    (ld/log-render "TrendingGraph" this)
+    (let [app-props (om/props this)
+          local-props (om/get-state this)
+          {:keys [lag-chan post-debounce-chan plumb-chan]} local-props
+          ;_ (pprint props)
+          {:keys [width
+                  height
+                  graph/lines
+                  graph/navigator
+                  graph/labels-visible?
+                  graph/misc
+                  graph/plumb-line
+                  graph/translators]} app-props
+          _ (assert (and width height) (str "No width or height in: <" app-props ">"))
+          line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
+          _ (println (str "count lines, line-chans when rendered: " (count lines) " " line-chans))
+          ;_ (om/update-state! this (fn [old-state] (assoc old-state :line-chans line-chans)))
+          {:keys [point-fn horiz-fn]} translators
+          _ (assert point-fn)
+          _ (assert horiz-fn)
+          _ (assert plumb-line)
+          ;computed-for-line (merge translators {:comms-chan post-debounce-chan})
+          computed-for-plumb (merge translators {:comms-chan plumb-chan})
+          handler #(.handler-fn this %)
+          handlers {:onMouseMove handler :onMouseUp handler :onMouseDown handler}
+          init {:width width :height height}
+          init-props (merge {:style {:border "thin solid black"}} init handlers)]
       (dom/div nil
                (dom/svg (clj->js init-props)
                         (for [line lines]

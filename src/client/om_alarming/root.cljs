@@ -36,18 +36,6 @@
         (pprint st))
       (db-format/show-hud check-result))))
 
-(comment
-  _ (om/set-state! this {:last-time-auth? authenticated?})
-  previously-authenticated? (:last-time-auth? (om/get-state this))
-  ;_ (println (str "NOW: " authenticated? " BEFORE: " previously-authenticated?))
-  just-logged-in? (and authenticated? (not previously-authenticated?))
-  (when just-logged-in?
-    (js/setTimeout
-      (fn [] (client/chsk-send!
-               [:app/startup-info {}] (fn [cb-reply]
-                                        (println "TZ Info: " cb-reply))))
-      2000)))
-
 (defn change-tab-hof [component which-tab-kw]
   (fn []
     (let [props (om/props component)
