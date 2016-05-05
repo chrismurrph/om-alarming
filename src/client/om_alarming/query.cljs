@@ -23,5 +23,6 @@
    {:graph/x-gas-details (om/get-query graph/RectTextTick)}
    {:app/login-info (om/get-query dialog/LoginDialog)}
    {:graph/translators (om/get-query graph/Translators)}
+   '[:app/server-info _]
    ])
 

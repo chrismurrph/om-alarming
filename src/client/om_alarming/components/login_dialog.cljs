@@ -18,7 +18,8 @@
      :app/un
      :app/pw
      :app/name
-     :app/authenticated?])
+     :app/authenticated?
+     :app/server-state-loaded?])
   Object
   (update [this prop value]
     (let [{:keys [update-fn]} (om/get-computed this)]

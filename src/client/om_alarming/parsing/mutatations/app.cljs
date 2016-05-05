@@ -25,6 +25,11 @@
   [{:keys [state]} _ {:keys [token]}]
   {:action (fn [] (swap! state update-in [:login-dlg/by-id 10900] #(merge % {:app/authenticated? token})))})
 
+(defn server-load [old-state data]
+  (-> old-state
+      (update :app/server-info #(merge % data))
+      (assoc-in [:login-dlg/by-id 10900 :app/server-state-loaded?] true)))
+
 (defmethod m/mutate 'app/server-info
   [{:keys [state]} _ data]
-  {:action (fn [] (swap! state update :app/server-info #(merge % data)))})
+  {:action (fn [] (swap! state server-load data))})

@@ -48,6 +48,21 @@
                                         (println "TZ Info: " cb-reply))))
       2000)))
 
+(defn change-tab-hof [component which-tab-kw]
+  (fn []
+    (let [props (om/props component)
+          ;_ (println "PROPS: " (:app/login-info props))
+          ]
+      (when (not (-> props :app/login-info :app/server-state-loaded?))
+        (client/chsk-send!
+          [:app/startup-info]
+          5000
+          (fn [cb-reply]
+            (println "TZ Info: " cb-reply)
+            (let [data (:some-reply cb-reply)]
+              (om/transact! component `[(app/server-info ~data)]))))))
+    (om/transact! component `[(nav/load-tab {:target ~which-tab-kw})])))
+
 (defui ^:once App
   static om/IQuery
   (query [this] (into q/non-union-part-of-root-query
@@ -60,7 +75,7 @@
     {:last-time-auth? false})
   (pick-colour [this cols]
     (colours/new-random-colour cols))
-  (click-cb [this existing-colours cell id selected?]
+  (click-for-line-cb [this existing-colours cell id selected?]
     (let [pick-colour-fn #(.pick-colour this existing-colours)]
       (if selected?                                         ;; graph/remove-line and graph/add-line s/not need ident in params or follow-on read!!
         (om/transact! cell `[(graph/remove-line {:intersect-id ~id}) [:trending-graph/by-id 10300]])
@@ -73,7 +88,7 @@
   (general-update [this ident data]
     (om/transact! this `[(app/update {:ident ~ident :data ~data})]))
   (render [this]
-    (let [{:keys [app/current-tab app/login-info graph/lines ui/react-key] :or {ui/react-key "ROOT"} :as props} (om/props this)
+    (let [{:keys [app/current-tab app/login-info graph/lines ui/react-key app/server-info] :or {ui/react-key "ROOT"} :as props} (om/props this)
           {:keys [tab/type tab/label]} current-tab
           {:keys [app/authenticated?]} login-info
           ;_ (println "tab is " type "")
@@ -104,23 +119,23 @@
                                                              (dom/li (tab-style type :app/map)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/map})])} "Map"))
+                                                                                :onClick   (change-tab-hof this :app/map)} "Map"))
                                                              (dom/li (tab-style type :app/trending)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/trending})])} "Trending"))
+                                                                                :onClick   (change-tab-hof this :app/trending)} "Trending"))
                                                              (dom/li (tab-style type :app/thresholds)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/thresholds})])} "Thresholds"))
+                                                                                :onClick   (change-tab-hof this :app/thresholds)} "Thresholds"))
                                                              (dom/li (tab-style type :app/reports)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/reports})])} "Reports"))
+                                                                                :onClick   (change-tab-hof this :app/reports)} "Reports"))
                                                              (dom/li (tab-style type :app/sente)
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
-                                                                                :onClick   #(om/transact! this '[(nav/load-tab {:target :app/sente})])} "Sente")))))
+                                                                                :onClick   (change-tab-hof this :app/sente)} "Sente")))))
                                    (dom/div #js{:className "pure-u-1 pure-u-md-1-3"}
                                             (dom/div #js{:className "pure-menu pure-menu-horizontal custom-menu-3 custom-can-transform"}
                                                      (dom/ul #js{:className "pure-menu-list"}
@@ -128,6 +143,6 @@
                                                                      (dom/a #js{:className "pure-menu-link"
                                                                                 :href      "#"
                                                                                 :onClick   #(pprint @(core/my-reconciler))} "Help"))))))
-                          (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-cb this existing-colours %1 %2 %3)}))))))))
+                          (ui/ui-tab (om/computed current-tab {:click-cb-fn #(.click-for-line-cb this existing-colours %1 %2 %3)}))))))))
 
 (reset! core/app (uc/mount @core/app App "main-app-area"))

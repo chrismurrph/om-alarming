@@ -72,6 +72,7 @@
                          :app/un            nil
                          :app/pw            nil
                          :app/authenticated? false
+                         :app/server-state-loaded? false
                          }
    :app/debug           {:id                10506
                          :debug/name        "Debug"

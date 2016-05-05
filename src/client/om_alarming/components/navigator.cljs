@@ -111,13 +111,14 @@
                                :title     (str (if receiving? "Stop" "Start") " receiving for selected gases")}
                            (dom/i #js{:className play-stop-css}))
                (dom/button #js{:className "button-xlarge pure-button"
-                               :onClick   (fn [] (client/chsk-send!
-                                                   [:app/startup-info]
-                                                   5000
-                                                   (fn [cb-reply]
-                                                     (println "TZ Info: " cb-reply)
-                                                     (let [data (:some-reply cb-reply)]
-                                                       (om/transact! this `[(app/server-info ~data)])))))
+                               :onClick   (fn [] (when (nil? (:millis-advance-of-utc server-info))
+                                                   (client/chsk-send!
+                                                     [:app/startup-info]
+                                                     5000
+                                                     (fn [cb-reply]
+                                                       (println "TZ Info: " cb-reply)
+                                                       (let [data (:some-reply cb-reply)]
+                                                         (om/transact! this `[(app/server-info ~data)]))))))
                                :title     (str "Will pick up the right TZ from the server, which will adjust the times here")}
                            (dom/i #js{:className "fa fa-paw"}))
                (dom/label #js{:className "time-label"} formatted-end-time)))))
