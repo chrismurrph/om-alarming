@@ -68,9 +68,18 @@
 (def data '([{:time "05_05_2016" :val 0.2}{:time "05_05_2017" :val 0.3}] [] [{:time "05_05_2016" :val 0.5}{:time "05_05_2017" :val 0.6}]))
 (def infos [{:best 1 :worst 2 :name "Methane"}{:best 5 :worst 6 :name "Oxygen"}{:best 9 :worst 10 :name "Vacuum"}])
 
-(defn test-me []
+(defn test-mex []
   (let [first-res (map (fn [datum info] (into {} [[:info info] [:points datum]])) data infos)]
     first-res))
+
+(def old #{1 2 3})
+(def new #{3 4 5})
+
+(defn test-me []
+  (let [to-add (clojure.set/difference new old)
+        to-remove (clojure.set/difference old new)]
+    (println "to add:" to-add)
+    (println "to rem:" to-remove)))
 
 
 

@@ -374,7 +374,7 @@
       {:lag-chan comms
        :post-debounce-chan debounce-ch
        :plumb-chan plumb-chan
-       :line-chans nil}))
+       :line-chans {}}))
   (componentDidMount [this]
     (println "In componentDidMount for TrendingGraph")
     (let [{:keys [post-debounce-chan plumb-chan]} (om/get-state this)
@@ -463,6 +463,21 @@
                     (.sticky-change this (int x)))
         "mousedown")
       nil))
+  ;;
+  ;; If we alter the state every time render then get recursive rendering. Here we find out which ones need
+  ;; to be removed and which ones need to be added.
+  ;;
+  (update-line-chans [this lines]
+    (let [existing-line-chan-ids (into #{} (keys (om/get-state this :line-chans)))
+          line-ids (into #{} (map :id lines))
+          to-add (clojure.set/difference line-ids existing-line-chan-ids)
+          keys-to-remove (clojure.set/difference existing-line-chan-ids line-ids)
+          new-line-chans (into #{} (map (fn [id] [id (chan)]) to-add))]
+      (om/update-state! this (fn [old-state]
+                               (-> old-state
+                                   (update :line-chans merge new-line-chans)
+                                   (update :line-chans dissoc keys-to-remove)))))
+    (om/get-state this :line-chans))
   (render [this]
     (ld/log-render "TrendingGraph" this)
     (let [app-props (om/props this)
@@ -478,8 +493,10 @@
                   graph/plumb-line
                   graph/translators]} app-props
           _ (assert (and width height) (str "No width or height in: <" app-props ">"))
-          line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
-          _ (println (str "count lines, line-chans when rendered: " (count lines) " " line-chans))
+          ;;line-chans (into {} (map (fn [line] [(:id line) (chan)]) lines))
+          line-chans (.update-line-chans this lines)
+          _ (println (str "count lines, line-chans when rendered: " (count lines) " " (count line-chans)))
+          _ (assert (= (map :id lines) (keys line-chans)))
           ;_ (om/update-state! this (fn [old-state] (assoc old-state :line-chans line-chans)))
           {:keys [point-fn horiz-fn]} translators
           _ (assert point-fn)
